@@ -1,48 +1,44 @@
-import { NextResponse } from "next/server";
-import mysql from "mysql2/promise";
+import { createClient } from '@supabase/supabase-js'
+import { NextResponse } from 'next/server'
+
+// 1. MASUKKAN DATA DARI SETTINGS > API SUPABASE DISINI
+const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6'
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 export async function POST(req) {
   try {
-    const { username, password } = await req.json();
+    const { username, password } = await req.json()
 
-    // 1. Koneksi ke Database (Sesuaikan dengan settingan phpMyAdmin kamu)
-    const connection = await mysql.createConnection({
-      host: "localhost",
-      user: "root", 
-      password: "", // Kosongkan jika pakai XAMPP standar
-      database: "slotabong", // Pastikan nama database-nya benar
-    });
+    // 2. Query ke tabel members yang baru kamu buat tadi
+    const { data, error } = await supabase
+      .from('members')
+      .select('username, password, saldo')
+      .eq('username', username)
+      .eq('password', password)
+      .single()
 
-    // 2. Cari user yang Username DAN Password-nya cocok
-    // Pakai Query SELECT untuk mengambil data
-    const [rows] = await connection.execute(
-  "SELECT username, saldo FROM members WHERE BINARY username = ? AND BINARY password = ?",
-  [username, password]
-);
-
-    await connection.end();
-
-    // 3. Cek apakah user ketemu
-    if (rows.length > 0) {
-      const user = rows[0];
-      return NextResponse.json({ 
-        success: true, 
-        username: user.username,
-        saldo: user.saldo 
-      }, { status: 200 });
-    } else {
-      // Jika tidak ketemu, kirim pesan error
+    // 3. Cek apakah user ketemu dan password cocok
+    if (error || !data) {
       return NextResponse.json({ 
         success: false, 
-        message: "Username atau Password salah!" 
-      }, { status: 401 });
+        message: "Username atau Password salah, Bos!" 
+      }, { status: 401 })
     }
 
-  } catch (error) {
-    console.error("DATABASE ERROR:", error);
+    // 4. Jika sukses, kirim data ke frontend
+    return NextResponse.json({ 
+      success: true, 
+      username: data.username, 
+      saldo: data.saldo 
+    }, { status: 200 })
+
+  } catch (err) {
+    console.error("LOGIN_ERROR:", err)
     return NextResponse.json({ 
       success: false, 
       message: "Terjadi kesalahan pada server database" 
-    }, { status: 500 });
+    }, { status: 500 })
   }
 }
