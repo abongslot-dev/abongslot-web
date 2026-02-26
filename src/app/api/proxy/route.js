@@ -1,43 +1,41 @@
 import { NextResponse } from 'next/server';
 
-// Memberitahu Netlify agar tidak menganggap ini halaman statis
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  console.log("Memulai request proxy ke kamuskeluaran...");
+  // Kita pakai AllOrigins sebagai jembatan karena Netlify langsung diblokir
+  const targetUrl = 'http://prize.kamuskeluaran.live/';
+  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
 
   try {
-    const response = await fetch('http://prize.kamuskeluaran.live/', {
-      method: 'GET',
+    const response = await fetch(proxyUrl, {
+      cache: 'no-store',
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-      },
-      // Penting: Next.js di server butuh info cache ini
-      next: { revalidate: 0 } 
+        'Accept': 'application/json'
+      }
     });
 
-    if (!response.ok) {
-      console.error(`Gagal akses sumber! Status: ${response.status}`);
-      return NextResponse.json({ error: `Sumber Error: ${response.status}` }, { status: response.status });
-    }
+    if (!response.ok) throw new Error('Jembatan Proxy Down');
 
-    const html = await response.text();
-    console.log("Data berhasil diambil, panjang karakter:", html.length);
+    const data = await response.json();
+    
+    // AllOrigins menyimpan HTML asli di dalam properti "contents"
+    const htmlText = data.contents;
 
-    return new NextResponse(html, {
+    if (!htmlText) throw new Error('Data kosong dari jembatan');
+
+    return new NextResponse(htmlText, {
       status: 200,
       headers: {
         'Content-Type': 'text/html',
         'Access-Control-Allow-Origin': '*',
-        'Cache-Control': 'no-store, max-age=0',
       },
     });
-  } catch (err: any) {
-    console.error("CRASH PADA PROXY:", err.message);
+  } catch (error) {
+    console.error("LOG ERROR:", error.message);
     return NextResponse.json({ 
-      error: 'Proxy Internal Crash', 
-      detail: err.message 
+      error: 'Gagal total', 
+      detail: error.message 
     }, { status: 500 });
   }
 }
