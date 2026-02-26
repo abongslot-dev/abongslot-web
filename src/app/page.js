@@ -168,7 +168,7 @@ localStorage.setItem("master_riwayat", JSON.stringify(historyLama));
     }
 
     // Audio Setup
-    audioRef.current = new Audio("/sounds/musikku.mp3");
+    audioRef.current = new Audio("/sounds/");
     audioRef.current.loop = true;
     audioRef.current.volume = 0.3;
     const playMusic = () => audioRef.current.play().catch(() => {});
