@@ -1,19 +1,11 @@
-import mysql from 'mysql2/promise';
+import { createClient } from '@supabase/supabase-js'
 
-export const db = async () => {
-  try {
-    const connection = await mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: '', 
-      database: 'slotabong', 
-    });
-    return connection;
-  } catch (error) {
-    console.error("Koneksi Database Gagal:", error.message);
-    throw error;
-  }
-};
+const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co'
+const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6'
 
-// TAMBAHKAN BARIS INI DI PALING BAWAH
+// Buat satu koneksi pusat yang bisa dipakai di mana saja
+export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+// Kita buat fungsi default agar kodingan lama tidak error
+const db = () => supabase;
 export default db;
