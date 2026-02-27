@@ -1,41 +1,45 @@
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
-  // Kita pakai AllOrigins sebagai jembatan karena Netlify langsung diblokir
   const targetUrl = 'http://prize.kamuskeluaran.live/';
-  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+  
+  // Daftar jembatan (Proxy) untuk cadangan
+  const proxies = [
+    `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
+    `https://thingproxy.freeboard.io/fetch/${targetUrl}`, // Jembatan Cadangan 1
+    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}` // Jembatan Cadangan 2
+  ];
 
-  try {
-    const response = await fetch(proxyUrl, {
-      cache: 'no-store',
-      headers: {
-        'Accept': 'application/json'
+  for (const url of proxies) {
+    try {
+      const response = await fetch(url, { 
+        cache: 'no-store',
+        signal: AbortSignal.timeout(5000) // Kalau 5 detik gak respon, ganti jembatan
+      });
+
+      if (!response.ok) continue;
+
+      const data = await response.json();
+      // AllOrigins pakai .contents, yang lain mungkin langsung text
+      const htmlText = data.contents || data; 
+
+      if (htmlText && htmlText.length > 100) { // Pastikan datanya gak kosong
+        return new NextResponse(htmlText, {
+          status: 200,
+          headers: {
+            'Content-Type': 'text/html',
+            'Cache-Control': 'no-store, max-age=0',
+          },
+        });
       }
-    });
-
-    if (!response.ok) throw new Error('Jembatan Proxy Down');
-
-    const data = await response.json();
-    
-    // AllOrigins menyimpan HTML asli di dalam properti "contents"
-    const htmlText = data.contents;
-
-    if (!htmlText) throw new Error('Data kosong dari jembatan');
-
-    return new NextResponse(htmlText, {
-      status: 200,
-      headers: {
-        'Content-Type': 'text/html',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
-  } catch (error) {
-    console.error("LOG ERROR:", error.message);
-    return NextResponse.json({ 
-      error: 'Gagal total', 
-      detail: error.message 
-    }, { status: 500 });
+    } catch (e) {
+      console.log(`Jembatan ${url} gagal, mencoba jembatan lain...`);
+      continue; // Coba jembatan berikutnya
+    }
   }
+
+  return NextResponse.json({ error: 'Semua jembatan penuh, coba refresh' }, { status: 503 });
 }
