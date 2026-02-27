@@ -1,38 +1,54 @@
+export const dynamic = 'force-dynamic';
+
+import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+
+// 1. Hubungkan ke Supabase
+const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 export async function GET(request) {
-  let conn;
   try {
     const { searchParams } = new URL(request.url);
     const target = searchParams.get('target');
-    conn = await db();
 
+    // TARGET: DAFTAR MEMBER
     if (target === 'members') {
-      const [rows] = await conn.execute('SELECT * FROM members ORDER BY id DESC');
-      return NextResponse.json(rows);
+      const { data, error } = await supabase
+        .from('members')
+        .select('*')
+        .order('id', { ascending: false });
+      if (error) throw error;
+      return NextResponse.json(data);
     }
 
+    // TARGET: DEPOSIT PENDING
     if (target === 'deposits-pending') {
-      const [rows] = await conn.execute(
-        "SELECT * FROM deposits WHERE status = 'pending' ORDER BY created_at DESC"
-      );
-      return NextResponse.json(rows);
+      const { data, error } = await supabase
+        .from('deposits')
+        .select('*')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return NextResponse.json(data);
     }
 
-    // --- PERBAIKAN 1: Ambil SEMUA yang sudah diproses (biar gak hilang) ---
+    // TARGET: RIWAYAT DEPOSIT (SEMUA YANG BUKAN PENDING)
     if (target === 'deposits-history') {
-      const [rows] = await conn.execute(
-        `SELECT * FROM deposits 
-         WHERE status != 'pending' 
-         ORDER BY created_at DESC`
-      );
+      const { data, error } = await supabase
+        .from('deposits')
+        .select('*')
+        .neq('status', 'pending')
+        .order('created_at', { ascending: false });
       
-      const cleanedData = rows.map(row => ({
+      if (error) throw error;
+
+      const cleanedData = data.map(row => ({
         ...row,
-        nominal: row.nominal || row.amount || 0,
+        nominal: row.nominal || 0,
         bonus: row.bonus || 0,
-        total_deposit: Number(row.nominal || row.amount || 0) + Number(row.bonus || 0)
+        total_deposit: Number(row.nominal || 0) + Number(row.bonus || 0)
       }));
 
       return NextResponse.json(cleanedData);
@@ -40,51 +56,57 @@ export async function GET(request) {
 
     return NextResponse.json({ error: "Target tidak valid" }, { status: 400 });
   } catch (error) {
+    console.error("ADMIN GET ERROR:", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
-  } finally {
-    if (conn) await conn.end();
   }
 }
 
-// --- PERBAIKAN 2: Logic PATCH yang Pintar ---
+// LOGIK UPDATE STATUS (APPROVE/REJECT)
 export async function PATCH(request) {
-  let conn;
   try {
     const body = await request.json();
-    
-    // 1. Ambil ID & Nominal (Kita cek dua-duanya biar aman)
     const tId = body.transactionId || body.id;
     const tNominal = body.amount || body.nominal; 
     const { username, status } = body;
 
     if (!tId) return NextResponse.json({ success: false, error: "ID Kosong" });
 
-    conn = await db();
-
-    // 2. Tentukan status akhir
+    // Tentukan status akhir
     const isMenerima = status === 'SUCCESS' || status === 'APPROVE';
     const finalStatus = isMenerima ? 'SUCCESS' : 'REJECTED';
 
-    // 3. Update Status Deposit
-    const [result] = await conn.execute(
-      "UPDATE deposits SET status = ? WHERE id = ?",
-      [finalStatus, tId]
-    );
+    // 1. Update Status Deposit di Supabase
+    const { error: updateError } = await supabase
+      .from('deposits')
+      .update({ status: finalStatus })
+      .eq('id', tId);
 
-    // 4. Update Saldo Member (Hanya jika SUCCESS)
-    if (finalStatus === 'SUCCESS' && result.affectedRows > 0) {
-      await conn.execute(
-        "UPDATE members SET saldo = saldo + ? WHERE username = ?",
-        [Number(tNominal), username]
-      );
+    if (updateError) throw updateError;
+
+    // 2. Update Saldo Member (Hanya jika SUCCESS)
+    if (finalStatus === 'SUCCESS') {
+      // Ambil saldo lama
+      const { data: userData, error: userError } = await supabase
+        .from('members')
+        .select('saldo')
+        .eq('username', username)
+        .single();
+
+      if (userData) {
+        const saldoBaru = Number(userData.saldo || 0) + Number(tNominal);
+        
+        // Simpan saldo baru
+        await supabase
+          .from('members')
+          .update({ saldo: saldoBaru })
+          .eq('username', username);
+      }
     }
 
     return NextResponse.json({ success: true, message: `Berhasil di-${finalStatus}` });
 
   } catch (error) {
-    console.error("PATCH ERROR:", error);
+    console.error("PATCH ERROR:", error.message);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-  } finally {
-    if (conn) await conn.end();
   }
 }
