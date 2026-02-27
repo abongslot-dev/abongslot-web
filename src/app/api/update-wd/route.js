@@ -1,50 +1,52 @@
-import { NextResponse } from "next/server";
-import mysql from "mysql2/promise";
+export const dynamic = 'force-dynamic';
 
-// --- FUNGSI UNTUK MENERIMA / MENOLAK (POST) ---
+import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
+
+const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// --- 1. POST: Menerima / Menolak Withdraw ---
 export async function POST(req) {
-  let connection;
   try {
     const body = await req.json();
     const id = parseInt(body.id);
     const status = body.status;
 
-    connection = await mysql.createConnection({
-      host: "localhost", user: "root", password: "", database: "slotabong",
-    });
+    const { error } = await supabase
+      .from('withdrawals')
+      .update({ 
+        status: status, 
+        processed_at: new Date().toISOString() // Simpan waktu sekarang
+      })
+      .eq('id', id);
 
-    // TAMBAHKAN processed_at = NOW() DI SINI BOS
-    const [result] = await connection.execute(
-      "UPDATE `withdrawals` SET `status` = ?, `processed_at` = NOW() WHERE `id` = ?",
-      [status, id]
-    );
+    if (error) throw error;
 
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
-  } finally {
-    if (connection) await connection.end();
   }
 }
 
-// --- FUNGSI UNTUK RANGKUMAN (GET) ---
+// --- 2. GET: Rangkuman Riwayat Withdraw ---
 export async function GET() {
-  let connection;
   try {
-    connection = await mysql.createConnection({
-      host: "localhost", user: "root", password: "", database: "slotabong",
-    });
+    // Ambil data yang statusnya BUKAN 'PENDING'
+    const { data, error } = await supabase
+      .from('withdrawals')
+      .select('*')
+      .neq('status', 'PENDING')
+      .order('created_at', { ascending: false });
 
-    const [rows] = await connection.execute(
-      "SELECT * FROM `withdrawals` WHERE `status` != 'PENDING' ORDER BY `created_at` DESC"
-    );
+    if (error) throw error;
 
-    const totalAll = rows.reduce((sum, item) => sum + Number(item.nominal), 0);
+    // Hitung total nominal (reduce data)
+    const totalAll = (data || []).reduce((sum, item) => sum + Number(item.nominal || 0), 0);
 
-    return NextResponse.json({ success: true, data: rows, totalAll });
+    return NextResponse.json({ success: true, data: data || [], totalAll });
   } catch (error) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
-  } finally {
-    if (connection) await connection.end();
   }
 }
