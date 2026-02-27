@@ -1,41 +1,37 @@
-import { NextResponse } from "next/server";
-import mysql from "mysql2/promise";
+import { createClient } from '@supabase/supabase-js'
+import { NextResponse } from 'next/server'
+
+// 1. Hubungkan ke Supabase (Pintu Gerbang Cloud)
+const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co'
+const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6'
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 export async function POST(req) {
   try {
     const { username, oldPassword, newPassword } = await req.json();
 
-    // 1. Koneksi ke Database (Sesuaikan dengan XAMPP Bos)
-    const connection = await mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "", // Kosongkan jika pakai XAMPP standar
-      database: "slotabong", // Pastikan nama database-nya benar
-    });
+    // 2. Cek apakah Password Lama BENAR di Supabase
+    const { data: user, error: fetchError } = await supabase
+      .from('members')
+      .select('id, password')
+      .eq('username', username)
+      .eq('password', oldPassword) // Supabase secara standar sudah case-sensitive
+      .maybeSingle();
 
-    // 2. Cek apakah Password Lama BENAR (Pakai BINARY agar Case Sensitive)
-    // Kita cari user yang username DAN password lamanya cocok persis
-    const [rows] = await connection.execute(
-      "SELECT id FROM members WHERE username = ? AND BINARY password = ?",
-      [username, oldPassword]
-    );
-
-    // 3. Jika tidak ketemu (Password Lama Salah)
-    if (rows.length === 0) {
-      await connection.end();
+    if (fetchError || !user) {
       return NextResponse.json({ 
         success: false, 
-        message: "Password lama salah, Bos! Cek huruf besar kecilnya." 
+        message: "Password lama salah, Bos! Cek lagi." 
       }, { status: 401 });
     }
 
-    // 4. Jika Benar, Update ke Password Baru
-    await connection.execute(
-      "UPDATE members SET password = ? WHERE username = ?",
-      [newPassword, username]
-    );
+    // 3. Jika benar, Update ke Password Baru
+    const { error: updateError } = await supabase
+      .from('members')
+      .update({ password: newPassword })
+      .eq('username', username);
 
-    await connection.end();
+    if (updateError) throw updateError;
 
     return NextResponse.json({ 
       success: true, 
@@ -43,10 +39,10 @@ export async function POST(req) {
     }, { status: 200 });
 
   } catch (error) {
-    console.error("DATABASE ERROR:", error);
+    console.error("SUPABASE ERROR:", error.message);
     return NextResponse.json({ 
       success: false, 
-      message: "Waduh, ada masalah di server database!" 
+      message: "Sistem gagal update password!" 
     }, { status: 500 });
   }
 }
