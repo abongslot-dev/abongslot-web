@@ -44,7 +44,6 @@ export async function POST(req) {
 
     // 2. Tambah Saldo Member jika status 'approve'
     if (finalStatus === 'approve') {
-      // Ambil saldo lama dulu
       const { data: userData, error: userErr } = await supabase
         .from('members')
         .select('saldo')
@@ -54,4 +53,33 @@ export async function POST(req) {
       if (userData) {
         const saldoBaru = parseFloat(userData.saldo || 0) + parseFloat(body.nominal);
         
-        // Update saldo ke Sup
+        await supabase
+          .from('members')
+          .update({ saldo: saldoBaru })
+          .eq('username', body.username);
+      }
+    }
+
+    return NextResponse.json({ success: true });
+
+  } catch (error) {
+    console.error("❌ ERROR DETECTED:", error.message);
+    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+  }
+}
+
+// --- UNTUK RANGKUMAN (GET) ---
+export async function GET() {
+  try {
+    const { data, error } = await supabase
+      .from('deposits')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, data: data });
+  } catch (error) {
+    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+  }
+}
