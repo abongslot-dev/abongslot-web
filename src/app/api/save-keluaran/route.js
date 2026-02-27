@@ -1,40 +1,35 @@
-import { NextResponse } from "next/server";
-import mysql from "mysql2/promise";
+export const dynamic = 'force-dynamic';
+
+import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
+
+// 1. Koneksi Supabase
+const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 export async function POST(req) {
-  let connection;
   try {
     const data = await req.json();
-    // Kita ambil datanya, tapi variabel 'tanggal' kita abaikan 
-    // karena kita mau tanggalnya OTOMATIS ikut waktu simpan.
     const { pasaran, periode, result } = data;
 
-    connection = await mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "",
-      database: "slotabong",
-    });
+    // 2. Upsert (Update if exists, Insert if not) di Supabase
+    // Syarat: Di tabel 'togel_results' kamu harus punya 'periode' atau 'pasaran' sebagai Unique Key
+    const { error } = await supabase
+      .from('togel_results')
+      .upsert({ 
+        pasaran, 
+        periode, 
+        result, 
+        tanggal: new Date().toISOString() 
+      }, { onConflict: 'periode' }); // Menggantikan 'ON DUPLICATE KEY'
 
-    // Perhatikan bagian VALUES: Kita isi 'tanggal' dan 'created_at' pakai NOW()
-    const query = `
-      INSERT INTO togel_results (pasaran, periode, result, tanggal, created_at) 
-      VALUES (?, ?, ?, NOW(), NOW()) 
-      ON DUPLICATE KEY UPDATE 
-        result = VALUES(result),
-        tanggal = NOW(),
-        created_at = NOW()
-    `;
-
-    // Kita cukup mengirim 3 data saja, sisanya diurus database (NOW)
-    await connection.execute(query, [pasaran, periode, result]);
+    if (error) throw error;
     
     return NextResponse.json({ success: true });
 
   } catch (error) {
-    console.error("Error DB:", error.message);
+    console.error("Error Supabase:", error.message);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-  } finally {
-    if (connection) await connection.end();
   }
 }
