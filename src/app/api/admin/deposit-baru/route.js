@@ -1,75 +1,69 @@
-import { NextResponse } from "next/server";
-import mysql from "mysql2/promise";
+import { createClient } from '@supabase/supabase-js'
+import { NextResponse } from 'next/server'
 
-const dbConfig = {
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "slotabong",
-};
+const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co'
+const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6'
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
-// --- 1. GET (Sama seperti sebelumnya) ---
+// --- 1. GET (Ambil daftar deposit pending) ---
 export async function GET() {
-  let connection;
   try {
-    connection = await mysql.createConnection(dbConfig);
-    const [rows] = await connection.execute(
-      "SELECT * FROM deposits WHERE status = 'pending' ORDER BY created_at DESC"
-    );
-    return NextResponse.json({ success: true, requests: rows });
+    const { data, error } = await supabase
+      .from('deposits')
+      .select('*')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, requests: data });
   } catch (error) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
-  } finally {
-    if (connection) await connection.end();
   }
 }
 
-// --- 2. PATCH (Ganti POST jadi PATCH agar cocok dengan Frontend) ---
+// --- 2. PATCH (Approve atau Reject Deposit) ---
 export async function PATCH(req) {
-  let connection;
   try {
     const { transactionId, status, amount, username } = await req.json();
     
-    // Logika Sinkronisasi Status
-    // Kita bikin supaya API kenal 'SUCCESS' atau 'APPROVE'
     const isMenerima = ['SUCCESS', 'APPROVE', 'APPROVED'].includes(status.toUpperCase());
     const finalStatus = isMenerima ? 'SUCCESS' : 'REJECTED';
 
-    connection = await mysql.createConnection(dbConfig);
-    await connection.beginTransaction();
+    // A. Update status di tabel deposits
+    const { data: updatedDepo, error: errDepo } = await supabase
+      .from('deposits')
+      .update({ status: finalStatus, processed_at: new Date().toISOString() })
+      .eq('id', transactionId)
+      .eq('status', 'pending') // Keamanan: hanya yang masih pending yang bisa diupdate
+      .select();
 
-    // Pastikan pakai transactionId sesuai kiriman frontend
-    const [depoRows] = await connection.execute(
-      "SELECT status FROM deposits WHERE id = ? FOR UPDATE",
-      [transactionId]
-    );
-
-    if (depoRows.length === 0 || depoRows[0].status !== 'pending') {
-      await connection.rollback();
-      return NextResponse.json({ success: false, message: "Data sudah diproses!" });
+    if (errDepo || updatedDepo.length === 0) {
+      return NextResponse.json({ success: false, message: "Data tidak ditemukan atau sudah diproses!" });
     }
 
-    // A. Update status deposit
-    await connection.execute(
-      "UPDATE deposits SET status = ?, processed_at = NOW() WHERE id = ?",
-      [finalStatus, transactionId]
-    );
-
-    // B. Tambah saldo jika SUCCESS
+    // B. Tambah saldo ke tabel members jika SUCCESS
     if (finalStatus === 'SUCCESS') {
-      await connection.execute(
-        "UPDATE members SET saldo = saldo + ? WHERE username = ?",
-        [Number(amount), username]
-      );
+      // 1. Ambil saldo lama dulu
+      const { data: userData, error: errUser } = await supabase
+        .from('members')
+        .select('saldo')
+        .eq('username', username)
+        .single();
+
+      if (!errUser && userData) {
+        const saldoBaru = parseFloat(userData.saldo) + parseFloat(amount);
+        
+        // 2. Update saldo baru
+        await supabase
+          .from('members')
+          .update({ saldo: saldoBaru })
+          .eq('username', username);
+      }
     }
 
-    await connection.commit();
-    return NextResponse.json({ success: true, message: "Berhasil Update!" });
+    return NextResponse.json({ success: true, message: "Berhasil Update ke Supabase!" });
 
   } catch (error) {
-    if (connection) await connection.rollback();
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
-  } finally {
-    if (connection) await connection.end();
   }
 }
