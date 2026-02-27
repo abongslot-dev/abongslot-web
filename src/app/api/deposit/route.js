@@ -1,12 +1,16 @@
-import { NextResponse } from "next/server";
-import mysql from "mysql2/promise";
+import { createClient } from '@supabase/supabase-js'
+import { NextResponse } from 'next/server'
+
+// 1. Hubungkan ke Supabase (Pintu Gerbang)
+const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co'
+const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6'
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 export async function POST(req) {
-  let connection;
   try {
     const body = await req.json();
     
-    // 1. Tangkap SEMUA data yang dikirim dari frontend
+    // 2. Tangkap data dari form deposit
     const { 
       username, 
       nominal, 
@@ -19,55 +23,34 @@ export async function POST(req) {
       nama_tujuan 
     } = body;
 
-    // 2. Koneksi ke Database
-    connection = await mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "", 
-      database: "slotabong",
-    });
+    // 3. Masukkan data ke tabel 'deposits' di Supabase
+    const { data, error } = await supabase
+      .from('deposits')
+      .insert([
+        { 
+          username, 
+          nominal: parseFloat(nominal), // Pastikan angka bukan teks
+          promo, 
+          bank_pengirim, 
+          rek_pengirim, 
+          nama_pengirim, 
+          bank_tujuan, 
+          rek_tujuan, 
+          nama_tujuan,
+          status: 'pending' // Status otomatis awal
+        }
+      ]);
 
-    // 3. Update Query INSERT (Pastikan kolom-kolom ini sudah ada di PHPMyAdmin)
- // PASTIKAN URUTANNYA SAMA ANTARA KOLOM DAN DATA NYA
-const query = `
-  INSERT INTO deposits (
-    username, 
-    nominal, 
-    promo, 
-    bank_pengirim, 
-    rek_pengirim, 
-    nama_pengirim, 
-    bank_tujuan, 
-    rek_tujuan, 
-    nama_tujuan, 
-    status, 
-    created_at
-  ) 
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())
-`;
+    if (error) {
+      console.error("Supabase Error:", error.message);
+      return NextResponse.json({ error: "Gagal simpan: " + error.message }, { status: 500 });
+    }
 
-// Array data ini harus 9 item sesuai tanda tanya (?) di atas
-await connection.execute(query, [
-  username, 
-  nominal, 
-  promo, 
-  bank_pengirim, // Data baru masuk sini
-  rek_pengirim,  // Data baru masuk sini
-  nama_pengirim, // Data baru masuk sini
-  bank_tujuan, 
-  rek_tujuan, 
-  nama_tujuan
-]);
-
-    return NextResponse.json({ message: "Deposit Berhasil Dicatat" }, { status: 200 });
+    // 4. Respon sukses ke user
+    return NextResponse.json({ message: "Deposit Berhasil Dicatat, Boss! Mohon ditunggu." }, { status: 200 });
 
   } catch (error) {
     console.error("API ERROR DEPOSIT:", error.message);
-    return NextResponse.json(
-      { error: "Gagal simpan ke database: " + error.message }, 
-      { status: 500 }
-    );
-  } finally {
-    if (connection) await connection.end();
+    return NextResponse.json({ error: "Server Error: " + error.message }, { status: 500 });
   }
 }
