@@ -675,7 +675,11 @@ const handleSetujuLogin = () => {
     ]
     .filter(game => game.name.toLowerCase().includes(searchTerm.toLowerCase()))
     .map((toto, i) => {
-      const dataLive = dataRiwayat[toto.name.toUpperCase().trim()];
+     const keyDitemukan = dataRiwayat ? Object.keys(dataRiwayat).find(key => 
+     key.includes(toto.name.toUpperCase().trim()) || 
+     toto.name.toUpperCase().trim().includes(key)
+     ) : null;
+      const dataLive = dataRiwayat[keyDitemukan];
       
       return (
         <div 
