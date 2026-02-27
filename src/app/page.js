@@ -64,95 +64,77 @@ const [halamanAktif, setHalamanAktif] = useState('utama');
 const fetchData = async () => {
   setLoadingData(true);
   try {
-    // UBAH: Jangan pakai allorigins lagi, pakai proxy lokal kita
-    const response = await fetch("/api/proxy"); 
-    const htmlText = await response.text(); 
+    const response = await fetch("/api/proxy");
+    const htmlText = await response.text();
 
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlText, "text/html");
     const resultsMap = {};
-    
     const cards = doc.querySelectorAll(".card");
 
     cards.forEach((card) => {
-      const nama = card.querySelector(".card-body h5")?.innerText.trim().toUpperCase();
+      const namaRaw = card.querySelector(".card-body h5")?.innerText || "";
+      const nama = namaRaw.trim().toUpperCase();
       const footer = card.querySelector(".card-footer p");
-      
+
       if (nama && footer) {
-        let rawText = footer.innerHTML.replace(/<br\s*[\/]?>/gi, "|"); 
+        let rawText = footer.innerHTML.replace(/<br\s*[\/]?>/gi, "|");
         let cleanText = parser.parseFromString(rawText, 'text/html').body.textContent;
         const parts = cleanText.split('|').map(p => p.trim()).filter(p => p !== "");
-        
-        const tanggal = parts[0] || "—";
-        const angkaPenuh = parts[1] || "";
-        const angka4D = angkaPenuh.replace(/\s/g, "").slice(-4); 
 
+        const tanggal = parts[0] || "—";
+        const angkaPenuh = parts[1] ? parts[1].replace(/[^\d]/g, "") : ""; // Ambil angka saja
+        const angka4D = angkaPenuh.length >= 4 ? angkaPenuh.slice(-4) : angkaPenuh;
+
+        // SIMPAN APA ADANYA DARI API (Tanpa ditambahin POOLS manual dulu)
         resultsMap[nama] = {
           tanggal: tanggal,
-          angka: angka4D || "----"
+          angka: angka4D || "----",
+          namaAsli: nama
         };
       }
     });
 
+    console.log("🛠 DEBUG DATA DARI API:", resultsMap);
 
+    if (Object.keys(resultsMap).length > 0) {
+      setDataRiwayat(resultsMap);
+      localStorage.setItem("cache_riwayat", JSON.stringify(resultsMap));
 
+      const historyLama = JSON.parse(localStorage.getItem("master_riwayat") || "{}");
 
-console.log("🛠 DEBUG DATA DARI API:", resultsMap); // LIHAT DI CONSOLE F12
+      Object.keys(resultsMap).forEach((pasaran) => {
+        const dataAPI = resultsMap[pasaran];
+        // STANDARISASI: Cari nama pasaran yang paling mirip
+        let keyGudang = pasaran;
 
-if (Object.keys(resultsMap).length > 0) {
-    setDataRiwayat(resultsMap);
-    localStorage.setItem("cache_riwayat", JSON.stringify(resultsMap));
+        if (!Array.isArray(historyLama[keyGudang])) historyLama[keyGudang] = [];
 
-    // 1. Ambil Gudang Utama (Data yang sudah tersimpan berhari-hari)
-   const historyLama = JSON.parse(localStorage.getItem("master_riwayat") || "{}");
+        const sudahAda = historyLama[keyGudang].some(
+          (item) => item.tanggal === dataAPI.tanggal && item.result === dataAPI.angka
+        );
 
-Object.keys(resultsMap).forEach((pasaran) => {
-  const dataBaruFromAPI = resultsMap[pasaran];
-  
-  // 1. STANDARISASI: Pastikan nama pasaran di Gudang = Nama di ListPasaran Riwayat
-  let keyGudang = pasaran.trim().toUpperCase();
-  
-  // Contoh fix: Jika API kasih "SINGAPORE", kita simpan sebagai "SINGAPORE POOLS" 
-  // agar cocok dengan dropdown di halaman Riwayat
-  if (!keyGudang.includes("POOLS") && !keyGudang.includes("LOTTO") && !keyGudang.includes("MACAU")) {
-    keyGudang += " POOLS";
-  }
+        const angkaValid = dataAPI.angka && dataAPI.angka !== "----" && dataAPI.angka.length >= 4;
 
-  // 2. Inisialisasi laci jika belum ada
-  if (!Array.isArray(historyLama[keyGudang])) {
-    historyLama[keyGudang] = [];
-  }
-
-  // 3. CEK DUPLIKAT (Cek apakah result hari ini sudah masuk?)
-const sudahAda = historyLama[keyGudang].some(
-    (item) => item.tanggal === dataBaruFromAPI.tanggal && item.result === dataBaruFromAPI.angka
-  );
-
-  // 4. VALIDASI: Angka harus ada (bukan ----)
-  const angkaValid = dataBaruFromAPI.angka && dataBaruFromAPI.angka !== "----" && dataBaruFromAPI.angka.length >= 4;
-
-  if (!sudahAda && angkaValid) {
-    historyLama[keyGudang].unshift({
-      periode: Math.floor(Math.random() * 900) + 2100,
-      tanggal: dataBaruFromAPI.tanggal,
-      result: dataBaruFromAPI.angka,
-      jamUpdate: new Date().toLocaleTimeString('id-ID')
-    });
-
-    if (historyLama[keyGudang].length > 50) historyLama[keyGudang].pop();
-    console.log(`✅ BERHASIL NABUNG: ${keyGudang} - ${dataBaruFromAPI.angka}`);
-  }
-});
-
-// 5. SIMPAN KE STORAGE
-localStorage.setItem("master_riwayat", JSON.stringify(historyLama));
-}
-    } catch (error) {
-      console.error("Fetch Error:", error);
-    } finally {
-      setLoadingData(false);
+        if (!sudahAda && angkaValid) {
+          historyLama[keyGudang].unshift({
+            periode: Math.floor(Math.random() * 900) + 2100,
+            tanggal: dataAPI.tanggal,
+            result: dataAPI.angka,
+            jamUpdate: new Date().toLocaleTimeString('id-ID')
+          });
+          if (historyLama[keyGudang].length > 50) historyLama[keyGudang].pop();
+        }
+      });
+      localStorage.setItem("master_riwayat", JSON.stringify(historyLama));
     }
-  };
+  } catch (error) {
+    console.error("Fetch Error:", error);
+  } finally {
+    setLoadingData(false);
+  }
+};
+  
   // --- 4. EFFECTS ---
   useEffect(() => {
     fetchData();
