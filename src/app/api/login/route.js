@@ -15,11 +15,11 @@ export async function POST(req) {
 
     // 2. Langsung tembak ke tabel members
     const { data: user, error } = await supabase
-      .from('members')
-      .select('username, password, saldo')
-      .eq('username', username)
-      .eq('password', password)
-      .maybeSingle();
+  .from('members')
+  .select('username, password, saldo')
+  .eq('username', username)
+  .eq('password', password)
+  .maybeSingle(); // Mengembalikan null jika tidak ada, bukan error 500
 
     if (error) {
       console.error("Supabase Error:", error.message);
@@ -41,3 +41,4 @@ export async function POST(req) {
     return NextResponse.json({ success: false, message: "Server Error" }, { status: 500 });
   }
 }
+
