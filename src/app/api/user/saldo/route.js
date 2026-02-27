@@ -1,46 +1,51 @@
-import { NextResponse } from "next/server";
-import mysql from "mysql2/promise";
+export const dynamic = 'force-dynamic';
+
+import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
+
+// 1. Hubungkan ke Supabase (Pusat Data)
+const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 export async function GET(req) {
-  const { searchParams } = new URL(req.url);
-  const username = searchParams.get("username");
-
-  if (!username) {
-    return NextResponse.json({ success: false, message: "Username kosong" }, { status: 400 });
-  }
-
   try {
-    const connection = await mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "",
-      database: "slotabong", // Pastikan nama DB ini benar Bos!
-    });
+    const { searchParams } = new URL(req.url);
+    const username = searchParams.get("username");
 
-    const [rows] = await connection.execute(
-      "SELECT * FROM members WHERE username = ?",
-      [username]
-    );
+    if (!username) {
+      return NextResponse.json({ success: false, message: "Username kosong" }, { status: 400 });
+    }
 
-    await connection.end();
+    // 2. Ambil data asli dari tabel 'members' Supabase
+    const { data, error } = await supabase
+      .from('members')
+      .select('saldo, nama_bank, nama_rekening, nomor_rekening')
+      .eq('username', username)
+      .maybeSingle();
 
-    if (rows.length === 0) {
+    if (error) {
+      console.error("Supabase Error:", error.message);
+      return NextResponse.json({ success: false, message: "Database Error" }, { status: 500 });
+    }
+
+    if (!data) {
       return NextResponse.json({ success: false, message: "User tidak ditemukan" });
     }
 
-return NextResponse.json({ 
-  success: true, 
-  saldo: rows[0].saldo || 0,
-  user: {
-    // Kita samakan namanya dengan yang ada di Database biar Bos gak bingung
-    nama_bank: rows[0].nama_bank, 
-    nama_rekening: rows[0].nama_rekening, 
-    nomor_rekening: rows[0].nomor_rekening
-  }
-});
+    // 3. Kirim data asli ke Frontend
+    return NextResponse.json({ 
+      success: true, 
+      saldo: parseFloat(data.saldo || 0),
+      user: {
+        nama_bank: data.nama_bank, 
+        nama_rekening: data.nama_rekening, 
+        nomor_rekening: data.nomor_rekening
+      }
+    });
 
   } catch (error) {
-    console.error("Database Error:", error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error("Server Error:", error.message);
+    return NextResponse.json({ success: false, message: "Server Error" }, { status: 500 });
   }
 }
