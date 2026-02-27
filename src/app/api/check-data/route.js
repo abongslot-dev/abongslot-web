@@ -1,37 +1,38 @@
-import { NextResponse } from "next/server";
-import mysql from "mysql2/promise";
+import { createClient } from '@supabase/supabase-js'
+import { NextResponse } from 'next/server'
+
+// 1. Hubungkan ke Supabase (Pastikan URL & Key sudah benar)
+const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co'
+const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6'
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 export async function POST(req) {
-  let connection;
   try {
     const { field, value } = await req.json();
 
-    connection = await mysql.createConnection({
-      host: "localhost", 
-      user: "root", 
-      password: "", 
-      database: "slotabong",
-    });
-
-    // Sesuaikan field dari frontend ke nama kolom di tabel 'members' Bos
+    // 2. Sesuaikan nama field dari frontend ke kolom tabel 'members' di Supabase
     let columnName = field;
     if (field === "whatsapp") columnName = "nomor_whatsapp";
     if (field === "nomorRekening") columnName = "nomor_rekening";
     if (field === "username") columnName = "username";
 
-    // Query untuk cek apakah data sudah ada
-    const [rows] = await connection.execute(
-      `SELECT id FROM members WHERE ${columnName} = ? LIMIT 1`,
-      [value]
-    );
+    // 3. Cek data di Supabase (Mirip SELECT id FROM members)
+    const { data, error } = await supabase
+      .from('members')
+      .select('id')
+      .eq(columnName, value)
+      .maybeSingle();
 
-    // Kirim jawaban: true jika ada (sudah terdaftar), false jika kosong (tersedia)
-    return NextResponse.json({ exists: rows.length > 0 });
+    if (error) {
+      console.error("Supabase Error:", error.message);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    // 4. Kirim jawaban: true jika ada, false jika kosong (tersedia)
+    return NextResponse.json({ exists: !!data });
 
   } catch (error) {
-    console.error("Check Data Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  } finally {
-    if (connection) await connection.end();
+    console.error("Check Data Error:", error.message);
+    return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
 }
