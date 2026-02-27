@@ -3,9 +3,9 @@ import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic';
 
-// 1. Hubungkan ke Supabase
+// 1. Hubungkan ke Supabase Online (Jangan pakai localhost!)
 const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co'
-const SUPABASE_KEY = 'sb_secret_oAmh3QwRBQivTeGj0zwhIw_Dn_vwHxA'
+const SUPABASE_KEY = 'sb_secret_oAmh3QwRBQivTeGj0zwhIw_Dn_vwHxA' 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 export async function POST(req) {
@@ -13,16 +13,15 @@ export async function POST(req) {
     const body = await req.json();
     const { username, password, whatsapp, bank, namaRekening, nomorRekening } = body;
 
-    // 2. VALIDASI DATA GANDA (Lebih Aman dengan Tanda Kutip)
-    // Kita tambahkan "" di sekitar variabel agar karakter spasi tidak merusak query
+    // --- 2. VALIDASI DATA GANDA (Logika MySQL yang dipindah ke Supabase) ---
     const { data: existingUsers, error: checkError } = await supabase
       .from('members')
       .select('username, nomor_whatsapp, nomor_rekening')
       .or(`username.eq."${username}",nomor_whatsapp.eq."${whatsapp}",nomor_rekening.eq."${nomorRekening}"`);
 
     if (checkError) {
-      console.error("Cek Data Error:", checkError.message);
-      throw checkError;
+      console.error("Supabase Check Error:", checkError.message);
+      throw new Error("Gagal mengecek data ganda");
     }
 
     if (existingUsers && existingUsers.length > 0) {
@@ -36,7 +35,7 @@ export async function POST(req) {
       return NextResponse.json({ success: false, message: pesanError }, { status: 400 });
     }
 
-    // 3. Insert Data Member Baru
+    // --- 3. INSERT DATA (Mirip Query INSERT INTO MySQL) ---
     const { error: insertError } = await supabase
       .from('members')
       .insert([
@@ -52,21 +51,20 @@ export async function POST(req) {
       ]);
 
     if (insertError) {
-      console.error("Insert Data Error:", insertError.message);
+      console.error("Supabase Insert Error:", insertError.message);
       throw insertError;
     }
 
     return NextResponse.json({ 
       success: true, 
-      message: "Pendaftaran Berhasil! Silakan Login." 
+      message: "Pendaftaran Berhasil!" 
     }, { status: 200 });
 
   } catch (error) {
-    // Log ini akan muncul di dashboard Netlify Functions
-    console.error("LOG ERROR REGISTER:", error.message);
+    console.error("Full Register Error:", error.message);
     return NextResponse.json({ 
       success: false, 
-      message: "Gagal daftar (Koneksi Sibuk). Silakan coba lagi." 
+      message: "Gagal daftar: " + error.message 
     }, { status: 500 });
   }
 }
