@@ -7,10 +7,15 @@ export async function GET() {
   const targetUrl = 'http://prize.kamuskeluaran.live/';
   
   // Daftar jembatan (Proxy) untuk cadangan
-  const proxies = [
-    `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
-    `https://thingproxy.freeboard.io/fetch/${targetUrl}`, // Jembatan Cadangan 1
-    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}` // Jembatan Cadangan 2
+ const proxies = [
+    // 1. CORSProxy.io (Paling stabil buat Netlify)
+    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+    
+    // 2. Codetabs (Sangat ringan dan cepat)
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+    
+    // 3. AllOrigins (Taruh terakhir karena sering lemot di server)
+    `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`
   ];
 
   for (const url of proxies) {
@@ -43,3 +48,4 @@ export async function GET() {
 
   return NextResponse.json({ error: 'Semua jembatan penuh, coba refresh' }, { status: 503 });
 }
+
