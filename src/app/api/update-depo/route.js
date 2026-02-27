@@ -1,79 +1,57 @@
-import { NextResponse } from "next/server";
-import mysql from "mysql2/promise";
+export const dynamic = 'force-dynamic';
+
+import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
+
+// 1. Koneksi Supabase
+const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- UNTUK TERIMA/TOLAK (POST) ---
 export async function POST(req) {
-  let connection;
   try {
     const body = await req.json();
-    console.log("--- DATA DARI FORM ---", body); // <--- CEK INI DI TERMINAL
-
-    connection = await mysql.createConnection({
-      host: "localhost", user: "root", password: "", database: "slotabong",
-    });
-
-    // 1. CEK APAKAH INI INSERT (MEMBER) ATAU UPDATE (ADMIN)
+    
+    // A. LOGIKA UNTUK INSERT DATA BARU (MEMBER)
     if (!body.id) {
-      console.log("MENCOBA INSERT DATA BARU...");
-      const [result] = await connection.execute(
-        "INSERT INTO deposits (username, nominal, bank_tujuan, status, created_at) VALUES (?, ?, ?, '', NOW())",
-        [body.username, body.nominal, body.bank_tujuan || '']
-      );
-      console.log("HASIL INSERT:", result);
+      const { error: insErr } = await supabase
+        .from('deposits')
+        .insert([{ 
+          username: body.username, 
+          nominal: parseFloat(body.nominal), 
+          bank_tujuan: body.bank_tujuan || '',
+          status: 'pending' 
+        }]);
+
+      if (insErr) throw insErr;
       return NextResponse.json({ success: true });
     }
 
-    // 2. LOGIKA UPDATE ADMIN
-    console.log("MENCOBA UPDATE STATUS ID:", body.id);
-    let finalStatus = (body.status === 'SUCCESS' || body.status === 'approve') ? 'approve' : 'reject';
+    // B. LOGIKA UPDATE STATUS (ADMIN)
+    const finalStatus = (body.status === 'SUCCESS' || body.status === 'approve' || body.status === 'APPROVED') ? 'approve' : 'reject';
 
-    await connection.beginTransaction();
+    // 1. Update Status Deposit
+    const { error: updErr } = await supabase
+      .from('deposits')
+      .update({ 
+        status: finalStatus, 
+        processed_at: new Date().toISOString() 
+      })
+      .eq('id', body.id);
 
-    const [updDepo] = await connection.execute(
-      "UPDATE deposits SET status = ?, processed_at = NOW() WHERE id = ?",
-      [finalStatus, body.id]
-    );
-    console.log("UPDATE DEPO BERHASIL:", updDepo);
+    if (updErr) throw updErr;
 
+    // 2. Tambah Saldo Member jika status 'approve'
     if (finalStatus === 'approve') {
-      const [updMember] = await connection.execute(
-        "UPDATE members SET saldo = saldo + ? WHERE username = ?",
-        [Number(body.nominal), body.username]
-      );
-      console.log("UPDATE SALDO BERHASIL:", updMember);
-    }
+      // Ambil saldo lama dulu
+      const { data: userData, error: userErr } = await supabase
+        .from('members')
+        .select('saldo')
+        .eq('username', body.username)
+        .single();
 
-    await connection.commit();
-    return NextResponse.json({ success: true });
-
-  } catch (error) {
-    if (connection) await connection.rollback();
-    console.error("❌ ERROR DETECTED:", error.message); // <--- LIHAT PESAN INI DI TERMINAL
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
-  } finally {
-    if (connection) await connection.end();
-  }
-}
-
-// --- UNTUK RANGKUMAN (GET) ---
-export async function GET() {
-  let connection;
-  try {
-    connection = await mysql.createConnection({
-      host: "localhost", user: "root", password: "", database: "slotabong",
-    });
-
-    // Kita ambil SEMUA data tanpa tapi-tapi, buat ngetes doang
-    const [rows] = await connection.execute(
-      "SELECT * FROM deposits ORDER BY created_at DESC"
-    );
-
-    console.log("Data ditemukan di DB:", rows.length); // Cek di terminal/log
-
-    return NextResponse.json({ success: true, data: rows });
-  } catch (error) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
-  } finally {
-    if (connection) await connection.end();
-  }
-}
+      if (userData) {
+        const saldoBaru = parseFloat(userData.saldo || 0) + parseFloat(body.nominal);
+        
+        // Update saldo ke Sup
