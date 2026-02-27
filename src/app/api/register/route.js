@@ -1,6 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
+export const dynamic = 'force-dynamic';
+
 // 1. Hubungkan ke Supabase
 const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co'
 const SUPABASE_KEY = 'sb_secret_oAmh3QwRBQivTeGj0zwhIw_Dn_vwHxA'
@@ -11,13 +13,17 @@ export async function POST(req) {
     const body = await req.json();
     const { username, password, whatsapp, bank, namaRekening, nomorRekening } = body;
 
-    // 2. VALIDASI DATA GANDA (Cek apakah sudah ada di Supabase)
+    // 2. VALIDASI DATA GANDA (Lebih Aman dengan Tanda Kutip)
+    // Kita tambahkan "" di sekitar variabel agar karakter spasi tidak merusak query
     const { data: existingUsers, error: checkError } = await supabase
       .from('members')
       .select('username, nomor_whatsapp, nomor_rekening')
-      .or(`username.eq.${username},nomor_whatsapp.eq.${whatsapp},nomor_rekening.eq.${nomorRekening}`);
+      .or(`username.eq."${username}",nomor_whatsapp.eq."${whatsapp}",nomor_rekening.eq."${nomorRekening}"`);
 
-    if (checkError) throw checkError;
+    if (checkError) {
+      console.error("Cek Data Error:", checkError.message);
+      throw checkError;
+    }
 
     if (existingUsers && existingUsers.length > 0) {
       const userLama = existingUsers[0];
@@ -35,8 +41,8 @@ export async function POST(req) {
       .from('members')
       .insert([
         { 
-          username, 
-          password, 
+          username: username.trim(), 
+          password: password, 
           nomor_whatsapp: whatsapp, 
           nama_bank: bank, 
           nama_rekening: namaRekening, 
@@ -45,7 +51,10 @@ export async function POST(req) {
         }
       ]);
 
-    if (insertError) throw insertError;
+    if (insertError) {
+      console.error("Insert Data Error:", insertError.message);
+      throw insertError;
+    }
 
     return NextResponse.json({ 
       success: true, 
@@ -53,11 +62,11 @@ export async function POST(req) {
     }, { status: 200 });
 
   } catch (error) {
-    console.error("Register Error:", error.message);
+    // Log ini akan muncul di dashboard Netlify Functions
+    console.error("LOG ERROR REGISTER:", error.message);
     return NextResponse.json({ 
       success: false, 
-      message: "Gagal daftar: " + error.message 
+      message: "Gagal daftar (Koneksi Sibuk). Silakan coba lagi." 
     }, { status: 500 });
   }
 }
-
