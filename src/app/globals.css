@@ -1,15 +1,12 @@
-@import "tailwindcss";
+/* 1. Masukkan Directives Tailwind v3 */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* 2. Variabel Warna & Tema */
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,33 +16,31 @@
   }
 }
 
+/* 3. Global Styles */
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* 4. Custom Utilities & Animations */
 @layer utilities {
   /* Scrollbar Custom dengan efek "Blur"/Transparan */
   .scrollbar-blur::-webkit-scrollbar {
-    height: 6px; /* Tinggi untuk scroll horizontal */
-    width: 6px;  /* Lebar untuk scroll vertikal */
+    height: 6px;
+    width: 6px;
   }
 
   .scrollbar-blur::-webkit-scrollbar-track {
-    /* Track transparan agar tidak kaku */
     background: rgba(26, 0, 51, 0.3); 
     margin: 0 10px;
   }
 
   .scrollbar-blur::-webkit-scrollbar-thumb {
-    /* Warna emas dengan opacity rendah (transparan) */
     background: rgba(212, 175, 55, 0.4); 
     border-radius: 20px;
-    /* Memberi jarak agar terlihat melayang */
     border: 2px solid transparent;
     background-clip: content-box;
-    /* Efek shadow halus untuk simulasi blur */
     box-shadow: 0 0 5px rgba(212, 175, 55, 0.2);
   }
 
@@ -53,35 +48,31 @@ body {
     background: rgba(212, 175, 55, 0.8);
     background-clip: content-box;
   }
-}
 
-
-@keyframes spin-slow {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
+  /* Animasi Manual */
   .animate-spin-slow {
     animation: spin-slow 1.5s linear infinite;
   }
 
+  .animate-scroll-horizontal {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    width: max-content !important;
+    animation: scrollKeSamping 10s linear infinite !important;
+  }
 
+  .animate-scroll-horizontal:hover {
+    animation-play-state: paused;
+  }
+}
 
-/* Definisikan animasinya dulu */
+/* 5. Keyframes */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 @keyframes scrollKeSamping {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
-}
-
-/* Pastikan class ini dipanggil dengan benar */
-.animate-scroll-horizontal {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  width: max-content !important;
-  /* Coba turunkan ke 5s untuk ngetes kecepatan kilat */
-  animation: scrollKeSamping 10s linear infinite !important;
-}
-
-/* Biar kalau di-hover berhenti */
-.animate-scroll-horizontal:hover {
-  animation-play-state: paused;
 }
