@@ -4,8 +4,11 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
 // 1. Koneksi Supabase
-const SUPABASE_URL = 'https://hqsahuywehlbwywzylsz.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6';
+// 1. Pastikan ambil dari Environment Variables
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+// 2. Inisialisasi (Cukup sekali saja di setiap file)
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 export async function POST(req) {
@@ -33,4 +36,5 @@ export async function POST(req) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+
 
