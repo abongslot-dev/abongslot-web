@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 // 1. Hubungkan ke Supabase (Pastikan URL & Key sudah benar)
 const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co'
-const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6'
+const SUPABASE_KEY = 'sb_secret_oAmh3QwRBQivTeGj0zwhIw_Dn_vwHxA'
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 export async function POST(req) {
@@ -36,3 +36,4 @@ export async function POST(req) {
     return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
 }
+
