@@ -16,16 +16,16 @@ export async function POST(req) {
     const data = await req.json();
     const { pasaran, periode, result } = data;
 
-    // 2. Upsert (Update if exists, Insert if not) di Supabase
-    // Syarat: Di tabel 'togel_results' kamu harus punya 'periode' atau 'pasaran' sebagai Unique Key
+    // --- PERBAIKAN DI SINI ---
+    // Gunakan array ['pasaran', 'periode'] karena di SQL Bos uniknya gabungan keduanya
     const { error } = await supabase
       .from('togel_results')
       .upsert({ 
         pasaran, 
         periode, 
         result, 
-        tanggal: new Date().toISOString() 
-      }, { onConflict: 'periode' }); // Menggantikan 'ON DUPLICATE KEY'
+        tanggal: new Date().toISOString().split('T')[0] // Format YYYY-MM-DD sesuai tipe DATE di SQL
+      }, { onConflict: 'pasaran,periode' }); // Nama kolom dipisah koma TANPA SPASI
 
     if (error) throw error;
     
@@ -33,7 +33,11 @@ export async function POST(req) {
 
   } catch (error) {
     console.error("Error Supabase:", error.message);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ 
+      success: false, 
+      error: error.message,
+      hint: "Pastikan kolom pasaran & periode di DB sudah unik" 
+    }, { status: 500 });
   }
 }
 
