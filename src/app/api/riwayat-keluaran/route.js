@@ -4,9 +4,10 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
 // 1. Hubungkan ke Supabase (Pusat Data Cloud)
-const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6';
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 export async function GET() {
   try {
@@ -31,3 +32,4 @@ export async function GET() {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
+
