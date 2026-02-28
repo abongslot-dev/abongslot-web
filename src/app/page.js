@@ -421,53 +421,56 @@ const handleSetujuLogin = () => {
 
 
 <div className="md:hidden w-full px-4 py-4 bg-black/40 backdrop-blur-sm flex flex-col gap-2">
-        {/* Input Username */}
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <span className="text-gray-500 text-lg">👤</span>
-          </div>
-          <input 
-            type="text" 
-            placeholder="Username" 
-            className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none sm:text-sm font-bold"
-          />
-        </div>
+  {/* Input Username */}
+  <div className="relative">
+    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+      <span className="text-gray-500 text-lg">👤</span>
+    </div>
+    <input 
+      type="text" 
+      placeholder="Username" 
+      /* TAMBAHKAN DUA BARIS INI BOSKU */
+      value={loginData.username}
+      onChange={(e) => setLoginData({...loginData, username: e.target.value})}
+      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none sm:text-sm font-bold"
+    />
+  </div>
 
-        {/* Input Password */}
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <span className="text-gray-500 text-lg">🔑</span>
-          </div>
-          <input 
-            type="password" 
-            placeholder="Password" 
-            className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-md leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none sm:text-sm font-bold"
-          />
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer">
-            <span className="text-gray-400">👁️</span>
-          </div>
-        </div>
+  {/* Input Password */}
+  <div className="relative">
+    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+      <span className="text-gray-500 text-lg">🔑</span>
+    </div>
+    <input 
+      type="password" 
+      placeholder="Password" 
+      /* TAMBAHKAN DUA BARIS INI JUGA */
+      value={loginData.password}
+      onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+      className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-md leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none sm:text-sm font-bold"
+    />
+  </div>
 
-        {/* Tombol Login (Kuning) */}
-        <button 
-  onClick={handleLogin} // TAMBAHKAN INI BOS
-  disabled={loading}    // TAMBAHKAN INI JUGA
-  className="w-full bg-[#c5a021] hover:bg-yellow-500 text-black font-black py-3 rounded-md shadow-lg transition-all active:scale-95 uppercase text-sm flex justify-center items-center"
->
-  {loading ? (
-    <div className="animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full"></div>
-  ) : "Login"}
-</button>
+  {/* Tombol Login */}
+  <button 
+    onClick={handleLogin}
+    disabled={loading}
+    className="w-full bg-[#c5a021] hover:bg-yellow-500 text-black font-black py-3 rounded-md shadow-lg transition-all active:scale-95 uppercase text-sm flex justify-center items-center"
+  >
+    {loading ? (
+      <div className="animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full"></div>
+    ) : "Login"}
+  </button>
 
-{/* --- Tombol Daftar Mobile --- */}
-<button 
-  onClick={() => router.push('/daftar')} // BIAR BISA PINDAH KE DAFTAR
-  className="w-full bg-[#1a0033] hover:bg-red-700 text-white font-black py-3 rounded-md shadow-lg transition-all active:scale-95 uppercase text-sm border border-white/10"
->
-  Daftar
-</button>
-      </div>
-
+  {/* Tombol Daftar */}
+  <button 
+    onClick={() => router.push('/daftar')}
+    className="w-full bg-[#1a0033] hover:bg-red-700 text-white font-black py-3 rounded-md shadow-lg transition-all active:scale-95 uppercase text-sm border border-white/10"
+  >
+    Daftar
+  </button>
+</div>
+     
      
 
 
