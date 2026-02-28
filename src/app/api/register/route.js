@@ -21,12 +21,13 @@ export async function POST(req) {
     // --- 1. CEK DATA GANDA (VERSI ANTI-ERROR) ---
     // Kita gunakan filter yang lebih eksplisit
    // --- 1. CEK DATA GANDA (VERSI FIX ANTI-ERROR) ---
-    const { data: userLama, error: checkError } = await supabase
-      .from('members')
-      .select('username, nomor_whatsapp, nomor_rekening')
-      // WAJIB pakai tanda kutip dua (") agar data dibaca sebagai TEXT, bukan KOLOM
-      .or(`username.eq."${username}",nomor_whatsapp.eq."${whatsapp}",nomor_rekening.eq."${nomorRekening}"`)
-      .maybeSingle();
+    // --- 1. CEK DATA GANDA (VERSI FIX) ---
+const { data: userLama, error: checkError } = await supabase
+  .from('members')
+  .select('username, nomor_whatsapp, nomor_rekening')
+  // Format OR yang benar di Supabase JS:
+  .or(`username.eq.${username},nomor_whatsapp.eq.${whatsapp},nomor_rekening.eq.${nomorRekening}`)
+  .maybeSingle();
 
     if (checkError) {
       console.error("Supabase Check Error:", checkError.message);
@@ -70,4 +71,5 @@ export async function POST(req) {
     }, { status: 500 });
   }
 }
+
 
