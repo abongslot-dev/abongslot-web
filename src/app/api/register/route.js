@@ -37,18 +37,19 @@ export async function POST(req) {
 
     // --- 3. INSERT DATA (Mirip Query INSERT INTO MySQL) ---
     const { error: insertError } = await supabase
-      .from('members')
-      .insert([
-        { 
-          username: username.trim(), 
-          password: password, 
-          nomor_whatsapp: whatsapp, 
-          nama_bank: bank, 
-          nama_rekening: namaRekening, 
-          nomor_rekening: nomorRekening, 
-          saldo: 0 
-        }
-      ]);
+  .from('members')
+  .insert([
+    { 
+      username: username.trim(), 
+      password: password, 
+      nomor_whatsapp: whatsapp, 
+      nama_bank: bank, 
+      nama_rekening: namaRekening, 
+      nomor_rekening: nomorRekening, 
+      saldo: 0,
+      status: "AKTIF" // TAMBAHKAN INI SESUAI GAMBAR TABEL SUPABASE
+    }
+  ]);
 
     if (insertError) {
       console.error("Supabase Insert Error:", insertError.message);
@@ -68,3 +69,4 @@ export async function POST(req) {
     }, { status: 500 });
   }
 }
+
