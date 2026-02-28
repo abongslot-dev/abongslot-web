@@ -6,7 +6,6 @@ export const dynamic = 'force-dynamic';
 const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co'
 const SUPABASE_KEY = 'sb_secret_oAmh3QwRBQivTeGj0zwhIw_Dn_vwHxA'
 
-// Konfigurasi Client yang lebih stabil untuk Vercel
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { persistSession: false },
   global: {
@@ -19,20 +18,29 @@ export async function POST(req) {
     const body = await req.json();
     const { username, password, whatsapp, bank, namaRekening, nomorRekening } = body;
 
-    // 1. Cek User Ganda (Gunakan tanda kutip agar tidak Fetch Failed)
+    // --- 1. CEK DATA GANDA (VERSI ANTI-ERROR) ---
+    // Kita gunakan filter yang lebih eksplisit
     const { data: userLama, error: checkError } = await supabase
       .from('members')
-      .select('username')
-      .or(`username.eq."${username}",nomor_whatsapp.eq."${whatsapp}",nomor_rekening.eq."${nomorRekening}"`)
+      .select('username, nomor_whatsapp, nomor_rekening')
+      .or(`username.eq.${username},nomor_whatsapp.eq.${whatsapp},nomor_rekening.eq.${nomorRekening}`)
       .maybeSingle();
 
-    if (checkError) throw new Error("Gagal cek data: " + checkError.message);
-
-    if (userLama) {
-      return NextResponse.json({ success: false, message: "Data sudah terdaftar!" }, { status: 400 });
+    if (checkError) {
+      console.error("Supabase Check Error:", checkError.message);
+      throw new Error(checkError.message);
     }
 
-    // 2. Simpan ke Database (PASTIKAN KOLOM SESUAI GAMBAR SUPABASE KAMU)
+    if (userLama) {
+      let pesan = "Data sudah terdaftar!";
+      if (userLama.username === username) pesan = "Username sudah digunakan!";
+      else if (userLama.nomor_whatsapp === whatsapp) pesan = "Nomor WhatsApp sudah ada!";
+      else if (userLama.nomor_rekening === nomorRekening) pesan = "Nomor Rekening sudah ada!";
+      
+      return NextResponse.json({ success: false, message: pesan }, { status: 400 });
+    }
+
+    // --- 2. SIMPAN DATA (PASTIKAN NAMA KOLOM PAS) ---
     const { error: insertError } = await supabase
       .from('members')
       .insert([
@@ -44,7 +52,7 @@ export async function POST(req) {
           nama_rekening: namaRekening, 
           nomor_rekening: nomorRekening, 
           saldo: 0,
-          status: "AKTIF" // <--- INI KUNCINYA! Harus ada sesuai tabel kamu
+          status: "AKTIF" 
         }
       ]);
 
@@ -56,7 +64,7 @@ export async function POST(req) {
     console.error("DETEKSI ERROR REGISTER:", error.message);
     return NextResponse.json({ 
       success: false, 
-      message: "Gagal daftar: " + error.message 
+      message: "Gagal: " + error.message 
     }, { status: 500 });
   }
 }
