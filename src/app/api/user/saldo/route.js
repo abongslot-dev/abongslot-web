@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 // Gunakan process.env agar aman dan fleksibel antara Lokal & Vercel
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://hqsahuywehlbwywyzlsz.supabase.co';
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://hqsahuywehlbwywzylsz.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'sb_secret_oAmh3QwRBQivTeGj0zwhIw_Dn_vwHxA';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -48,3 +48,4 @@ export async function GET(req) {
     return NextResponse.json({ success: false, message: "Terjadi kesalahan pada server" }, { status: 500 });
   }
 }
+
