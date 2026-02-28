@@ -18,24 +18,26 @@ export async function POST(req) {
     const body = await req.json();
     const { field, value } = body;
 
-    if (!field || !value) {
-      return NextResponse.json({ exists: false });
-    }
+    if (!field || !value) return NextResponse.json({ exists: false });
 
-    // --- PERBAIKAN MAPPING KOLOM ---
+    // 1. Mapping Kolom (Pastikan TIDAK ADA TYPO)
     let columnName = field;
     if (field === "whatsapp") columnName = "nomor_whatsapp";
-    if (field === "nomorRekening") columnName = "nomor_rekening"; // FIX: dari 'noming' jadi 'nomor'
+    if (field === "nomorRekening") columnName = "nomor_rekening";
     if (field === "username") columnName = "username";
 
-    // --- EKSEKUSI CEK ---
+    // 2. Bersihkan Value
+    const cleanValue = value.toString().trim();
+
+    // 3. Eksekusi Query ke Supabase
     const { data, error } = await supabase
       .from('members')
       .select('username')
-      .eq(columnName, value.toString().trim())
+      .eq(columnName, cleanValue) // Mencari data yang pas
       .maybeSingle();
 
     if (error) {
+      // Jika masih error, coba paksa pencarian tanpa filter ketat (Gunakan .filter)
       console.error("Supabase Error detail:", error.message);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
@@ -43,7 +45,7 @@ export async function POST(req) {
     return NextResponse.json({ exists: !!data });
 
   } catch (error) {
-    console.error("Check Data Critical Error:", error.message);
-    return NextResponse.json({ error: "Server Error: " + error.message }, { status: 500 });
+    console.error("Critical Error:", error.message);
+    return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
 }
