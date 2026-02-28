@@ -6,35 +6,46 @@ export const dynamic = 'force-dynamic';
 const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co'
 const SUPABASE_KEY = 'sb_secret_oAmh3QwRBQivTeGj0zwhIw_Dn_vwHxA'
 
-export async function POST(req) {
-  let connection;
-  try {
-    const { field, value } = await req.json();
+// 1. Buat Client Supabase
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: false },
+  global: {
+    fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }),
+  },
+})
 
-  const { data, error } = await supabase
-      .from('members')
-      .select('username')
-      .eq(columnName, cleanValue) // Mencari data yang pas
-      .maybeSingle();
-    // Sesuaikan field dari frontend ke nama kolom di tabel 'members' Bos
+export async function POST(req) {
+  try {
+    const body = await req.json();
+    const { field, value } = body;
+
+    if (!field || !value) return NextResponse.json({ exists: false });
+
+    // 2. Mapping Kolom (Harus di atas sebelum dipakai)
     let columnName = field;
     if (field === "whatsapp") columnName = "nomor_whatsapp";
     if (field === "nomorRekening") columnName = "nomor_rekening";
     if (field === "username") columnName = "username";
 
-    // Query untuk cek apakah data sudah ada
-    const [rows] = await connection.execute(
-      `SELECT id FROM members WHERE ${columnName} = ? LIMIT 1`,
-      [value]
-    );
+    const cleanValue = value.toString().trim();
 
-    // Kirim jawaban: true jika ada (sudah terdaftar), false jika kosong (tersedia)
-    return NextResponse.json({ exists: rows.length > 0 });
+    // 3. Query pakai Supabase (BUKAN MySQL connection.execute)
+    const { data, error } = await supabase
+      .from('members')
+      .select('username')
+      .eq(columnName, cleanValue)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Supabase Error:", error.message);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    // 4. Kirim respon ke frontend
+    return NextResponse.json({ exists: !!data });
 
   } catch (error) {
-    console.error("Check Data Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  } finally {
-    if (connection) await connection.end();
+    console.error("Critical Error:", error.message);
+    return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
 }
