@@ -3,70 +3,60 @@ import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic';
 
-// 1. Hubungkan ke Supabase Online (Jangan pakai localhost!)
 const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co'
-const SUPABASE_KEY = 'sb_secret_oAmh3QwRBQivTeGj0zwhIw_Dn_vwHxA' 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+const SUPABASE_KEY = 'sb_secret_oAmh3QwRBQivTeGj0zwhIw_Dn_vwHxA'
+
+// Konfigurasi Client yang lebih stabil untuk Vercel
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: false },
+  global: {
+    fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }),
+  },
+})
 
 export async function POST(req) {
   try {
     const body = await req.json();
     const { username, password, whatsapp, bank, namaRekening, nomorRekening } = body;
 
-    // --- 2. VALIDASI DATA GANDA (Logika MySQL yang dipindah ke Supabase) ---
-    const { data: existingUsers, error: checkError } = await supabase
+    // 1. Cek User Ganda (Gunakan tanda kutip agar tidak Fetch Failed)
+    const { data: userLama, error: checkError } = await supabase
       .from('members')
-      .select('username, nomor_whatsapp, nomor_rekening')
-      .or(`username.eq."${username}",nomor_whatsapp.eq."${whatsapp}",nomor_rekening.eq."${nomorRekening}"`);
+      .select('username')
+      .or(`username.eq."${username}",nomor_whatsapp.eq."${whatsapp}",nomor_rekening.eq."${nomorRekening}"`)
+      .maybeSingle();
 
-    if (checkError) {
-      console.error("Supabase Check Error:", checkError.message);
-      throw new Error("Gagal mengecek data ganda");
+    if (checkError) throw new Error("Gagal cek data: " + checkError.message);
+
+    if (userLama) {
+      return NextResponse.json({ success: false, message: "Data sudah terdaftar!" }, { status: 400 });
     }
 
-    if (existingUsers && existingUsers.length > 0) {
-      const userLama = existingUsers[0];
-      let pesanError = "Data sudah terdaftar!";
-
-      if (userLama.username === username) pesanError = "Username sudah digunakan!";
-      else if (userLama.nomor_whatsapp === whatsapp) pesanError = "Nomor WhatsApp sudah terdaftar!";
-      else if (userLama.nomor_rekening === nomorRekening) pesanError = "Nomor Rekening sudah terdaftar!";
-
-      return NextResponse.json({ success: false, message: pesanError }, { status: 400 });
-    }
-
-    // --- 3. INSERT DATA (Mirip Query INSERT INTO MySQL) ---
+    // 2. Simpan ke Database (PASTIKAN KOLOM SESUAI GAMBAR SUPABASE KAMU)
     const { error: insertError } = await supabase
-  .from('members')
-  .insert([
-    { 
-      username: username.trim(), 
-      password: password, 
-      nomor_whatsapp: whatsapp, 
-      nama_bank: bank, 
-      nama_rekening: namaRekening, 
-      nomor_rekening: nomorRekening, 
-      saldo: 0,
-      status: "AKTIF" // TAMBAHKAN INI SESUAI GAMBAR TABEL SUPABASE
-    }
-  ]);
+      .from('members')
+      .insert([
+        { 
+          username: username.trim(), 
+          password: password, 
+          nomor_whatsapp: whatsapp, 
+          nama_bank: bank, 
+          nama_rekening: namaRekening, 
+          nomor_rekening: nomorRekening, 
+          saldo: 0,
+          status: "AKTIF" // <--- INI KUNCINYA! Harus ada sesuai tabel kamu
+        }
+      ]);
 
-    if (insertError) {
-      console.error("Supabase Insert Error:", insertError.message);
-      throw insertError;
-    }
+    if (insertError) throw insertError;
 
-    return NextResponse.json({ 
-      success: true, 
-      message: "Pendaftaran Berhasil!" 
-    }, { status: 200 });
+    return NextResponse.json({ success: true, message: "Pendaftaran Berhasil!" }, { status: 200 });
 
   } catch (error) {
-    console.error("Full Register Error:", error.message);
+    console.error("DETEKSI ERROR REGISTER:", error.message);
     return NextResponse.json({ 
       success: false, 
       message: "Gagal daftar: " + error.message 
     }, { status: 500 });
   }
 }
-
