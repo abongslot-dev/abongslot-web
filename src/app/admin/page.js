@@ -28,21 +28,10 @@ const SidebarItem = ({ icon, label, active, hasChild, isOpen, onClick, children 
       )}
     </div>
     {/* Sub-menu: WAJIB hidden di mobile agar konten kanan tidak kepotong */}
-    {isOpen && (
-      <div className="hidden md:block bg-black/20 transition-all">
-        {children}
-      </div>
-    )}
-  </div>
-); // <--- Tadi di kode Bos bagian ini hilang penutupnya
-
-const SubMenuItem = ({ label, active, onClick }) => (
+   {isSidebarOpen && (
   <div 
-    onClick={onClick}
-    className={`py-2 pl-11 pr-4 cursor-pointer text-[12px] transition-colors truncate
-      ${active ? 'text-blue-400 font-bold bg-white/5' : 'text-[#8a99af] hover:text-white hover:bg-white/5'}`}
-  >
-    {label}
+    className="fixed inset-0 bg-black/50 z-40 md:hidden"
+    onClick={() => setIsSidebarOpen(false)}
   </div>
 );
 
@@ -51,6 +40,7 @@ export default function AdminDashboard() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [openMenu, setOpenMenu] = useState("transaksi");
   const [stats, setStats] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
 
 useEffect(() => {
@@ -182,7 +172,10 @@ const formatRupiah = (val) => Number(val || 0).toLocaleString('id-ID');
     <div className="flex h-screen w-full bg-[#1a0033] font-sans text-gray-800 overflow-hidden">
       
       {/* SIDEBAR: Tetap Diam di Kiri */}
-      <aside className="w-16 md:w-64 bg-[#1a0033] text-[#c2c7d0] flex-shrink-0 flex flex-col shadow-xl h-screen sticky top-0 transition-all duration-300">
+      <aside className={`
+  fixed md:relative z-50 h-screen bg-[#1a0033] text-[#c2c7d0] flex-shrink-0 flex flex-col shadow-2xl transition-all duration-300 ease-in-out
+  ${isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-20'}
+`}>
         <div className="p-4 bg-[#1e2225] border-b border-zinc-800 flex items-center justify-center md:justify-start gap-2">
   <div className="w-8 h-8 bg-blue-500 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xs">A</div>
   {/* Tambahkan hidden md:block agar tulisan hilang di mobile */}
@@ -345,9 +338,12 @@ const formatRupiah = (val) => Number(val || 0).toLocaleString('id-ID');
         {/* HEADER: Tinggi 12 (h-12) dengan Glassmorphism */}
         <header className="h-12 bg-[#1a0033] flex items-center justify-between px-4 shadow-lg z-10 border-b border-white/5">
           {/* Tombol Hamburger (Bisa Bos fungsikan nanti untuk toggle sidebar full) */}
-          <button className="text-white opacity-70 hover:opacity-100 transition-opacity">
-            <span className="text-xl">☰</span>
-          </button>
+          <button 
+  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+  className="text-white opacity-70 hover:opacity-100 transition-opacity p-2"
+>
+  <span className="text-xl">☰</span>
+</button>
 
           <div className="flex items-center gap-3">
             {/* SALDO ADMIN: Pakai Font Mono agar angka tidak goyang saat berubah */}
@@ -3153,6 +3149,7 @@ const handleSimpan = async (e) => {
   );
 
 }
+
 
 
 
