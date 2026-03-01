@@ -18,14 +18,17 @@ export async function POST(req) {
 
     // --- PERBAIKAN DI SINI ---
     // Gunakan array ['pasaran', 'periode'] karena di SQL Bos uniknya gabungan keduanya
-    const { error } = await supabase
-      .from('togel_results')
-      .upsert({ 
-        pasaran, 
-        periode, 
-        result, 
-        tanggal: new Date().toISOString().split('T')[0] // Format YYYY-MM-DD sesuai tipe DATE di SQL
-      }, { onConflict: 'pasaran,periode' }); // Nama kolom dipisah koma TANPA SPASI
+  const { error } = await supabase
+  .from('togel_results')
+  .upsert({ 
+    pasaran, 
+    periode, 
+    result, 
+    tanggal: new Date().toISOString().split('T')[0] 
+  }, { 
+    onConflict: 'pasaran,periode',
+    ignoreDuplicates: false // Pastikan ini jika ingin menimpa data lama
+  });
 
     if (error) throw error;
     
@@ -40,5 +43,6 @@ export async function POST(req) {
     }, { status: 500 });
   }
 }
+
 
 
