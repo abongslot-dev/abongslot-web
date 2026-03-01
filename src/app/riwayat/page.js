@@ -68,37 +68,26 @@ useEffect(() => {
 
 const handleCariData = () => {
   if (!tglMulai || !tglAkhir) {
-    alert("Pilih tanggal dulu, Bos!");
+    alert("Pilih rentang tanggal dulu, Bos!");
     return;
   }
 
-  const mulai = new Date(tglMulai);
-  const akhir = new Date(tglAkhir);
-  mulai.setHours(0, 0, 0, 0);
-  akhir.setHours(23, 59, 59, 999); // Akhir hari agar aman
+  const mulai = new Date(tglMulai).getTime();
+  const akhir = new Date(tglAkhir).getTime();
 
   const hasil = dataRiwayat.filter((item) => {
-    if (!item.tanggal || item.tanggal === "Mohon tunggu...") return false;
-
-    // 1. Bongkar format DD-MM-YYYY (misal 26-02-2026)
-    const parts = item.tanggal.split('-');
-    if (parts.length !== 3) return false;
-
-    // 2. Susun ulang jadi format yang dipahami JS: YYYY, MM (kurangi 1), DD
-    // parts[2] = Tahun, parts[1] = Bulan, parts[0] = Hari
-    const tglItem = new Date(parts[2], parts[1] - 1, parts[0]);
-    tglItem.setHours(0, 0, 0, 0);
-
-    if (isNaN(tglItem.getTime())) return false;
-
+    // Supabase biasanya kasih format "2026-03-01"
+    const tglItem = new Date(item.tanggal).getTime();
+    
     return tglItem >= mulai && tglItem <= akhir;
   });
 
   setDataTampil(hasil);
   
   if (hasil.length === 0) {
-    alert("Tidak ada data di rentang tanggal tersebut, Bos!");
+    alert("Data tidak ditemukan untuk tanggal tersebut.");
   }
+};
 };
 
 
@@ -151,25 +140,31 @@ const handleLogin = async () => {
 
 
 useEffect(() => {
-  // 1. Ambil Gudang Besar
-  const rawData = localStorage.getItem("master_riwayat");
-  
-  if (rawData) {
-    const masterData = JSON.parse(rawData);
-    
-    // 2. Ambil List Pasaran (Misal: "SINGAPORE POOLS")
-    // Ingat: masterData[pasaranAktif] isinya harusnya Array [ {}, {}, {} ]
-    const listDariGudang = masterData[pasaranAktif] || [];
+  const loadRiwayatDariDB = async () => {
+    setLoading(true);
+    try {
+      // Kita panggil API yang sudah kita buat tadi
+      const res = await fetch("/api/get-results");
+      const json = await res.json();
 
-    // 3. Masukkan SEMUA list itu ke state
-    // Jangan di-slice atau di-filter dulu, biar kelihatan semua
-    setDataRiwayat(listDariGudang);
-    setDataTampil(listDariGudang);
+      if (json.success) {
+        // Filter data hanya untuk pasaran yang sedang aktif (misal: SINGAPORE POOLS)
+        const hasilFilter = json.data.filter(item => 
+          item.pasaran.toUpperCase().trim() === pasaranAktif.toUpperCase().trim()
+        );
 
-    console.log("Data yang berhasil ditarik:", listDariGudang);
-  }
-}, [pasaranAktif]);
+        setDataRiwayat(hasilFilter);
+        setDataTampil(hasilFilter);
+      }
+    } catch (err) {
+      console.error("Gagal tarik riwayat:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  loadRiwayatDariDB();
+}, [pasaranAktif]); // Setiap ganti tab pasaran, dia otomatis tarik data baru
 
 
 
@@ -522,4 +517,5 @@ export default function RiwayatPage() {
       <RiwayatContent />
     </Suspense>
   );
+
 }
