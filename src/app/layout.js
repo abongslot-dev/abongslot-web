@@ -25,7 +25,7 @@ export const metadata = {
     siteName: 'ABONGSLOT',
     images: [
       {
-        url: 'https://i.postimg.cc/DfQTQ5Y0/mahjong-ways.png', // Ganti dengan link logo brand kamu
+        url: 'https://i.postimg.cc/ZqJdrrFL/japan.png', // Ganti dengan link logo brand kamu
         width: 1200,
         height: 630,
         alt: 'ABONGSLOT Banner',
