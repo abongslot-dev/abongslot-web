@@ -357,7 +357,7 @@ const handleLogout = () => {
       className="min-w-[140px] md:min-w-[180px] bg-[#2d0055] border border-[#D4AF37]/40 rounded-xl overflow-hidden shadow-lg group snap-center"
     >
       <div className="aspect-square relative overflow-hidden">
-        <img src={game.img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+        <img src={game.img} alt={game.name || "Game"} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
       </div>
       <div className="p-2">
         <p className="text-[10px] md:text-xs font-bold truncate text-white uppercase">{game.name}</p>
@@ -527,7 +527,7 @@ const handleLogout = () => {
     onClick={() => router.push(`/game?provider=${slot.id}`)} 
     className="relative rounded-xl border border-yellow-500/20 bg-black overflow-hidden aspect-[4/3] group cursor-pointer"
   >
-    <img src={slot.img} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
+    <img src={slot.img} alt={slot.name || "Slot"} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
     <div className="absolute bottom-0 w-full p-2 bg-black/60 text-[10px] text-yellow-400 text-center font-bold border-t border-yellow-500/20">{slot.name}</div>
     <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/0 via-yellow-500/20 to-yellow-500/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 z-30"></div>
   </div>
@@ -555,7 +555,7 @@ const handleLogout = () => {
         { name: "MICROGAMING", img: "https://i.postimg.cc/W3CrfHQm/banner1.png" },
       ].map((slot, i) => (
         <div key={i} className="relative rounded-xl border border-yellow-500/20 bg-black overflow-hidden aspect-[4/3] group cursor-pointer">
-          <img src={slot.img} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
+          <img src={slot.img} alt={slot.name || "Slot"} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
           <div className="absolute bottom-0 w-full p-2 bg-black/60 text-[10px] text-yellow-400 text-center font-bold border-t border-yellow-500/20">{slot.name}</div>
         </div>
       ))}
@@ -582,7 +582,7 @@ const handleLogout = () => {
         { name: "MICROGAMING", img: "https://i.postimg.cc/W3CrfHQm/banner1.png" },
       ].map((slot, i) => (
         <div key={i} className="relative rounded-xl border border-yellow-500/20 bg-black overflow-hidden aspect-[4/3] group cursor-pointer">
-          <img src={slot.img} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
+          <img src={slot.img} alt={slot.name || "Slot"} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
           <div className="absolute bottom-0 w-full p-2 bg-black/60 text-[10px] text-yellow-400 text-center font-bold border-t border-yellow-500/20">{slot.name}</div>
         </div>
       ))}
@@ -609,7 +609,7 @@ const handleLogout = () => {
         { name: "MICROGAMING", img: "https://i.postimg.cc/W3CrfHQm/banner1.png" },
       ].map((slot, i) => (
         <div key={i} className="relative rounded-xl border border-yellow-500/20 bg-black overflow-hidden aspect-[4/3] group cursor-pointer">
-          <img src={slot.img} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
+          <img src={slot.img} alt={slot.name || "Slot"} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
           <div className="absolute bottom-0 w-full p-2 bg-black/60 text-[10px] text-yellow-400 text-center font-bold border-t border-yellow-500/20">{slot.name}</div>
         </div>
       ))}
@@ -637,7 +637,7 @@ const handleLogout = () => {
         { name: "MICROGAMING", img: "https://i.postimg.cc/W3CrfHQm/banner1.png" },
       ].map((slot, i) => (
         <div key={i} className="relative rounded-xl border border-yellow-500/20 bg-black overflow-hidden aspect-[4/3] group cursor-pointer">
-          <img src={slot.img} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
+          <img src={slot.img} alt={slot.name || "Slot"} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
           <div className="absolute bottom-0 w-full p-2 bg-black/60 text-[10px] text-yellow-400 text-center font-bold border-t border-yellow-500/20">{slot.name}</div>
         </div>
       ))}
@@ -663,13 +663,14 @@ const handleLogout = () => {
         { name: "MICROGAMING", img: "https://i.postimg.cc/W3CrfHQm/banner1.png" },
       ].map((slot, i) => (
         <div key={i} className="relative rounded-xl border border-yellow-500/20 bg-black overflow-hidden aspect-[4/3] group cursor-pointer">
-          <img src={slot.img} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
+          <img src={slot.img} alt={slot.name || "Slot"} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" />
           <div className="absolute bottom-0 w-full p-2 bg-black/60 text-[10px] text-yellow-400 text-center font-bold border-t border-yellow-500/20">{slot.name}</div>
         </div>
       ))}
     </div>
   </section>
 )}
+
 
 
       </div> {/* Penutup Wrapper Utama (Container Gantung) */}
@@ -823,4 +824,5 @@ const handleLogout = () => {
       
     </main>
   );
+
 }
