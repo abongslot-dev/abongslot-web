@@ -334,23 +334,51 @@ const formatRupiah = (val) => Number(val || 0).toLocaleString('id-ID');
 
 
 
-      {/* MAIN CONTENT */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-12 bg-[#1a0033] flex items-center justify-between px-4 shadow-sm z-10">
-          <button className="text-white opacity-70 hover:opacity-100">☰</button>
-          <div className="flex items-center gap-4">
-            <div className="bg-[#1e2225] px-3 py-1 rounded-full border border-yellow-500/20 flex items-center gap-2">
-              <span className="text-yellow-500 font-bold text-xs tracking-tighter font-mono tracking-tighter">💰 256.375.664,04</span>
+      {/* MAIN CONTENT AREA */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        
+        {/* HEADER: Tinggi 12 (h-12) dengan Glassmorphism */}
+        <header className="h-12 bg-[#1a0033] flex items-center justify-between px-4 shadow-lg z-10 border-b border-white/5">
+          {/* Tombol Hamburger (Bisa Bos fungsikan nanti untuk toggle sidebar full) */}
+          <button className="text-white opacity-70 hover:opacity-100 transition-opacity">
+            <span className="text-xl">☰</span>
+          </button>
+
+          <div className="flex items-center gap-3">
+            {/* SALDO ADMIN: Pakai Font Mono agar angka tidak goyang saat berubah */}
+            <div className="bg-[#1e2225] px-3 py-1.5 rounded-lg border border-yellow-500/30 flex items-center gap-2 shadow-inner">
+              <span className="text-yellow-500 font-black text-[11px] font-mono tracking-tight">
+                💰 {formatRupiah(256375664.04)}
+              </span>
             </div>
-            <Users size={18} className="text-white opacity-70 cursor-pointer" />
+            
+            {/* IKON NOTIF/USER */}
+            <div className="relative group">
+              <Users size={18} className="text-white opacity-70 cursor-pointer hover:opacity-100 transition-all" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-[#1a0033]"></span>
+            </div>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto bg-white">
-          {renderContent()}
-          <footer className="py-6 text-center text-[11px] text-gray-400 border-t mt-10">
-            Copyright © OneLiveGaming 2023
-          </footer>
+        {/* AREA HALAMAN UTAMA */}
+        <main className="flex-1 overflow-y-auto custom-scrollbar bg-[#f4f6f9] relative">
+          <div className="p-4 md:p-6 min-h-full flex flex-col">
+            
+            {/* TEMPAT RENDER KONTEN (Dashboard, Transaksi, dll) */}
+            <div className="flex-1">
+              {renderContent()}
+            </div>
+
+            {/* FOOTER: Bersih & Profesional */}
+            <footer className="py-8 text-center border-t border-gray-200 mt-12">
+              <p className="text-[10px] text-gray-400 uppercase tracking-[2px] font-bold">
+                Copyright © ABONGSLOT 2026
+              </p>
+              <p className="text-[9px] text-gray-300 mt-1">
+                Versi Sistem 2.0.4 - Secure Connection Enabled
+              </p>
+            </footer>
+          </div>
         </main>
       </div>
     </div>
@@ -3120,5 +3148,6 @@ const handleSimpan = async (e) => {
   );
 
 }
+
 
 
