@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 
 
-// KOMPONEN PEMBANTU SIDEBAR (Agar Responsive)
+// KOMPONEN PEMBANTU SIDEBAR
 const SidebarItem = ({ icon, label, active, hasChild, isOpen, onClick, children }) => (
   <div className="flex flex-col">
     <div 
@@ -18,7 +18,6 @@ const SidebarItem = ({ icon, label, active, hasChild, isOpen, onClick, children 
         justify-center md:justify-start`} 
     >
       <div className="flex-shrink-0 text-white">{icon}</div>
-      {/* Label teks: Hilang di mobile (hidden), muncul di desktop (md:block) */}
       <span className="hidden md:block ml-3 font-medium flex-1 overflow-hidden whitespace-nowrap">{label}</span>
       {hasChild && (
         <ChevronDown 
@@ -27,14 +26,24 @@ const SidebarItem = ({ icon, label, active, hasChild, isOpen, onClick, children 
         />
       )}
     </div>
-    {/* Sub-menu: WAJIB hidden di mobile agar konten kanan tidak kepotong */}
-   {isSidebarOpen && (
-  <div 
-    className="fixed inset-0 bg-black/50 z-40 md:hidden"
-    onClick={() => setIsSidebarOpen(false)}
+    {/* Sub-menu hanya muncul di desktop saja agar tidak merusak layout HP */}
+    {isOpen && (
+      <div className="hidden md:block bg-black/20 transition-all">
+        {children}
+      </div>
+    )}
   </div>
 );
 
+const SubMenuItem = ({ label, active, onClick }) => (
+  <div 
+    onClick={onClick}
+    className={`py-2 pl-11 pr-4 cursor-pointer text-[12px] transition-colors truncate
+      ${active ? 'text-blue-400 font-bold bg-white/5' : 'text-[#8a99af] hover:text-white hover:bg-white/5'}`}
+  >
+    {label}
+  </div>
+);
 
 export default function AdminDashboard() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
@@ -3149,6 +3158,7 @@ const handleSimpan = async (e) => {
   );
 
 }
+
 
 
 
