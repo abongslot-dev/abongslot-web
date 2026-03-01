@@ -3,23 +3,23 @@ export const dynamic = 'force-dynamic';
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-// 1. Koneksi Supabase
-const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6';
+// 1. GUNAKAN SERVICE ROLE KEY (WAJIB untuk Update/Delete di Server)
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY; 
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// --- UNTUK TERIMA/TOLAK (POST) ---
 export async function POST(req) {
   try {
     const body = await req.json();
     
-    // A. LOGIKA UNTUK INSERT DATA BARU (MEMBER)
+    // A. LOGIKA INSERT DATA BARU (Jika ID tidak ada)
     if (!body.id) {
       const { error: insErr } = await supabase
         .from('deposits')
         .insert([{ 
           username: body.username, 
-          nominal: parseFloat(body.nominal), 
+          nominal: parseFloat(body.nominal) || 0, 
           bank_tujuan: body.bank_tujuan || '',
           status: 'pending' 
         }]);
@@ -29,7 +29,8 @@ export async function POST(req) {
     }
 
     // B. LOGIKA UPDATE STATUS (ADMIN)
-    const finalStatus = (body.status === 'SUCCESS' || body.status === 'approve' || body.status === 'APPROVED') ? 'approve' : 'reject';
+    const rawStatus = body.status?.toLowerCase();
+    const finalStatus = (rawStatus === 'success' || rawStatus === 'approve' || rawStatus === 'approved') ? 'approve' : 'reject';
 
     // 1. Update Status Deposit
     const { error: updErr } = await supabase
@@ -50,13 +51,19 @@ export async function POST(req) {
         .eq('username', body.username)
         .single();
 
+      if (userErr && userErr.code !== 'PGRST116') throw userErr;
+
       if (userData) {
-        const saldoBaru = parseFloat(userData.saldo || 0) + parseFloat(body.nominal);
+        const saldoLama = parseFloat(userData.saldo) || 0;
+        const tambahan = parseFloat(body.nominal) || 0;
+        const saldoBaru = saldoLama + tambahan;
         
-        await supabase
+        const { error: balanceErr } = await supabase
           .from('members')
           .update({ saldo: saldoBaru })
           .eq('username', body.username);
+
+        if (balanceErr) throw balanceErr;
       }
     }
 
@@ -68,7 +75,6 @@ export async function POST(req) {
   }
 }
 
-// --- UNTUK RANGKUMAN (GET) ---
 export async function GET() {
   try {
     const { data, error } = await supabase
