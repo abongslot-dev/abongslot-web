@@ -327,10 +327,11 @@ const formatRupiah = (val) => Number(val || 0).toLocaleString('id-ID');
   <SubMenuItem label="Kirim Pesan" />
 </SidebarItem>
 </nav>
-        <div className="p-4 bg-[#1e2225] text-[11px] border-t border-zinc-800">
-          <p className="opacity-40 uppercase mb-1">Login sebagai:</p>
-          <p className="text-white font-semibold italic">ABONGSLOT</p>
-        </div>
+        <div className="p-4 bg-[#1e2225] text-[11px] border-t border-zinc-800 flex flex-col items-center md:items-start">
+  <p className="hidden md:block opacity-40 uppercase mb-1">Login sebagai:</p>
+  <p className="hidden md:block text-white font-semibold italic">ABONGSLOT</p>
+  <div className="md:hidden w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+</div>
       </aside>
 
 
@@ -365,7 +366,7 @@ const formatRupiah = (val) => Number(val || 0).toLocaleString('id-ID');
         </header>
 
         {/* AREA HALAMAN UTAMA */}
-        <main className="flex-1 overflow-y-auto custom-scrollbar bg-[#f4f6f9] relative">
+        <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
           <div className="p-4 md:p-6 min-h-full flex flex-col">
             
             {/* TEMPAT RENDER KONTEN (Dashboard, Transaksi, dll) */}
@@ -3152,6 +3153,7 @@ const handleSimpan = async (e) => {
   );
 
 }
+
 
 
 
