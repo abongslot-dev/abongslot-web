@@ -62,78 +62,48 @@ const [halamanAktif, setHalamanAktif] = useState('utama');
   const audioRef = useRef(null);
 
 const fetchData = async () => {
-  setLoadingData(true);
-  try {
-    const response = await fetch("/api/proxy");
-    const htmlText = await response.text();
+    setLoadingData(true);
+    try {
+      // 1. Ambil data langsung dari API Supabase kita
+      const response = await fetch("/api/get-results");
+      const json = await response.json();
 
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlText, "text/html");
-    const resultsMap = {};
-    const cards = doc.querySelectorAll(".card");
+      if (json.success && json.data) {
+        const resultsMap = {};
+        
+        // 2. Mapping data agar pasaran jadi KEY (biar kotak di depan update)
+        json.data.forEach((item) => {
+          let key = item.pasaran.trim().toUpperCase();
+          
+          // Standarisasi Nama (Sama dengan logika Bos sebelumnya)
+          if (!key.includes("POOLS") && !key.includes("LOTTO") && !key.includes("MACAU")) {
+            key += " POOLS";
+          }
 
-    cards.forEach((card) => {
-      const namaRaw = card.querySelector(".card-body h5")?.innerText || "";
-      const nama = namaRaw.trim().toUpperCase();
-      const footer = card.querySelector(".card-footer p");
+          // Hanya ambil yang paling baru untuk setiap pasaran
+          if (!resultsMap[key]) {
+            resultsMap[key] = {
+              tanggal: item.tanggal,
+              angka: item.result,
+              periode: item.periode
+            };
+          }
+        });
 
-      if (nama && footer) {
-        let rawText = footer.innerHTML.replace(/<br\s*[\/]?>/gi, "|");
-        let cleanText = parser.parseFromString(rawText, 'text/html').body.textContent;
-        const parts = cleanText.split('|').map(p => p.trim()).filter(p => p !== "");
-
-        const tanggal = parts[0] || "—";
-        const angkaPenuh = parts[1] ? parts[1].replace(/[^\d]/g, "") : ""; // Ambil angka saja
-        const angka4D = angkaPenuh.length >= 4 ? angkaPenuh.slice(-4) : angkaPenuh;
-
-        // SIMPAN APA ADANYA DARI API (Tanpa ditambahin POOLS manual dulu)
-        resultsMap[nama] = {
-          tanggal: tanggal,
-          angka: angka4D || "----",
-          namaAsli: nama
-        };
+        console.log("✅ DATA SUPABASE SIAP:", resultsMap);
+        
+        // 3. Update tampilan muka
+        setDataRiwayat(resultsMap);
+        
+        // Simpan cache ringan buat performa
+        localStorage.setItem("cache_riwayat", JSON.stringify(resultsMap));
       }
-    });
-
-    console.log("🛠 DEBUG DATA DARI API:", resultsMap);
-
-    if (Object.keys(resultsMap).length > 0) {
-      setDataRiwayat(resultsMap);
-      localStorage.setItem("cache_riwayat", JSON.stringify(resultsMap));
-
-      const historyLama = JSON.parse(localStorage.getItem("master_riwayat") || "{}");
-
-      Object.keys(resultsMap).forEach((pasaran) => {
-        const dataAPI = resultsMap[pasaran];
-        // STANDARISASI: Cari nama pasaran yang paling mirip
-        let keyGudang = pasaran;
-
-        if (!Array.isArray(historyLama[keyGudang])) historyLama[keyGudang] = [];
-
-        const sudahAda = historyLama[keyGudang].some(
-          (item) => item.tanggal === dataAPI.tanggal && item.result === dataAPI.angka
-        );
-
-        const angkaValid = dataAPI.angka && dataAPI.angka !== "----" && dataAPI.angka.length >= 4;
-
-        if (!sudahAda && angkaValid) {
-          historyLama[keyGudang].unshift({
-            periode: Math.floor(Math.random() * 900) + 2100,
-            tanggal: dataAPI.tanggal,
-            result: dataAPI.angka,
-            jamUpdate: new Date().toLocaleTimeString('id-ID')
-          });
-          if (historyLama[keyGudang].length > 50) historyLama[keyGudang].pop();
-        }
-      });
-      localStorage.setItem("master_riwayat", JSON.stringify(historyLama));
+    } catch (error) {
+      console.error("Gagal ambil data Supabase:", error);
+    } finally {
+      setLoadingData(false);
     }
-  } catch (error) {
-    console.error("Fetch Error:", error);
-  } finally {
-    setLoadingData(false);
-  }
-};
+  };
   
   // --- 4. EFFECTS ---
   useEffect(() => {
