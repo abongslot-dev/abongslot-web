@@ -7,6 +7,42 @@ import {
   Users, Gift, Gamepad2, FileBarChart, Mail, FileDown, Key 
 } from "lucide-react";
 
+
+// KOMPONEN PEMBANTU SIDEBAR (Agar Responsive)
+const SidebarItem = ({ icon, label, active, hasChild, isOpen, onClick, children }) => (
+  <div className="flex flex-col">
+    <div 
+      onClick={onClick}
+      className={`flex items-center p-3 cursor-pointer transition-all duration-200
+        ${active ? 'bg-blue-600 text-white' : 'hover:bg-white/5 text-[#c2c7d0]'}
+        justify-center md:justify-start`} 
+    >
+      <div className="flex-shrink-0 text-white">{icon}</div>
+      {/* Label teks: Hilang di mobile, muncul di desktop */}
+      <span className="hidden md:block ml-3 font-medium flex-1 overflow-hidden whitespace-nowrap">{label}</span>
+      {hasChild && (
+        <ChevronDown 
+          size={14} 
+          className={`hidden md:block transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
+        />
+      )}
+    </div>
+    {/* Sub-menu: Hanya muncul di desktop saat diklik */}
+    {isOpen && <div className="hidden md:block bg-black/20">{children}</div>}
+  </div>
+);
+
+const SubMenuItem = ({ label, active, onClick }) => (
+  <div 
+    onClick={onClick}
+    className={`py-2 pl-11 pr-4 cursor-pointer text-[12px] transition-colors
+      ${active ? 'text-blue-400 font-bold' : 'text-[#8a99af] hover:text-white'}`}
+  >
+    {label}
+  </div>
+);
+
+
 export default function AdminDashboard() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [openMenu, setOpenMenu] = useState("transaksi");
@@ -142,13 +178,14 @@ const formatRupiah = (val) => Number(val || 0).toLocaleString('id-ID');
     <div className="flex h-screen w-full bg-[#1a0033] font-sans text-gray-800 overflow-hidden">
       
       {/* SIDEBAR: Tetap Diam di Kiri */}
-      <aside className="w-16 md:w-64 bg-[#1a0033] text-[#c2c7d0] flex-shrink-0 flex flex-col shadow-xl h-full transition-all duration-300">
-        <div className="p-4 bg-[#1e2225] border-b border-zinc-800 flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xs">A</div>
-          <span className="font-bold text-white tracking-tight text-sm uppercase">ABONGSLOT</span>
-        </div>
+      <aside className="w-16 md:w-64 bg-[#1a0033] text-[#c2c7d0] flex-shrink-0 flex flex-col shadow-xl h-screen sticky top-0 transition-all duration-300">
+        <div className="p-4 bg-[#1e2225] border-b border-zinc-800 flex items-center justify-center md:justify-start gap-2">
+  <div className="w-8 h-8 bg-blue-500 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xs">A</div>
+  {/* Tambahkan hidden md:block agar tulisan hilang di mobile */}
+  <span className="hidden md:block font-bold text-white tracking-tight text-sm uppercase">ABONGSLOT</span>
+</div>
         
-        <nav className="mt-2 flex-1 overflow-y-auto custom-scrollbar text-[13px]">
+  <nav className="mt-2 flex-1 overflow-y-auto custom-scrollbar">
   {/* DASHBOARD */}
   <SidebarItem 
     icon={<LayoutDashboard size={16}/>} 
@@ -3083,4 +3120,5 @@ const handleSimpan = async (e) => {
   );
 
 }
+
 
