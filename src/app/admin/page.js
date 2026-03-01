@@ -636,7 +636,7 @@ const onAction = async (id, status, amount, user) => {
       waktu={item.created_at}
       onAction={onAction}
       onUserClick={onUserClick}
-      no={indexOfFirstItem + index + 1} // Agar nomor urutnya nyambung
+      
     />
   ))
 ) : (
@@ -3081,4 +3081,5 @@ const handleSimpan = async (e) => {
       </div>
     </div>
   );
+
 }
