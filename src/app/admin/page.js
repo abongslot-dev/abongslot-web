@@ -142,7 +142,7 @@ const formatRupiah = (val) => Number(val || 0).toLocaleString('id-ID');
     <div className="flex h-screen w-full bg-[#1a0033] font-sans text-gray-800 overflow-hidden">
       
       {/* SIDEBAR: Tetap Diam di Kiri */}
-      <aside className="w-64 bg-[#1a0033] text-[#c2c7d0] flex-shrink-0 flex flex-col shadow-xl h-full">
+      <aside className="w-16 md:w-64 bg-[#1a0033] text-[#c2c7d0] flex-shrink-0 flex flex-col shadow-xl h-full transition-all duration-300">
         <div className="p-4 bg-[#1e2225] border-b border-zinc-800 flex items-center gap-2">
           <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xs">A</div>
           <span className="font-bold text-white tracking-tight text-sm uppercase">ABONGSLOT</span>
@@ -3083,3 +3083,4 @@ const handleSimpan = async (e) => {
   );
 
 }
+
