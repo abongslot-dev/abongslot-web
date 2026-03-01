@@ -1,16 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
-// 1. Hubungkan ke Supabase (Pintu Gerbang)
-const SUPABASE_URL = 'https://hqsahuywehlbwywzylsz.supabase.co'
-const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6'
+// 1. Ambil URL dan KEY dari Environment Variable (Lebih Aman)
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL; 
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+// Pastikan Client hanya dibuat satu kali
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 export async function POST(req) {
   try {
     const body = await req.json();
     
-    // 2. Tangkap data dari form deposit
     const { 
       username, 
       nominal, 
@@ -23,30 +24,30 @@ export async function POST(req) {
       nama_tujuan 
     } = body;
 
-    // 3. Masukkan data ke tabel 'deposits' di Supabase
+    // 2. Masukkan data ke tabel 'deposits'
     const { data, error } = await supabase
       .from('deposits')
       .insert([
         { 
           username, 
-          nominal: parseFloat(nominal), // Pastikan angka bukan teks
-          promo, 
+          nominal: Number(nominal) || 0,
+          promo: promo || 'No Promo',
           bank_pengirim, 
           rek_pengirim, 
           nama_pengirim, 
           bank_tujuan, 
           rek_tujuan, 
           nama_tujuan,
-          status: 'pending' // Status otomatis awal
+          status: 'pending'
         }
       ]);
 
+    // 3. Cek apakah ada error dari Supabase
     if (error) {
-      console.error("Supabase Error:", error.message);
+      console.error("Supabase Error Detail:", error);
       return NextResponse.json({ error: "Gagal simpan: " + error.message }, { status: 500 });
     }
 
-    // 4. Respon sukses ke user
     return NextResponse.json({ message: "Deposit Berhasil Dicatat, Boss! Mohon ditunggu." }, { status: 200 });
 
   } catch (error) {
@@ -54,4 +55,3 @@ export async function POST(req) {
     return NextResponse.json({ error: "Server Error: " + error.message }, { status: 500 });
   }
 }
-
