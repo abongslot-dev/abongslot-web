@@ -67,29 +67,26 @@ useEffect(() => {
 
 
 const handleCariData = () => {
-  if (!tglMulai || !tglAkhir) {
-    alert("Pilih rentang tanggal dulu, Bos!");
-    return;
-  }
+    if (!tglMulai || !tglAkhir) {
+      alert("Pilih rentang tanggal dulu, Bos!");
+      return;
+    }
 
-  const mulai = new Date(tglMulai).getTime();
-  const akhir = new Date(tglAkhir).getTime();
+    const mulai = new Date(tglMulai).getTime();
+    const akhir = new Date(tglAkhir).getTime();
 
-  const hasil = dataRiwayat.filter((item) => {
-    // Supabase biasanya kasih format "2026-03-01"
-    const tglItem = new Date(item.tanggal).getTime();
+    const hasil = dataRiwayat.filter((item) => {
+      if (!item.tanggal) return false;
+      const tglItem = new Date(item.tanggal).getTime();
+      return tglItem >= mulai && tglItem <= akhir;
+    });
+
+    setDataTampil(hasil);
     
-    return tglItem >= mulai && tglItem <= akhir;
-  });
-
-  setDataTampil(hasil);
-  
-  if (hasil.length === 0) {
-    alert("Data tidak ditemukan untuk tanggal tersebut.");
-  }
-};
-};
-
+    if (hasil.length === 0) {
+      alert("Data tidak ditemukan untuk tanggal tersebut.");
+    }
+  }; // HANYA SATU TUTUP KURUNG DI SINI
 
 
   // --- 3. LOGIKA LOGIN ---
@@ -139,59 +136,35 @@ const handleLogin = async () => {
 
 
 
-useEffect(() => {
-  const loadRiwayatDariDB = async () => {
-    setLoading(true);
-    try {
-      // Kita panggil API yang sudah kita buat tadi
-      const res = await fetch("/api/get-results");
-      const json = await res.json();
+// --- Perbaikan Effect Load Data ---
+  useEffect(() => {
+    const loadRiwayatDariDB = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/get-results");
+        const json = await res.json();
 
-      if (json.success) {
-        // Filter data hanya untuk pasaran yang sedang aktif (misal: SINGAPORE POOLS)
-        const hasilFilter = json.data.filter(item => 
-          item.pasaran.toUpperCase().trim() === pasaranAktif.toUpperCase().trim()
-        );
-
-        setDataRiwayat(hasilFilter);
-        setDataTampil(hasilFilter);
+        if (json.success) {
+          const hasilFilter = json.data.filter(item => 
+            item.pasaran.toUpperCase().trim() === pasaranAktif.toUpperCase().trim()
+          );
+          setDataRiwayat(hasilFilter);
+          setDataTampil(hasilFilter);
+        }
+      } catch (err) {
+        console.error("Gagal tarik riwayat:", err);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Gagal tarik riwayat:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  loadRiwayatDariDB();
-}, [pasaranAktif]); // Setiap ganti tab pasaran, dia otomatis tarik data baru
+    loadRiwayatDariDB();
+  }, [pasaranAktif]);
 
 
 
   // TIPS: Fungsi ini bisa dipanggil jika Bos ingin menambah result baru secara manual
-  const tambahResult = (periodeBaru, resultBaru) => {
-  const dataBaru = { 
-    periode: periodeBaru, 
-    tanggal: new Date().toISOString(), // Simpan format ISO biar filter tanggal gak error
-    result: resultBaru 
-  };
-  
-  // 1. Ambil Gudang Besar
-  const rawData = localStorage.getItem("master_riwayat");
-  const masterData = JSON.parse(rawData || "{}");
 
-  // 2. Update data untuk pasaran yang aktif saja
-  const listLama = masterData[pasaranAktif] || [];
-  const listBaru = [dataBaru, ...listLama];
-  masterData[pasaranAktif] = listBaru;
-
-  // 3. Simpan balik ke Gudang Besar
-  localStorage.setItem("master_riwayat", JSON.stringify(masterData));
-
-  // 4. Update tampilan layar saat itu juga
-  setDataRiwayat(listBaru);
-  setDataTampil(listBaru);
-};
   return (
     <main 
       className="relative min-h-screen text-white font-sans flex flex-col items-center bg-fixed bg-cover bg-center pb-40"
@@ -519,3 +492,4 @@ export default function RiwayatPage() {
   );
 
 }
+
