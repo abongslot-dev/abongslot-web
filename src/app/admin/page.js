@@ -49,7 +49,7 @@ export default function AdminDashboard() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [openMenu, setOpenMenu] = useState("transaksi");
   const [stats, setStats] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
 
 useEffect(() => {
@@ -1662,17 +1662,7 @@ function SummaryItem({ label, count, amount, color, bg, icon, isHighlight }) {
   );
 }
 
-function SidebarItem({ icon, label, hasChild, children, isOpen, onClick, active }) {
-  return (
-    <div className="flex flex-col">
-      <div onClick={onClick} className={`flex items-center justify-between px-3 py-2.5 cursor-pointer transition-all border-l-4 ${active ? 'bg-zinc-800 text-white border-blue-500' : 'hover:bg-zinc-800 text-gray-400 hover:text-white border-transparent'}`}>
-        <div className="flex items-center gap-2.5">{icon}<span className="font-medium">{label}</span></div>
-        {hasChild && <ChevronDown size={12} className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />}
-      </div>
-      {hasChild && isOpen && <div className="bg-[#1e2225] py-1 border-b border-zinc-800/50">{children}</div>}
-    </div>
-  );
-}
+
 
 function SubMenuItem({ label, onClick, active }) {
   return (
@@ -3158,6 +3148,7 @@ const handleSimpan = async (e) => {
   );
 
 }
+
 
 
 
