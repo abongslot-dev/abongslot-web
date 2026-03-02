@@ -36,72 +36,48 @@ const [loadingData, setLoadingData] = useState(false);
 
 
 const fetchData = async () => {
-  setLoadingData(true);
-  try {
-    // UBAH: Jangan pakai allorigins lagi, pakai proxy lokal kita
-    const response = await fetch("/api/proxy"); 
-    const htmlText = await response.text(); 
+    setLoadingData(true);
+    try {
+      // 1. Ambil data langsung dari API Supabase kita
+      const response = await fetch("/api/get-results");
+      const json = await response.json();
 
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlText, "text/html");
-    const resultsMap = {};
-    
-    const cards = doc.querySelectorAll(".card");
-
-    cards.forEach((card) => {
-      const nama = card.querySelector(".card-body h5")?.innerText.trim().toUpperCase();
-      const footer = card.querySelector(".card-footer p");
-      
-      if (nama && footer) {
-        let rawText = footer.innerHTML.replace(/<br\s*[\/]?>/gi, "|"); 
-        let cleanText = parser.parseFromString(rawText, 'text/html').body.textContent;
-        const parts = cleanText.split('|').map(p => p.trim()).filter(p => p !== "");
+      if (json.success && json.data) {
+        const resultsMap = {};
         
-        const tanggal = parts[0] || "—";
-        const angkaPenuh = parts[1] || "";
-        const angka4D = angkaPenuh.replace(/\s/g, "").slice(-4); 
+        // 2. Mapping data agar pasaran jadi KEY (biar kotak di depan update)
+        json.data.forEach((item) => {
+          let key = item.pasaran.trim().toUpperCase();
+          
+          // Standarisasi Nama (Sama dengan logika Bos sebelumnya)
+          if (!key.includes("POOLS") && !key.includes("LOTTO") && !key.includes("MACAU")) {
+            key += " POOLS";
+          }
 
-        resultsMap[nama] = {
-          tanggal: tanggal,
-          angka: angka4D || "----"
-        };
-      }
-    });
-    console.log("🛠 DEBUG DATA DARI API:", resultsMap); // LIHAT DI CONSOLE F12
-
-if (Object.keys(resultsMap).length > 0) {
-        setDataRiwayat(resultsMap);
-        localStorage.setItem("cache_riwayat", JSON.stringify(resultsMap));
-
-        // --- SIMPAN KE RIWAYAT LAMA ---
-        const historyLama = JSON.parse(localStorage.getItem("master_riwayat") || "{}");
-
-        Object.keys(resultsMap).forEach((pasaran) => {
-          const dataBaru = resultsMap[pasaran];
-          if (!historyLama[pasaran]) historyLama[pasaran] = [];
-
-          const sudahTercatat = historyLama[pasaran].some(
-            (item) => item.tanggal === dataBaru.tanggal && item.angka === dataBaru.angka
-          );
-
-          if (!sudahTercatat && dataBaru.angka !== "----") {
-            historyLama[pasaran].unshift({
-              tanggal: dataBaru.tanggal,
-              angka: dataBaru.angka,
-              jamUpdate: new Date().toLocaleTimeString()
-            });
-            if (historyLama[pasaran].length > 50) historyLama[pasaran].pop();
+          // Hanya ambil yang paling baru untuk setiap pasaran
+          if (!resultsMap[key]) {
+            resultsMap[key] = {
+              tanggal: item.tanggal,
+              angka: item.result,
+              periode: item.periode
+            };
           }
         });
-        localStorage.setItem("master_riwayat", JSON.stringify(historyLama));
+
+        console.log("✅ DATA SUPABASE SIAP:", resultsMap);
+        
+        // 3. Update tampilan muka
+        setDataRiwayat(resultsMap);
+        
+        // Simpan cache ringan buat performa
+        localStorage.setItem("cache_riwayat", JSON.stringify(resultsMap));
       }
     } catch (error) {
-      console.error("Fetch Error:", error);
+      console.error("Gagal ambil data Supabase:", error);
     } finally {
       setLoadingData(false);
     }
   };
-
 useEffect(() => {
   fetchData();
   // Opsional: Refresh otomatis setiap 5 menit
@@ -826,3 +802,4 @@ const handleLogout = () => {
   );
 
 }
+
