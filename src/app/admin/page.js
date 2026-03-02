@@ -11,23 +11,40 @@ export default function AdminDashboard() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [openMenu, setOpenMenu] = useState("transaksi");
   const [stats, setStats] = useState(null);
-const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  
+  // --- TAMBAHKAN INI UNTUK FIX VERCEL ---
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-useEffect(() => {
-  const fetchStats = async () => {
-    try {
-      const res = await fetch('/api/dashboard-summary');
-      const result = await res.json();
-      if (result.success) setStats(result);
-    } catch (err) {
-      console.error("Gagal load dashboard stats", err);
-    }
-  };
-  fetchStats();
-}, []);
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch('/api/dashboard-summary');
+        const result = await res.json();
+        if (result.success) setStats(result);
+      } catch (err) {
+        console.error("Gagal load dashboard stats", err);
+      }
+    };
+    fetchStats();
+  }, []);
 
-// Fungsi pembantu format rupiah agar tidak pusing
-const formatRupiah = (val) => Number(val || 0).toLocaleString('id-ID');
+  const formatRupiah = (val) => Number(val || 0).toLocaleString('id-ID');
+
+  // Load & Save Menu
+  useEffect(() => {
+    const savedMenu = localStorage.getItem("activeAdminMenu");
+    if (savedMenu) setActiveMenu(savedMenu);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("activeAdminMenu", activeMenu);
+  }, [activeMenu]);
+
 
 
 
@@ -3100,3 +3117,4 @@ const handleSimpan = async (e) => {
     </div>
   );
 }
+
