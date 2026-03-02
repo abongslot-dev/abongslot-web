@@ -1,12 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* Konfigurasi Sakti biar Vercel tidak rewel */
   eslint: {
-    // Ini akan mengabaikan error ESLint saat build di Vercel
+    // Abaikan error tanda petik (") dan gambar (alt)
     ignoreDuringBuilds: true,
   },
   typescript: {
-    // Jika Bos pakai TypeScript, ini juga perlu diabaikan biar lancar
+    // Abaikan error typing kalau ada
     ignoreBuildErrors: true,
   },
 };
