@@ -328,22 +328,38 @@ export default function AdminDashboard() {
 
       {/* MAIN CONTENT */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-12 bg-[#1a0033] flex items-center justify-between px-4 shadow-sm z-10">
-          <button 
-          type="button"
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="relative z-[60] text-white p-2 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10"
-        >
-          <span className="text-2xl leading-none">☰</span>
-        </button>
-          <div className="flex items-center gap-4">
-            <div className="bg-[#1e2225] px-3 py-1 rounded-full border border-yellow-500/20 flex items-center gap-2">
-              <span className="text-yellow-500 font-bold text-xs tracking-tighter font-mono tracking-tighter">💰 256.375.664,04</span>
-            </div>
-            <Users size={18} className="text-white opacity-70 cursor-pointer" />
-          </div>
-        </header>
+       <header className="h-12 bg-[#1a0033] flex items-center justify-between px-4 shadow-sm relative z-[100]">
+  {/* AREA TOMBOL - Kita kasih isolasi z-index tinggi */}
+  <div className="relative z-[110]">
+    <button 
+      type="button"
+      // Tambahkan e.stopPropagation agar klik tidak 'dicuri' elemen lain
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log("Tombol TERDETEKSI diklik!"); 
+        setIsSidebarOpen(!isSidebarOpen);
+      }}
+      className="text-white p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 active:scale-95 transition-all flex items-center justify-center"
+      style={{ 
+        minWidth: '40px', 
+        minHeight: '40px',
+        position: 'relative',
+        zIndex: 9999, // Paksa paling atas
+        pointerEvents: 'auto' // Pastikan bisa menerima klik
+      }}
+    >
+      <span className="text-2xl leading-none pointer-events-none">☰</span>
+    </button>
+  </div>
 
+  <div className="flex items-center gap-4">
+    <div className="bg-[#1e2225] px-3 py-1 rounded-full border border-yellow-500/20 flex items-center gap-2">
+      <span className="text-yellow-500 font-bold text-xs font-mono">💰 256.375.664,04</span>
+    </div>
+    <Users size={18} className="text-white opacity-70" />
+  </div>
+</header>
         <main className="flex-1 overflow-y-auto bg-white">
           {renderContent()}
           <footer className="py-6 text-center text-[11px] text-gray-400 border-t mt-10">
@@ -3117,4 +3133,5 @@ const handleSimpan = async (e) => {
     </div>
   );
 }
+
 
