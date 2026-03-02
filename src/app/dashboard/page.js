@@ -497,10 +497,31 @@ const handleLogout = () => {
     </div>
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {[
-  { id: "PRAGMATIC", name: "PRAGMATIC PLAY", img: "https://i.postimg.cc/SKScTcYQ/PRAMATIG.png" },
+   { id: "PRAGMATIC", name: "PRAGMATIC PLAY", img: "https://i.postimg.cc/SKScTcYQ/PRAMATIG.png" },
   { id: "PGSOFT", name: "PG SOFT", img: "https://i.postimg.cc/9079RpsC/pg-soft.png" },
   { id: "SPADEGAMING", name: "SPADEGAMING", img: "https://i.postimg.cc/fLSd7H9R/Spade-Gaming.png" },
   { id: "MICROGAMING", name: "MICROGAMING", img: "https://i.postimg.cc/zvnR6V7c/MICROGAMING.png" },
+  { id: "JILI", name: "JILI", img: "https://i.postimg.cc/KjJGzs9G/JILI.png" },
+  { id: "BESOFT", name: "BESOFT", img: "https://i.postimg.cc/9F7d7SRV/BESOFT.png" },
+  { id: "FASTSPIN", name: "FASTSPIN", img: "https://i.postimg.cc/J7bJ7X9j/FASTSPIN.png" },
+  { id: "BTG", name: "BTG", img: "https://i.postimg.cc/yxPkmmHG/BTG.png" },
+  { id: "FC FACHAI", name: "FC FACHAI", img: "https://i.postimg.cc/15v84rM4/FC-FACHAI.png" },
+  { id: "CQ9", name: "CQ9", img: "https://i.postimg.cc/ydhdKmkq/CQ9.png" },
+  { id: "GG SOFT", name: "GG SOFT", img: "https://i.postimg.cc/d0rQR2Rq/gg-soft.png" },
+  { id: "HABANERO", name: "HABANERO", img: "https://i.postimg.cc/C5PwMmYw/HABANERO.png" },
+  { id: "HACKSWA", name: "HACKSWA", img: "https://i.postimg.cc/1tySpL3m/HACKSWA.png" },
+  { id: "JOKER", name: "JOKER", img: "https://i.postimg.cc/G37Ryg0g/JOKER.png" },
+  { id: "MW", name: "MW", img: "https://i.postimg.cc/2SvNgzqp/MW.png" },
+  { id: "NAGA", name: "NAGA", img: "https://i.postimg.cc/RFgkwhYZ/NAGA.png" },
+  { id: "NETENT", name: "NETENT", img: "https://i.postimg.cc/h45FjJx3/NETENT.png" },
+  { id: "NOLIMITED", name: "NOLIMITED", img: "https://i.postimg.cc/zDMMNsZQ/NOLIMITED.png" },
+  { id: "PLAYGO", name: "PLAYGO", img: "https://i.postimg.cc/jS6kzCwj/PLAYGO.png" },
+  { id: "PLAYTECH", name: "PLAYTECH", img: "https://i.postimg.cc/4yhWn3Rf/playtech.png" },
+  { id: "R88", name: "R88", img: "https://i.postimg.cc/kg9dr0WR/R88.png" },
+  { id: "REDTIGER", name: "REDTIGER", img: "https://i.postimg.cc/QtF2khZn/REDTIGER.png" },
+  { id: "RELAX", name: "RELAX", img: "https://i.postimg.cc/Fs5McMWD/RELAX.png" },
+  { id: "SBOBETSLOT", name: "SBOBETSLOT", img: "https://i.postimg.cc/Lsb7swg0/SBOBETSLOT.png" },
+  { id: "YGGDRASIL", name: "YGGDRASIL", img: "https://i.postimg.cc/gjvBN0tF/YGGDRASIL.png" },
 ].map((slot, i) => (
   <div 
     key={i} 
@@ -806,5 +827,6 @@ const handleLogout = () => {
   );
 
 }
+
 
 
