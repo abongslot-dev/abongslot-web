@@ -179,6 +179,14 @@ const formatRupiah = (val) => Number(val || 0).toLocaleString('id-ID');
   return (
     // 1. CONTAINER UTAMA: h-screen (pas selayar) & overflow-hidden (scroll luar mati)
     <div className="flex h-screen w-full bg-[#1a0033] font-sans text-gray-800 overflow-hidden">
+
+    {/* 1. OVERLAY HITAM (Hanya muncul di HP saat Sidebar kebuka) */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-[40] md:hidden backdrop-blur-sm transition-opacity"
+          onClick={() => setIsSidebarOpen(false)} // Klik layar hitam, sidebar tutup
+        />
+      )}
       
       {/* SIDEBAR: Tetap Diam di Kiri */}
       <aside className={`
@@ -345,30 +353,35 @@ const formatRupiah = (val) => Number(val || 0).toLocaleString('id-ID');
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         
         {/* HEADER: Tinggi 12 (h-12) dengan Glassmorphism */}
-        <header className="h-12 bg-[#1a0033] flex items-center justify-between px-4 shadow-lg z-10 border-b border-white/5">
-          {/* Tombol Hamburger (Bisa Bos fungsikan nanti untuk toggle sidebar full) */}
-          <button 
-  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-  className="text-white opacity-70 hover:opacity-100 transition-opacity p-2"
->
-  <span className="text-xl">☰</span>
-</button>
+      <header className="h-12 bg-[#1a0033] flex items-center justify-between px-4 shadow-lg z-50 border-b border-white/5 relative">
+  {/* TOMBOL HAMBURGER - KITA KASIH Z-50 & CURSOR POINTER */}
+  <button 
+    type="button"
+    onClick={(e) => {
+      e.preventDefault();
+      setIsSidebarOpen(!isSidebarOpen);
+      console.log("Tombol diklik! Status Sidebar:", !isSidebarOpen); // Buat cek di F12
+    }}
+    className="relative z-[60] text-white opacity-100 hover:scale-110 transition-all p-2 bg-white/5 rounded-lg active:bg-white/20 cursor-pointer"
+    style={{ minWidth: '40px', minHeight: '40px' }}
+  >
+    <span className="text-2xl leading-none">☰</span>
+  </button>
 
-          <div className="flex items-center gap-3">
-            {/* SALDO ADMIN: Pakai Font Mono agar angka tidak goyang saat berubah */}
-            <div className="bg-[#1e2225] px-3 py-1.5 rounded-lg border border-yellow-500/30 flex items-center gap-2 shadow-inner">
-              <span className="text-yellow-500 font-black text-[11px] font-mono tracking-tight">
-                💰 {formatRupiah(256375664.04)}
-              </span>
-            </div>
-            
-            {/* IKON NOTIF/USER */}
-            <div className="relative group">
-              <Users size={18} className="text-white opacity-70 cursor-pointer hover:opacity-100 transition-all" />
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-[#1a0033]"></span>
-            </div>
-          </div>
-        </header>
+  <div className="flex items-center gap-3">
+    {/* SALDO ADMIN */}
+    <div className="bg-[#1e2225] px-3 py-1.5 rounded-lg border border-yellow-500/30 flex items-center gap-2 shadow-inner">
+      <span className="text-yellow-500 font-black text-[11px] font-mono tracking-tight">
+        💰 {formatRupiah(256375664.04)}
+      </span>
+    </div>
+    
+    <div className="relative group">
+      <Users size={18} className="text-white opacity-70 cursor-pointer hover:opacity-100 transition-all" />
+      <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-[#1a0033]"></span>
+    </div>
+  </div>
+</header>
 
         {/* AREA HALAMAN UTAMA */}
         <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
@@ -3148,6 +3161,7 @@ const handleSimpan = async (e) => {
   );
 
 }
+
 
 
 
