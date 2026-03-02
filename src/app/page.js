@@ -360,7 +360,7 @@ const handleSetujuLogin = () => {
       <div className="w-full max-w-5xl bg-[#5D3FD3] border-x border-b border-yellow-600/30 py-1">
         <div className="px-4 flex items-center gap-2 text-[16px] font-bold italic">
            <span className="text-yellow-300 whitespace-nowrap">📢 INFO:</span>
-           <marquee scrollamount="5">Selamat Datang Di Situs ABONGSLOT ! Prediksi Anda Akan Merubah Hidup Anda ! ! !</marquee>
+           <marquee scrollamount="5">Selamat Datang Di Situs AMONI888 HILISAOTONIHA ! Prediksi Anda Akan Merubah Hidup Anda ! ! !</marquee>
         </div>
       </div>
 
