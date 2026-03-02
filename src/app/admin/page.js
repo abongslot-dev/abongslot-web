@@ -340,7 +340,6 @@ const formatRupiah = (val) => Number(val || 0).toLocaleString('id-ID');
 
 
 
-
 const FilterInput = ({ label, placeholder }) => (
   <div className="flex flex-col gap-1">
     <label className="text-[11px] font-bold text-gray-600 uppercase">{label}</label>
@@ -655,7 +654,7 @@ const onAction = async (id, status, amount, user) => {
       waktu={item.created_at}
       onAction={onAction}
       onUserClick={onUserClick}
-      
+      no={indexOfFirstItem + index + 1} // Agar nomor urutnya nyambung
     />
   ))
 ) : (
@@ -1606,7 +1605,17 @@ function SummaryItem({ label, count, amount, color, bg, icon, isHighlight }) {
   );
 }
 
-
+function SidebarItem({ icon, label, hasChild, children, isOpen, onClick, active }) {
+  return (
+    <div className="flex flex-col">
+      <div onClick={onClick} className={`flex items-center justify-between px-3 py-2.5 cursor-pointer transition-all border-l-4 ${active ? 'bg-zinc-800 text-white border-blue-500' : 'hover:bg-zinc-800 text-gray-400 hover:text-white border-transparent'}`}>
+        <div className="flex items-center gap-2.5">{icon}<span className="font-medium">{label}</span></div>
+        {hasChild && <ChevronDown size={12} className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />}
+      </div>
+      {hasChild && isOpen && <div className="bg-[#1e2225] py-1 border-b border-zinc-800/50">{children}</div>}
+    </div>
+  );
+}
 
 function SubMenuItem({ label, onClick, active }) {
   return (
@@ -3090,18 +3099,4 @@ const handleSimpan = async (e) => {
       </div>
     </div>
   );
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
