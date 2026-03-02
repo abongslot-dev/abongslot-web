@@ -7,50 +7,11 @@ import {
   Users, Gift, Gamepad2, FileBarChart, Mail, FileDown, Key 
 } from "lucide-react";
 
-
-// KOMPONEN PEMBANTU SIDEBAR
-const SidebarItem = ({ icon, label, active, hasChild, isOpen, onClick, children }) => (
-  <div className="flex flex-col">
-    <div 
-      onClick={onClick}
-      className={`flex items-center p-3 cursor-pointer transition-all duration-200
-        ${active ? 'bg-blue-600 text-white' : 'hover:bg-white/5 text-[#c2c7d0]'}
-        justify-center md:justify-start`} 
-    >
-      <div className="flex-shrink-0 text-white">{icon}</div>
-      <span className="hidden md:block ml-3 font-medium flex-1 overflow-hidden whitespace-nowrap">{label}</span>
-      {hasChild && (
-        <ChevronDown 
-          size={14} 
-          className={`hidden md:block transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
-        />
-      )}
-    </div>
-    {/* Sub-menu hanya muncul di desktop saja agar tidak merusak layout HP */}
-    {isOpen && (
-      <div className="hidden md:block bg-black/20 transition-all">
-        {children}
-      </div>
-    )}
-  </div>
-);
-
-const SubMenuItem = ({ label, active, onClick }) => (
-  <div 
-    onClick={onClick}
-    className={`py-2 pl-11 pr-4 cursor-pointer text-[12px] transition-colors truncate
-      ${active ? 'text-blue-400 font-bold bg-white/5' : 'text-[#8a99af] hover:text-white hover:bg-white/5'}`}
-  >
-    {label}
-  </div>
-);
-
 export default function AdminDashboard() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [openMenu, setOpenMenu] = useState("transaksi");
   const [stats, setStats] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
 useEffect(() => {
   const fetchStats = async () => {
@@ -176,30 +137,30 @@ const formatRupiah = (val) => Number(val || 0).toLocaleString('id-ID');
 
 
 
-return (
+  return (
     // 1. CONTAINER UTAMA: h-screen (pas selayar) & overflow-hidden (scroll luar mati)
     <div className="flex h-screen w-full bg-[#1a0033] font-sans text-gray-800 overflow-hidden">
 
-    {/* 1. OVERLAY HITAM (Hanya muncul di HP saat Sidebar kebuka) */}
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/60 z-[40] md:hidden backdrop-blur-sm transition-opacity"
-          onClick={() => setIsSidebarOpen(false)} // Klik layar hitam, sidebar tutup
-        />
-      )}
+
+      {/* 1. OVERLAY (Layar Gelap saat di HP) */}
+    {isSidebarOpen && (
+      <div 
+        className="fixed inset-0 bg-black/60 z-[40] md:hidden backdrop-blur-sm"
+        onClick={() => setIsSidebarOpen(false)} 
+      />
+    )}
       
       {/* SIDEBAR: Tetap Diam di Kiri */}
-      <aside className={`
-  fixed md:relative z-50 h-screen bg-[#1a0033] text-[#c2c7d0] flex-shrink-0 flex flex-col shadow-2xl transition-all duration-300 ease-in-out
-  ${isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-20'}
-`}>
-        <div className="p-4 bg-[#1e2225] border-b border-zinc-800 flex items-center justify-center md:justify-start gap-2">
-  <div className="w-8 h-8 bg-blue-500 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xs">A</div>
-  {/* Tambahkan hidden md:block agar tulisan hilang di mobile */}
-  <span className="hidden md:block font-bold text-white tracking-tight text-sm uppercase">ABONGSLOT</span>
-</div>
+     <aside className={`
+        fixed md:relative z-[50] h-screen bg-[#1a0033] text-[#c2c7d0] flex-shrink-0 flex flex-col shadow-2xl transition-all duration-300 ease-in-out
+        ${isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-20'}
+      `}>
+        <div className="p-4 bg-[#1e2225] border-b border-zinc-800 flex items-center gap-2">
+          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xs">A</div>
+          <span className="font-bold text-white tracking-tight text-sm uppercase">ABONGSLOT</span>
+        </div>
         
-  <nav className="mt-2 flex-1 overflow-y-auto custom-scrollbar">
+        <nav className="mt-2 flex-1 overflow-y-auto custom-scrollbar text-[13px]">
   {/* DASHBOARD */}
   <SidebarItem 
     icon={<LayoutDashboard size={16}/>} 
@@ -337,11 +298,10 @@ return (
   <SubMenuItem label="Kirim Pesan" />
 </SidebarItem>
 </nav>
-        <div className="p-4 bg-[#1e2225] text-[11px] border-t border-zinc-800 flex flex-col items-center md:items-start">
-  <p className="hidden md:block opacity-40 uppercase mb-1">Login sebagai:</p>
-  <p className="hidden md:block text-white font-semibold italic">ABONGSLOT</p>
-  <div className="md:hidden w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-</div>
+        <div className="p-4 bg-[#1e2225] text-[11px] border-t border-zinc-800">
+          <p className="opacity-40 uppercase mb-1">Login sebagai:</p>
+          <p className="text-white font-semibold italic">ABONGSLOT</p>
+        </div>
       </aside>
 
 
@@ -349,64 +309,35 @@ return (
 
 
 
-      {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        
-        {/* HEADER: Tinggi 12 (h-12) dengan Glassmorphism */}
-      <header className="h-12 bg-[#1a0033] flex items-center justify-between px-4 shadow-lg z-70 border-b border-white/5 relative">
-  {/* TOMBOL HAMBURGER - KITA KASIH Z-50 & CURSOR POINTER */}
-  <button 
-    type="button"
-    onClick={(e) => {
-      e.preventDefault();
-      setIsSidebarOpen(!isSidebarOpen);
-      console.log("Tombol diklik! Status Sidebar:", !isSidebarOpen); // Buat cek di F12
-    }}
-    className="relative z-[60] text-white opacity-100 hover:scale-110 transition-all p-2 bg-white/5 rounded-lg active:bg-white/20 cursor-pointer"
-    style={{ minWidth: '40px', minHeight: '40px' }}
-  >
-    <span className="text-2xl leading-none">☰</span>
-  </button>
-
-  <div className="flex items-center gap-3">
-    {/* SALDO ADMIN */}
-    <div className="bg-[#1e2225] px-3 py-1.5 rounded-lg border border-yellow-500/30 flex items-center gap-2 shadow-inner">
-      <span className="text-yellow-500 font-black text-[11px] font-mono tracking-tight">
-        💰 {formatRupiah(256375664.04)}
-      </span>
-    </div>
-    
-    <div className="relative group">
-      <Users size={18} className="text-white opacity-70 cursor-pointer hover:opacity-100 transition-all" />
-      <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-[#1a0033]"></span>
-    </div>
-  </div>
-</header>
-
-        {/* AREA HALAMAN UTAMA */}
-        <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-          <div className="p-4 md:p-6 min-h-full flex flex-col">
-            
-            {/* TEMPAT RENDER KONTEN (Dashboard, Transaksi, dll) */}
-            <div className="flex-1">
-              {renderContent()}
+      {/* MAIN CONTENT */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <header className="h-12 bg-[#1a0033] flex items-center justify-between px-4 shadow-sm z-10">
+          <button 
+          type="button"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="relative z-[60] text-white p-2 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10"
+        >
+          <span className="text-2xl leading-none">☰</span>
+        </button>
+          <div className="flex items-center gap-4">
+            <div className="bg-[#1e2225] px-3 py-1 rounded-full border border-yellow-500/20 flex items-center gap-2">
+              <span className="text-yellow-500 font-bold text-xs tracking-tighter font-mono tracking-tighter">💰 256.375.664,04</span>
             </div>
-
-            {/* FOOTER: Bersih & Profesional */}
-            <footer className="py-8 text-center border-t border-gray-200 mt-12">
-              <p className="text-[10px] text-gray-400 uppercase tracking-[2px] font-bold">
-                Copyright © ABONGSLOT 2026
-              </p>
-              <p className="text-[9px] text-gray-300 mt-1">
-                Versi Sistem 2.0.4 - Secure Connection Enabled
-              </p>
-            </footer>
+            <Users size={18} className="text-white opacity-70 cursor-pointer" />
           </div>
+        </header>
+
+        <main className="flex-1 overflow-y-auto bg-white">
+          {renderContent()}
+          <footer className="py-6 text-center text-[11px] text-gray-400 border-t mt-10">
+            Copyright © OneLiveGaming 2023
+          </footer>
         </main>
       </div>
     </div>
   );
 }
+
 
 
 
@@ -3161,6 +3092,7 @@ const handleSimpan = async (e) => {
   );
 
 }
+
 
 
 
