@@ -176,96 +176,238 @@ const formatRupiah = (val) => Number(val || 0).toLocaleString('id-ID');
 
 
 
-  return (
-    <div className="flex h-screen w-full bg-[#1a0033] font-sans text-gray-800 overflow-hidden relative">
+return (
+    // 1. CONTAINER UTAMA: h-screen (pas selayar) & overflow-hidden (scroll luar mati)
+    <div className="flex h-screen w-full bg-[#1a0033] font-sans text-gray-800 overflow-hidden">
 
-      {/* 1. OVERLAY (Z-INDEX 40) - Muncul saat sidebar buka di HP */}
+    {/* 1. OVERLAY HITAM (Hanya muncul di HP saat Sidebar kebuka) */}
       {isSidebarOpen && (
         <div 
           className="fixed inset-0 bg-black/60 z-[40] md:hidden backdrop-blur-sm transition-opacity"
-          onClick={() => setIsSidebarOpen(false)} 
+          onClick={() => setIsSidebarOpen(false)} // Klik layar hitam, sidebar tutup
         />
       )}
       
-      {/* 2. SIDEBAR (Z-INDEX 50) */}
+      {/* SIDEBAR: Tetap Diam di Kiri */}
       <aside className={`
-        fixed md:relative z-[50] h-screen bg-[#1a0033] text-[#c2c7d0] flex-shrink-0 flex flex-col shadow-2xl transition-all duration-300 ease-in-out
-        ${isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-20'}
-      `}>
+  fixed md:relative z-50 h-screen bg-[#1a0033] text-[#c2c7d0] flex-shrink-0 flex flex-col shadow-2xl transition-all duration-300 ease-in-out
+  ${isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-20'}
+`}>
         <div className="p-4 bg-[#1e2225] border-b border-zinc-800 flex items-center justify-center md:justify-start gap-2">
-          <div className="w-8 h-8 bg-blue-500 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xs">A</div>
-          <span className="hidden md:block font-bold text-white tracking-tight text-sm uppercase">ABONGSLOT</span>
-        </div>
+  <div className="w-8 h-8 bg-blue-500 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xs">A</div>
+  {/* Tambahkan hidden md:block agar tulisan hilang di mobile */}
+  <span className="hidden md:block font-bold text-white tracking-tight text-sm uppercase">ABONGSLOT</span>
+</div>
         
-        <nav className="mt-2 flex-1 overflow-y-auto custom-scrollbar">
-          {/* Dashboard */}
-          <SidebarItem 
-            icon={<LayoutDashboard size={16}/>} 
-            label="Dashboard" 
-            active={activeMenu === "dashboard"} 
-            onClick={() => { setActiveMenu("dashboard"); if(window.innerWidth < 768) setIsSidebarOpen(false); }} 
-          />
-          
-          {/* Menu Transaksi */}
-          <SidebarItem 
-            icon={<ArrowRightLeft size={16}/>} 
-            label="Transaksi" 
-            hasChild 
-            isOpen={openMenu === "transaksi"} 
-            onClick={() => setOpenMenu(openMenu === "transaksi" ? "" : "transaksi")}
-          >
-            <SubMenuItem label="Deposit Baru" active={activeMenu === "deposit-baru"} onClick={() => { setActiveMenu("deposit-baru"); if(window.innerWidth < 768) setIsSidebarOpen(false); }} />
-            <SubMenuItem label="Withdrawal Baru" active={activeMenu === "withdrawal-baru"} onClick={() => { setActiveMenu("withdrawal-baru"); if(window.innerWidth < 768) setIsSidebarOpen(false); }} />
-            <SubMenuItem label="Rangkuman Deposit" active={activeMenu === "Rangkuman-Deposit"} onClick={() => { setActiveMenu("Rangkuman-Deposit"); if(window.innerWidth < 768) setIsSidebarOpen(false); }} />
-          </SidebarItem>
+  <nav className="mt-2 flex-1 overflow-y-auto custom-scrollbar">
+  {/* DASHBOARD */}
+  <SidebarItem 
+    icon={<LayoutDashboard size={16}/>} 
+    label="Dashboard" 
+    active={activeMenu === "dashboard"} 
+    onClick={() => setActiveMenu("dashboard")} 
+  />
 
-          {/* ... Item menu lainnya tetap sama ... */}
-        </nav>
+  {/* MENU TRANSAKSI */}
+  <SidebarItem 
+    icon={<ArrowRightLeft size={16}/>} 
+    label="Transaksi" 
+    hasChild 
+    isOpen={openMenu === "transaksi"} 
+    onClick={() => setOpenMenu(openMenu === "transaksi" ? "" : "transaksi")}
+  >
+    <SubMenuItem label="Deposit Baru" active={activeMenu === "deposit-baru"} onClick={() => setActiveMenu("deposit-baru")} />
+    <SubMenuItem label="Withdrawal Baru" active={activeMenu === "withdrawal-baru"} onClick={() => setActiveMenu("withdrawal-baru")} />
+    <SubMenuItem label="Rangkuman Deposit"active={activeMenu === "Rangkuman-Deposit"} onClick={() => setActiveMenu("Rangkuman-Deposit")} />
+    <SubMenuItem 
+  label="Rangkuman Withdrawal" 
+  active={activeMenu === "Rangkuman-Withdrawal"} 
+  onClick={() => setActiveMenu("Rangkuman-Withdrawal")} 
+/>
+    <SubMenuItem label="Penyesuaian Saldo" />
+    <SubMenuItem label="Rangkuman Deposit Auto" />
+  </SidebarItem>
+
+  {/* MENU MEMBER - INI PERBAIKANNYA */}
+  <SidebarItem 
+    icon={<Users size={16}/>} 
+    label="Member" 
+    hasChild 
+    isOpen={openMenu === "member"} 
+    onClick={() => setOpenMenu(openMenu === "member" ? "" : "member")}
+  >
+    <SubMenuItem 
+      label="Daftar Member" 
+      active={activeMenu === "daftar-member"} 
+      onClick={() => setActiveMenu("daftar-member")} 
+    />
+    <SubMenuItem label="Member Online" />
+    <SubMenuItem label="Lihat IP" />
+  </SidebarItem>
+
+ {/* MENU PROMOSI */}
+<SidebarItem 
+  icon={<Gift size={16}/>} 
+  label="Promosi" 
+  hasChild 
+  isOpen={openMenu === "promo"} 
+  onClick={() => setOpenMenu(openMenu === "promo" ? "" : "promo")}
+>
+  <SubMenuItem label="Promosi Deposit" active={activeMenu === "daftar-promo"} onClick={() => setActiveMenu("daftar-promo")} />
+  <SubMenuItem label="Promosi Cashback" active={activeMenu === "promo-cashback"} onClick={() => setActiveMenu("promo-cashback")}/>
+  <SubMenuItem label="Promosi Referral" active={activeMenu === "promo-referral"} onClick={() => setActiveMenu("promo-referral")}/>
+  <SubMenuItem label="Proses Bonus" active={activeMenu === "Proses-Bonus"} onClick={() => setActiveMenu("Proses-Bonus")}/>
+  <SubMenuItem label="Laporan Bonus" active={activeMenu === "Laporan-Bonus"} onClick={() => setActiveMenu("Laporan-Bonus")}/>  
+  <SubMenuItem label="Laporan Cashback" active={activeMenu === "Laporan-Cashback"} onClick={() => setActiveMenu("Laporan-Cashback")}/>  
+  <SubMenuItem label="Laporan Referral " active={activeMenu === "Laporan-Referral "} onClick={() => setActiveMenu("Laporan-Referral")}/>  
+  <SubMenuItem label="Laporan Rolling" active={activeMenu === "Laporan-Rolling"} onClick={() => setActiveMenu("Laporan-Rolling")}/>  
+</SidebarItem>
+
+{/* MENU TOGEL */}
+<SidebarItem 
+  icon={<Gamepad2 size={16}/>} 
+  label="Togel" 
+  hasChild 
+  isOpen={openMenu === "togel"} 
+  onClick={() => setOpenMenu(openMenu === "togel" ? "" : "togel")}
+>
+  {/* Menu Input Result (Yang barusan kita bikin fungsinya) */}
+  <SubMenuItem 
+    label="Input Result" 
+    active={activeMenu === "input-result"}
+    onClick={() => setActiveMenu("input-result")} 
+  />
+
+  {/* Menu Pasaran */}
+  <SubMenuItem 
+    label="Pasaran Togel" 
+    active={activeMenu === "pasaran-togel"}
+    onClick={() => setActiveMenu("pasaran-togel")} 
+  />
+
+  {/* Menu Lainnya (Bisa Boss buat halamannya nanti) */}
+ <SubMenuItem 
+  label="Togel Result" 
+  active={activeMenu === "togel-result"}
+  onClick={() => setActiveMenu("togel-result")} 
+/>
+  <SubMenuItem 
+    label="Limit Bet" 
+    active={activeMenu === "limit-bet"}
+    onClick={() => setActiveMenu("limit-bet")} 
+  />
+</SidebarItem>
+
+{/* MENU LAPORAN */}
+<SidebarItem 
+  icon={<FileBarChart size={16}/>} 
+  label="Laporan" 
+  hasChild 
+  isOpen={openMenu === "laporan"} 
+  onClick={() => setOpenMenu(openMenu === "laporan" ? "" : "laporan")}
+>
+  <SubMenuItem label="Laporan Transaksi" />
+  <SubMenuItem label="Laporan Game" />
+  <SubMenuItem label="Laporan Referral" />
+  <SubMenuItem label="Win Lose Member" />
+</SidebarItem>
+
+{/* MENU PENGATURAN BANK */}
+<SidebarItem 
+  icon={<Landmark size={16}/>} 
+  label="Pengaturan Bank" 
+  hasChild 
+  isOpen={openMenu === "bank"} 
+  onClick={() => setOpenMenu(openMenu === "bank" ? "" : "bank")}
+>
+  <SubMenuItem label="Bank List" />
+  <SubMenuItem label="Rekening Admin" />
+  <SubMenuItem label="Setting WD/Depo" />
+</SidebarItem>
+
+{/* MENU PESAN */}
+<SidebarItem 
+  icon={<Mail size={16}/>} 
+  label="Pesan" 
+  hasChild 
+  isOpen={openMenu === "pesan"} 
+  onClick={() => setOpenMenu(openMenu === "pesan" ? "" : "pesan")}
+>
+  <SubMenuItem label="Pesan Masuk" />
+  <SubMenuItem label="Kirim Pesan" />
+</SidebarItem>
+</nav>
+        <div className="p-4 bg-[#1e2225] text-[11px] border-t border-zinc-800 flex flex-col items-center md:items-start">
+  <p className="hidden md:block opacity-40 uppercase mb-1">Login sebagai:</p>
+  <p className="hidden md:block text-white font-semibold italic">ABONGSLOT</p>
+  <div className="md:hidden w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+</div>
       </aside>
 
-      {/* 3. AREA UTAMA (KANAN) */}
+
+
+
+
+
+      {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         
-        {/* HEADER (Z-INDEX 30 tapi Tombolnya Z-60) */}
-        <header className="h-12 bg-[#1a0033] flex items-center justify-between px-4 shadow-lg z-[30] border-b border-white/5 relative">
-          
-          {/* TOMBOL HAMBURGER - KITA PAKAI Z-[60] SUPAYA DI DEPAN SIDEBAR & OVERLAY */}
-          <button 
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation(); // Mencegah klik tembus ke bawah
-              setIsSidebarOpen(!isSidebarOpen);
-            }}
-            className="relative z-[60] text-white opacity-100 hover:scale-110 transition-all p-2 bg-white/10 rounded-lg cursor-pointer active:bg-blue-600"
-            style={{ minWidth: '40px', minHeight: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
-            <span className="text-2xl pointer-events-none">☰</span>
-          </button>
+        {/* HEADER: Tinggi 12 (h-12) dengan Glassmorphism */}
+      <header className="h-12 bg-[#1a0033] flex items-center justify-between px-4 shadow-lg z-70 border-b border-white/5 relative">
+  {/* TOMBOL HAMBURGER - KITA KASIH Z-50 & CURSOR POINTER */}
+  <button 
+    type="button"
+    onClick={(e) => {
+      e.preventDefault();
+      setIsSidebarOpen(!isSidebarOpen);
+      console.log("Tombol diklik! Status Sidebar:", !isSidebarOpen); // Buat cek di F12
+    }}
+    className="relative z-[60] text-white opacity-100 hover:scale-110 transition-all p-2 bg-white/5 rounded-lg active:bg-white/20 cursor-pointer"
+    style={{ minWidth: '40px', minHeight: '40px' }}
+  >
+    <span className="text-2xl leading-none">☰</span>
+  </button>
 
-          <div className="flex items-center gap-3">
-            <div className="bg-[#1e2225] px-3 py-1.5 rounded-lg border border-yellow-500/30 flex items-center gap-2">
-              <span className="text-yellow-500 font-black text-[11px] font-mono">
-                💰 {formatRupiah(256375664.04)}
-              </span>
-            </div>
-          </div>
-        </header>
+  <div className="flex items-center gap-3">
+    {/* SALDO ADMIN */}
+    <div className="bg-[#1e2225] px-3 py-1.5 rounded-lg border border-yellow-500/30 flex items-center gap-2 shadow-inner">
+      <span className="text-yellow-500 font-black text-[11px] font-mono tracking-tight">
+        💰 {formatRupiah(256375664.04)}
+      </span>
+    </div>
+    
+    <div className="relative group">
+      <Users size={18} className="text-white opacity-70 cursor-pointer hover:opacity-100 transition-all" />
+      <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-[#1a0033]"></span>
+    </div>
+  </div>
+</header>
 
-        {/* MAIN CONTENT AREA */}
-        <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative bg-gray-50">
+        {/* AREA HALAMAN UTAMA */}
+        <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
           <div className="p-4 md:p-6 min-h-full flex flex-col">
+            
+            {/* TEMPAT RENDER KONTEN (Dashboard, Transaksi, dll) */}
             <div className="flex-1">
               {renderContent()}
             </div>
+
+            {/* FOOTER: Bersih & Profesional */}
             <footer className="py-8 text-center border-t border-gray-200 mt-12">
-              <p className="text-[10px] text-gray-400 uppercase font-bold">Copyright © ABONGSLOT 2026</p>
+              <p className="text-[10px] text-gray-400 uppercase tracking-[2px] font-bold">
+                Copyright © ABONGSLOT 2026
+              </p>
+              <p className="text-[9px] text-gray-300 mt-1">
+                Versi Sistem 2.0.4 - Secure Connection Enabled
+              </p>
             </footer>
           </div>
         </main>
       </div>
     </div>
   );
+}
+
 
 
 const FilterInput = ({ label, placeholder }) => (
@@ -3019,6 +3161,7 @@ const handleSimpan = async (e) => {
   );
 
 }
+
 
 
 
