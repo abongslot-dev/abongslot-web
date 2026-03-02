@@ -353,7 +353,7 @@ const formatRupiah = (val) => Number(val || 0).toLocaleString('id-ID');
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         
         {/* HEADER: Tinggi 12 (h-12) dengan Glassmorphism */}
-      <header className="h-12 bg-[#1a0033] flex items-center justify-between px-4 shadow-lg z-50 border-b border-white/5 relative">
+      <header className="h-12 bg-[#1a0033] flex items-center justify-between px-4 shadow-lg z-70 border-b border-white/5 relative">
   {/* TOMBOL HAMBURGER - KITA KASIH Z-50 & CURSOR POINTER */}
   <button 
     type="button"
@@ -3161,6 +3161,7 @@ const handleSimpan = async (e) => {
   );
 
 }
+
 
 
 
