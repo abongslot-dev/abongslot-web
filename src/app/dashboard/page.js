@@ -316,16 +316,20 @@ const handleLogout = () => {
     
     <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-blur snap-x">
       {[
-        { name: "Mahjong Ways", prov: "Pgsoft", img: "https://i.postimg.cc/yYR4fZ02/d9c0b71a9d91fb4b2ed1d2d0882b7465.jpg" },
-        { name: "Mahjong Ways 2", prov: "Pgsoft", img: "https://i.postimg.cc/yYR4fZ02/d9c0b71a9d91fb4b2ed1d2d0882b7465.jpg" },
-        { name: "Wild Bounty", prov: "Pgsoft", img: "https://i.postimg.cc/yYR4fZ02/d9c0b71a9d91fb4b2ed1d2d0882b7465.jpg" },
-        { name: "Wild Bandito", prov: "Pgsoft", img: "https://i.postimg.cc/yYR4fZ02/d9c0b71a9d91fb4b2ed1d2d0882b7465.jpg" },
-        { name: "Gates of Olympus", prov: "Pragmatic", img: "https://i.postimg.cc/yYR4fZ02/d9c0b71a9d91fb4b2ed1d2d0882b7465.jpg" },
-        { name: "Gates of Olympus", prov: "Pragmatic", img: "https://i.postimg.cc/yYR4fZ02/d9c0b71a9d91fb4b2ed1d2d0882b7465.jpg" },
-        { name: "Gates of Olympus", prov: "Pragmatic", img: "https://i.postimg.cc/yYR4fZ02/d9c0b71a9d91fb4b2ed1d2d0882b7465.jpg" },
-        { name: "Gates of Olympus", prov: "Pragmatic", img: "https://i.postimg.cc/yYR4fZ02/d9c0b71a9d91fb4b2ed1d2d0882b7465.jpg" },
-        { name: "Gates of Olympus", prov: "Pragmatic", img: "https://i.postimg.cc/yYR4fZ02/d9c0b71a9d91fb4b2ed1d2d0882b7465.jpg" },
-        { name: "Gates of Olympus", prov: "Pragmatic", img: "https://i.postimg.cc/yYR4fZ02/d9c0b71a9d91fb4b2ed1d2d0882b7465.jpg" },
+        { name: "Mahjong Ways", prov: "Pgsoft", img: "https://i.postimg.cc/DfQTQ5Y0/mahjong-ways.png" },
+  { name: "Mahjong Ways 2", prov: "Pgsoft", img: "https://i.postimg.cc/CKfyR4qw/mahjong-ways2.png" },
+  { name: "Wild Bounty", prov: "Pgsoft", img: "https://i.postimg.cc/gjm1BFBZ/wilbonty.png" },
+  { name: "Wild Bandito", prov: "Pgsoft", img: "https://i.postimg.cc/k4dHBPCN/wild-bandito.png" },
+  { name: "Gates of Olympus", prov: "Pragmatic", img: "https://i.postimg.cc/bYg5N5Bs/vs20olympgate.png" },
+  { name: "queen bounty", prov: "Pragmatic", img: "https://i.postimg.cc/pdKGNcjr/queen-bounty.png" },
+  { name: "Starlight Princess 1000", prov: "Pragmatic", img: "https://i.postimg.cc/FH5CPQd4/Starlight-Princess-1000.png" },
+  { name: "Sweet Rush Bonanza", prov: "Pragmatic", img: "https://i.postimg.cc/Kzz0KGV3/Sweet-Rush-Bonanza.png" },
+  { name: "Dragon Hatch", prov: "Pragmatic", img: "https://i.postimg.cc/4dqjsHd3/dragon-hatch.png" },
+  { name: "sugar rush1000", prov: "Pragmatic", img: "https://i.postimg.cc/SRDY05L2/sugar-rush1000.png" },
+  { name: "Captain s Bounty", prov: "Pgsoft", img: "https://i.postimg.cc/xjtX1wHX/Captain-s-Bounty.png" },
+  { name: "Ganesha Fortune", prov: "Pgsoft", img: "https://i.postimg.cc/9f5MkC3s/Ganesha-Fortune.png" },
+  { name: "Gates of Olympus 1000", prov: "Pragmatic", img: "https://i.postimg.cc/vHCJ9Dxt/Gates-of-Olympus-1000.png" },
+  { name: "Wild West Gold", prov: "Pragmatic", img: "https://i.postimg.cc/fTsQ1ykf/Wild-West-Gold.png" },
       ].map((game, i) => (
     <div 
       key={i} 
@@ -802,4 +806,5 @@ const handleLogout = () => {
   );
 
 }
+
 
