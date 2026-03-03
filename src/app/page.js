@@ -371,7 +371,7 @@ const handleSetujuLogin = () => {
           style={{ transform: `translateX(-${current * 100}%)` }}
         >
           {gambarHero.map((src, index) => (
-            <div key={index} className="w-full flex-shrink-0 aspect-[21/9] md:aspect-[25/8] relative">
+            <div key={index} className="w-full flex-shrink-0 aspect-[21/9] md:aspect-[25/10] relative">
               <img 
                 src={src} 
                 alt={`Banner ${index}`} 
