@@ -41,7 +41,7 @@ export default function Home() {
 const [halamanAktif, setHalamanAktif] = useState('utama');
   // --- DATA STATIC ---
   const gambarHero = [
-    "https://i.postimg.cc/X79Rypwz/banner1.png",
+    "https://i.postimg.cc/bY0Q4P8x/banner1.png",
     "https://i.postimg.cc/W3CrfHQm/banner1.png",
     "https://i.postimg.cc/SxPMK5xB/banner3.png",
     "https://i.postimg.cc/W3CrfHQm/banner1.png"
