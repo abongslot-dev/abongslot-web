@@ -4,8 +4,10 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
 // 1. Inisialisasi Supabase
-const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6';
+// 1. GUNAKAN SERVICE ROLE KEY (WAJIB di file API Admin agar RLS Terlewati)
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY; 
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 export async function GET() {
@@ -36,3 +38,4 @@ export async function GET() {
     }, { status: 500 });
   }
 }
+
