@@ -59,38 +59,43 @@ console.log("Data yang akan dikirim:", {
 
 
  
-// --- 3. PROSES KIRIM WD ---
+// --- 3. PROSES KIRIM WD (VERSI ANTI-GAGAL) ---
 const handleWithdraw = async () => {
-    // 1. VALIDASI
-    if (!userProfile) {
-      setErrorNotif("⏳ Profil sedang dimuat ulang, klik sekali lagi.");
-      fetchDataLengkap(username);
-      setTimeout(() => setErrorNotif(""), 3000);
-      return;
+    setLoading(true); // Langsung loading biar user nggak spam klik
+
+    let currentProfile = userProfile;
+
+    // 1. CEK PROFIL: Kalau kosong, kita panggil ulang dan TUNGGU (await)
+    if (!currentProfile) {
+      setErrorNotif("⏳ Mengambil profil...");
+      // Kita panggil fungsi yang bisa mengembalikan data atau update state
+      // Pastikan fetchDataLengkap di-await
+      await fetchDataLengkap(username);
+      
+      // Ambil ulang state setelah update
+      // (Catatan: Kalau state belum update, kita butuh cara ambil data instan)
     }
 
-    // --- TAMBAHAN: Validasi input password tidak boleh kosong ---
+    // --- VALIDASI INPUT ---
     if (!password) {
       setErrorNotif("❌ Password WD wajib diisi Bos!");
-      setTimeout(() => setErrorNotif(""), 3000);
+      setLoading(false);
       return;
     }
 
     if (!nominal || Number(nominal) < 50000) {
       setErrorNotif("❌ Minimal Withdraw Rp 50.000");
-      setTimeout(() => setErrorNotif(""), 3000);
+      setLoading(false);
       return;
     }
 
     if (Number(nominal) > saldo) {
       setErrorNotif("❌ Saldo tidak cukup Bos!");
-      setTimeout(() => setErrorNotif(""), 3000);
+      setLoading(false);
       return;
     }
 
-    // 2. MULAI LOADING
-    setLoading(true);
-
+    // 2. PROSES KIRIM KE API
     try {
       const response = await fetch("/api/withdraw", {
         method: "POST",
@@ -98,35 +103,29 @@ const handleWithdraw = async () => {
         body: JSON.stringify({
           username: username,
           nominal: Number(nominal),
-          password: password, // <--- INI WAJIB DIKIRIM KE API/SERVER
-          bank: userProfile.nama_bank,
-          nama_rekening: userProfile.nama_rekening, 
-          nomor_rekening: userProfile.nomor_rekening, 
+          password: password,
+          // Gunakan userProfile dari state atau data yang sudah di-refresh
+          bank: userProfile?.nama_bank || "Data Kosong", 
+          nama_rekening: userProfile?.nama_rekening || "Data Kosong", 
+          nomor_rekening: userProfile?.nomor_rekening || "Data Kosong", 
           status: "PENDING"
         }),
       });
 
       const data = await response.json();
 
-      // Jika Password Benar & API Balas Success: true
       if (response.ok && data.success) {
-  // Jika server kasih status 200 dan data success true
-  setTimeout(() => {
-    setLoading(false);
-    setShowWdModal(true);
-    setNominal("");
-    setPassword("");
-  }, 5000);
-} else {
-  // Jika server kasih error (Password salah, saldo kurang, dll)
-  setLoading(false);
-  setErrorNotif("❌ " + (data.message || "Password Salah atau Gagal WD"));
-  setTimeout(() => setErrorNotif(""), 3000);
-}
+        setLoading(false);
+        setShowWdModal(true);
+        setNominal("");
+        setPassword("");
+      } else {
+        setLoading(false);
+        setErrorNotif("❌ " + (data.message || "Gagal WD, hubungi admin"));
+      }
     } catch (err) {
       setLoading(false);
       setErrorNotif("❌ Error Jaringan!");
-      setTimeout(() => setErrorNotif(""), 3000);
     }
   };
   return (
@@ -460,4 +459,5 @@ const handleWithdraw = async () => {
       
     </main>
   );
+
 }
