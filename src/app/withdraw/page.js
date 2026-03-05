@@ -61,73 +61,85 @@ console.log("Data yang akan dikirim:", {
  
 // --- 3. PROSES KIRIM WD (VERSI ANTI-GAGAL) ---
 const handleWithdraw = async () => {
-    setLoading(true); // Langsung loading biar user nggak spam klik
+  // 1. Ambil username terbaru dari state atau localStorage
+  const currentUsername = username || localStorage.getItem("username");
 
-    let currentProfile = userProfile;
-
-    // 1. CEK PROFIL: Kalau kosong, kita panggil ulang dan TUNGGU (await)
-    if (!currentProfile) {
-      setErrorNotif("⏳ Mengambil profil...");
-      // Kita panggil fungsi yang bisa mengembalikan data atau update state
-      // Pastikan fetchDataLengkap di-await
-      await fetchDataLengkap(username);
-      
-      // Ambil ulang state setelah update
-      // (Catatan: Kalau state belum update, kita butuh cara ambil data instan)
-    }
-
-    // --- VALIDASI INPUT ---
-    if (!password) {
-      setErrorNotif("❌ Password WD wajib diisi Bos!");
-      setLoading(false);
+  // 2. VALIDASI PROFIL (Jika masih kosong, kita panggil paksa dengan 'await')
+  let activeProfile = userProfile;
+  
+  if (!activeProfile) {
+    setErrorNotif("⏳ Memuat data profil, mohon tunggu...");
+    // Pastikan fetchDataLengkap mengembalikan (return) data user agar bisa langsung dipakai
+    await fetchDataLengkap(currentUsername);
+    
+    // Kita coba ambil lagi dari localStorage/state setelah fetch
+    // Jika tetap tidak ada, baru kita hentikan
+    if (!activeProfile) {
+      setErrorNotif("❌ User tidak ditemukan. Coba refresh halaman.");
+      setTimeout(() => setErrorNotif(""), 3000);
       return;
     }
+  }
 
-    if (!nominal || Number(nominal) < 50000) {
-      setErrorNotif("❌ Minimal Withdraw Rp 50.000");
-      setLoading(false);
-      return;
-    }
+  // 3. VALIDASI INPUT
+  if (!password) {
+    setErrorNotif("❌ Password WD wajib diisi Bos!");
+    setTimeout(() => setErrorNotif(""), 3000);
+    return;
+  }
 
-    if (Number(nominal) > saldo) {
-      setErrorNotif("❌ Saldo tidak cukup Bos!");
-      setLoading(false);
-      return;
-    }
+  if (!nominal || Number(nominal) < 50000) {
+    setErrorNotif("❌ Minimal Withdraw Rp 50.000");
+    setTimeout(() => setErrorNotif(""), 3000);
+    return;
+  }
 
-    // 2. PROSES KIRIM KE API
-    try {
-      const response = await fetch("/api/withdraw", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: username,
-          nominal: Number(nominal),
-          password: password,
-          // Gunakan userProfile dari state atau data yang sudah di-refresh
-          bank: userProfile?.nama_bank || "Data Kosong", 
-          nama_rekening: userProfile?.nama_rekening || "Data Kosong", 
-          nomor_rekening: userProfile?.nomor_rekening || "Data Kosong", 
-          status: "PENDING"
-        }),
-      });
+  if (Number(nominal) > saldo) {
+    setErrorNotif("❌ Saldo tidak cukup Bos!");
+    setTimeout(() => setErrorNotif(""), 3000);
+    return;
+  }
 
-      const data = await response.json();
+  // 4. MULAI PROSES WD
+  setLoading(true);
 
-      if (response.ok && data.success) {
+  try {
+    const response = await fetch("/api/withdraw", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: currentUsername,
+        nominal: Number(nominal),
+        password: password,
+        bank: activeProfile.nama_bank,
+        nama_rekening: activeProfile.nama_rekening, 
+        nomor_rekening: activeProfile.nomor_rekening, 
+        status: "PENDING"
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      // Sukses: Berikan jeda seolah-olah sedang memproses (Opsional 5 detik)
+      setTimeout(() => {
         setLoading(false);
         setShowWdModal(true);
         setNominal("");
         setPassword("");
-      } else {
-        setLoading(false);
-        setErrorNotif("❌ " + (data.message || "Gagal WD, hubungi admin"));
-      }
-    } catch (err) {
+        fetchDataLengkap(currentUsername); // Update saldo terbaru
+      }, 3000);
+    } else {
       setLoading(false);
-      setErrorNotif("❌ Error Jaringan!");
+      setErrorNotif("❌ " + (data.message || "Gagal WD: Cek Password Anda"));
+      setTimeout(() => setErrorNotif(""), 3000);
     }
-  };
+  } catch (err) {
+    setLoading(false);
+    setErrorNotif("❌ Error Jaringan atau Server!");
+    setTimeout(() => setErrorNotif(""), 3000);
+  }
+};
   return (
     <main 
       className="min-h-screen text-white font-sans flex flex-col items-center bg-fixed bg-cover bg-center"
@@ -461,3 +473,4 @@ const handleWithdraw = async () => {
   );
 
 }
+
