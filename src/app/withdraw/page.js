@@ -19,15 +19,18 @@ export default function WithdrawPage() {
   const [showWdModal, setShowWdModal] = useState(false);
   const [errorNotif, setErrorNotif] = useState("");
 
-  // --- 2. LOGIC FETCH DATA (ANTI GAGAL) ---
-  // --- 2. LOGIC FETCH DATA (VERSI ANTI NYANGKUT) ---
+// --- 2. LOGIC FETCH DATA (VERSI ANTI NYANGKUT & ANTI SPASI) ---
 const fetchDataLengkap = async (name) => {
-  if (!name) return null; // Keamanan dasar kalau nama kosong
-  
+  if (!name) return null; 
+
   try {
     setLoadingSaldo(true);
-    // Kita pakai .toLowerCase() biar gak pusing soal huruf besar kecil
-    const response = await fetch(`/api/user/saldo?username=${name.toLowerCase()}`);
+    
+    // 1. Buang spasi hantu di depan/belakang nama
+    const cleanName = name.trim(); 
+    
+    // 2. Panggil API (Kita pakai cleanName, tanpa toLowerCase dulu biar aman)
+    const response = await fetch(`/api/user/saldo?username=${cleanName}`);
     const data = await response.json();
     
     if (data.success && data.user) {
@@ -35,10 +38,10 @@ const fetchDataLengkap = async (name) => {
       setUserProfile(data.user); 
       console.log("✅ Profil Berhasil Dimuat:", data.user);
       
-      // INI KUNCINYA: Mengembalikan data supaya fungsi WD bisa baca langsung
+      // Mengembalikan data supaya fungsi WD bisa baca langsung
       return data.user; 
     } else {
-      console.error("❌ User tidak ditemukan di database");
+      console.error("❌ User tidak ditemukan di database:", cleanName);
       return null;
     }
   } catch (error) {
@@ -48,7 +51,6 @@ const fetchDataLengkap = async (name) => {
     setLoadingSaldo(false);
   }
 };
-
 // Console log ini taruh di dalam useEffect atau fungsi saja biar gak nyampah
 useEffect(() => {
   const savedName = localStorage.getItem("username");
@@ -462,5 +464,6 @@ const handleWithdraw = async () => {
   );
 
 }
+
 
 
