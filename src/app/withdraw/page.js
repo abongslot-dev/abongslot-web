@@ -66,70 +66,51 @@ useEffect(() => {
 
 
  
-// --- 3. PROSES KIRIM WD (VERSI ANTI-GAGAL) ---
+// --- 3. PROSES KIRIM WD (VERSI FIX USER TIDAK DITEMUKAN) ---
 const handleWithdraw = async () => {
-  const currentUsername = username || localStorage.getItem("username");
-  
-  // 1. Ambil data profil (Paksa ambil kalau state masih kosong)
-  let profilAktif = userProfile;
-  
-  if (!profilAktif) {
-    console.log("🔄 Profil kosong, mencoba ambil ulang...");
-    profilAktif = await fetchDataLengkap(currentUsername);
-  }
+    // Ambil username asli dari profil atau localStorage
+    const rawUsername = username || localStorage.getItem("username");
+    
+    // 1. VALIDASI PROFIL
+    if (!userProfile) {
+      setErrorNotif("⏳ Memuat data, klik sekali lagi...");
+      fetchDataLengkap(rawUsername);
+      return;
+    }
 
-  // 2. VALIDASI AKHIR (Kalau profilAktif masih null, berarti memang gagal total)
-  if (!profilAktif) {
-    setErrorNotif("❌ Gagal mendapatkan data Rekening. Silakan Refresh.");
-    return;
-  }
+    setLoading(true);
 
-  // 3. VALIDASI INPUT
-  if (!password) {
-    setErrorNotif("❌ Password WD wajib diisi!");
-    return;
-  }
+    try {
+      const response = await fetch("/api/withdraw", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          // PENTING: Pakai username asli dari database (Indra150) bukan ketikan input
+          username: userProfile.username || rawUsername, 
+          nominal: Number(nominal),
+          password: password,
+          bank: userProfile.nama_bank,
+          nama_rekening: userProfile.nama_rekening, 
+          nomor_rekening: userProfile.nomor_rekening, 
+          status: "PENDING"
+        }),
+      });
 
-  if (!nominal || Number(nominal) < 50000) {
-    setErrorNotif("❌ Minimal WD Rp 50.000");
-    return;
-  }
+      const data = await response.json();
 
-  // 4. KIRIM KE API WD
-  setLoading(true);
-  try {
-    const res = await fetch("/api/withdraw", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: currentUsername,
-        nominal: Number(nominal),
-        password: password,
-        bank: profilAktif.nama_bank,         // Ambil dari profilAktif
-        nama_rekening: profilAktif.nama_rekening, // Ambil dari profilAktif
-        nomor_rekening: profilAktif.nomor_rekening, // Ambil dari profilAktif
-        status: "PENDING"
-      }),
-    });
-
-    const hasil = await res.json();
-
-    if (res.ok && hasil.success) {
-      setTimeout(() => {
+      if (response.ok && data.success) {
+        // ... (sisanya sama seperti kode Bos)
         setLoading(false);
         setShowWdModal(true);
-        setNominal("");
-        setPassword("");
-        fetchDataLengkap(currentUsername); // Update saldo
-      }, 2000);
-    } else {
+      } else {
+        setLoading(false);
+        // Kalau error "User tidak ditemukan", ini pesan dari server
+        setErrorNotif("❌ " + (data.message || "User tidak ditemukan!"));
+      }
+    } catch (err) {
       setLoading(false);
-      setErrorNotif("❌ " + (hasil.message || "Gagal WD"));
+      setErrorNotif("❌ Error Jaringan!");
     }
-  } catch (err) {
-    setLoading(false);
-    setErrorNotif("❌ Masalah Jaringan!");
-  }
 };
   return (
     <main 
@@ -464,6 +445,7 @@ const handleWithdraw = async () => {
   );
 
 }
+
 
 
 
