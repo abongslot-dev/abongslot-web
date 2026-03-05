@@ -3,22 +3,31 @@ export const dynamic = 'force-dynamic';
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6';
+// 1. GUNAKAN SERVICE ROLE KEY (WAJIB untuk Update Admin)
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY; 
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- 1. POST: Menerima / Menolak Withdraw ---
 export async function POST(req) {
   try {
     const body = await req.json();
-    const id = parseInt(body.id);
+    
+    // Gunakan ID apa adanya (UUID atau BigInt) - jangan paksa parseInt jika ID-nya UUID
+    const id = body.id; 
     const status = body.status;
 
+    if (!id || !status) {
+      return NextResponse.json({ success: false, message: "ID atau Status tidak lengkap" });
+    }
+
+    // Update status di tabel withdrawals
     const { error } = await supabase
       .from('withdrawals')
       .update({ 
         status: status, 
-        processed_at: new Date().toISOString() // Simpan waktu sekarang
+        processed_at: new Date().toISOString() 
       })
       .eq('id', id);
 
@@ -26,7 +35,11 @@ export async function POST(req) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    console.error("WD Update Error:", error.message);
+    return NextResponse.json({ 
+      success: false, 
+      message: "Gagal update: " + error.message 
+    }, { status: 500 });
   }
 }
 
@@ -42,11 +55,18 @@ export async function GET() {
 
     if (error) throw error;
 
-    // Hitung total nominal (reduce data)
+    // Hitung total nominal menggunakan reduce
     const totalAll = (data || []).reduce((sum, item) => sum + Number(item.nominal || 0), 0);
 
-    return NextResponse.json({ success: true, data: data || [], totalAll });
+    return NextResponse.json({ 
+      success: true, 
+      data: data || [], 
+      totalAll 
+    });
   } catch (error) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json({ 
+      success: false, 
+      message: error.message 
+    }, { status: 500 });
   }
 }
