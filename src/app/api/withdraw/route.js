@@ -2,9 +2,11 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
 // 1. Hubungkan ke Supabase
-const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co'
-const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6'
+// 1. Hubungkan ke Supabase menggunakan ENV (BIAR AMAN & BISA AKSES DB)
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY // Pakai SERVICE ROLE buat transaksi saldo
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
 
 export async function POST(req) {
   try {
@@ -68,3 +70,4 @@ export async function POST(req) {
     return NextResponse.json({ success: false, message: "Kesalahan Sistem: " + error.message }, { status: 500 });
   }
 }
+
