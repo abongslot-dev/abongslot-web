@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Link from 'next/link';
 import { useRouter } from "next/navigation"; // INI YANG KURANG
+import { supabase } from "@/lib/supabase";
 import { 
   Search, RotateCcw, CheckCircle2, XCircle, 
   ChevronDown, Landmark, ArrowRightLeft, LayoutDashboard, 
@@ -410,12 +411,12 @@ const handleLogout = async () => {
           <div className="border-t border-gray-100 my-1"></div>
           
           <button 
-            onClick={handleLogout}
-            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-          >
-            <span className="text-lg leading-none">⏻</span>
-            Keluar
-          </button>
+  onClick={handleLogout} // <--- PASTIKAN BARIS INI ADA
+  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+>
+  <LogOut size={16} />
+  Keluar
+</button>
         </div>
       </>
     )}
