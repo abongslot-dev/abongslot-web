@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { Lock, Mail, ShieldCheck, Loader2 } from "lucide-react";
 
-import { supabase } from "@/lib/supabase";
+import { supabase } from "../../lib/supabase";
 
 // GUNAKAN INI, JANGAN PAKAI 'createClientComponentClient'
 const supabase = createClient(
