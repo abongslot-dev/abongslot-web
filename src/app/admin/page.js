@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js"; // Panggil langsung di sini
 import { 
   Users, LogOut, ChevronDown, LayoutDashboard, Search, 
-  RotateCcw, CheckCircle2, XCircle, Landmark, ArrowRightLeft
+  RotateCcw, CheckCircle2, XCircle, Landmark, ArrowRightLeft,Gift
 } from "lucide-react";
 
 // GUNAKAN ANON KEY (Bukan Secret Key)
