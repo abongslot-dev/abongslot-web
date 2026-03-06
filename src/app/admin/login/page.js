@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+
 import { useRouter } from "next/navigation";
 import { Lock, Mail, ShieldCheck, Loader2 } from "lucide-react";
 
@@ -11,7 +11,7 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   
   const router = useRouter();
-  const supabase = createClientComponentClient();
+ 
 
   // Cek kalau sudah login, langsung lempar ke dashboard
   useEffect(() => {
