@@ -157,11 +157,19 @@ const [isProfileOpen, setIsProfileOpen] = useState(false);
 const router = useRouter();
 
 const handleLogout = async () => {
-  await supabase.auth.signOut(); // Pastikan supabase sudah di-import
-  router.push("/admin/login");
-  router.refresh();
-};
+  try {
+    // Paksa hapus session di Supabase
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
 
+    // Bersihkan sisa data dan tendang ke login
+    router.push("/admin/login");
+    router.refresh(); 
+  } catch (err) {
+    console.error("Logout error:", err.message);
+    alert("Gagal keluar: " + err.message);
+  }
+};
 
   return (
     // 1. CONTAINER UTAMA: h-screen (pas selayar) & overflow-hidden (scroll luar mati)
