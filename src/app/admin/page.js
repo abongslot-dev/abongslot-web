@@ -12,8 +12,8 @@ import {
 
 // LANGSUNG DEKLARASIKAN DI SINI (Jalur Anti-Gagal)
 const supabase = createClient(
-  'https://hqsahuywehlbwywyzlsz.supabase.co', 
-  'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6'
+  'https://hqsahuywehlbwywzylsz.supabase.co', 
+  'sb_secret_oAmh3QwRBQivTeGj0zwhIw_Dn_vwHxA'
 );
 
 export default function AdminDashboard() {
