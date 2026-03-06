@@ -159,16 +159,25 @@ const router = useRouter();
 
 const handleLogout = async () => {
   try {
-    // Paksa hapus session di Supabase
+    // Pastikan kita panggil client-nya dengan benar
+    if (!supabase) {
+      console.error("Supabase client belum ter-load!");
+      return;
+    }
+
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
 
-    // Bersihkan sisa data dan tendang ke login
+    // Bersihkan localStorage agar tidak nyangkut menu lamanya
+    localStorage.removeItem("activeAdminMenu");
+    
+    // Tendang ke login
     router.push("/admin/login");
     router.refresh(); 
   } catch (err) {
     console.error("Logout error:", err.message);
-    alert("Gagal keluar: " + err.message);
+    // Jika gagal karena session sudah expired, tetap tendang ke login
+    router.push("/admin/login");
   }
 };
 
