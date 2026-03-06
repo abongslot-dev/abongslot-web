@@ -36,7 +36,7 @@ export default function Home() {
   const daftarPromo = [
     { 
       title: "LOMBA TEBAK ANGKA", 
-      image: "https://ibb.co/QtLkcpD", 
+      image: "https://ibb.co/QtLkcpD/banner1.png", 
       content: "Tebak 4 angka keberuntungan Anda dan menangkan total hadiah 50 Juta Rupiah setiap harinya! Berlaku untuk semua member aktif."
     },
     { 
