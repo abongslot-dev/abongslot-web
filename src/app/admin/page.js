@@ -136,6 +136,9 @@ export default function AdminDashboard() {
       case "togel-result": 
         return <TogelResultPage />;  
 
+      case "profil": 
+        return <ProfilePage setActiveMenu={setActiveMenu} />;  
+
       // --- MENU PROMO & LAPORAN ---
       case "daftar-promo": return <PromosiDepositPage />;
       case "promo-cashback": return <PromosiCashbackPage />;
@@ -391,25 +394,19 @@ const handleLogout = async () => {
 
     {/* Menu Dropdown (Muncul jika isProfileOpen true) */}
     {isProfileOpen && (
-      <>
-        {/* Invisible backdrop untuk nutup kalau klik di luar area */}
-        <div 
-          className="fixed inset-0 z-[60]" 
-          onClick={() => setIsProfileOpen(false)}
-        ></div>
-        
-        {/* Kotak Menu */}
-        <div className="absolute right-0 mt-2 w-40 bg-white rounded shadow-lg py-1 z-[70] border border-gray-200">
-          <button 
-            onClick={() => {
-              setIsProfileOpen(false);
-              router.push('/admin/profile');
-            }}
-            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
-          >
-            <Users size={14} className="text-gray-500" />
-            Profil
-          </button>
+  <>
+    <div className="fixed inset-0 z-[60]" onClick={() => setIsProfileOpen(false)}></div>
+    <div className="absolute right-0 mt-2 w-40 bg-white rounded shadow-lg py-1 z-[70] border border-gray-200">
+      <button 
+        onClick={() => {
+          setIsProfileOpen(false);
+          setActiveMenu("profil"); // <--- GANTI INI, Bos! Supaya pindah halaman tanpa reload
+        }}
+        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+      >
+        <Users size={14} className="text-gray-500" />
+        Profil
+      </button>
           
           <div className="border-t border-gray-100 my-1"></div>
           
@@ -3201,3 +3198,124 @@ const handleSimpan = async (e) => {
 }
 
 
+
+
+
+
+
+
+
+// --- HALAMAN PROFIL (SESUAI GAMBAR) ---
+function ProfilePage({ setActiveMenu }) {
+  const [loading, setLoading] = useState(false);
+  const [profileData, setProfileData] = useState({
+    nama: "ABONGSLOT",
+    email: "admin@abongslot.com",
+    status: "Aktif",
+    notifDepo: true,
+    notifTogel: true
+  });
+
+  const handleSave = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      alert("Profil berhasil diperbarui!");
+    }, 800);
+  };
+
+  return (
+    <div className="p-6 max-w-5xl">
+      {/* Breadcrumb sesuai gambar */}
+      <h1 className="text-3xl font-normal mb-1">Profil</h1>
+      <p className="text-xs text-blue-500 mb-6 font-medium">
+        <span className="cursor-pointer hover:underline" onClick={() => setActiveMenu('dashboard')}>Dashboard</span> 
+        <span className="text-gray-400 font-normal mx-2">/ Profil</span>
+      </p>
+
+      {/* Card Profil */}
+      <div className="bg-white border rounded shadow-sm overflow-hidden">
+        <div className="bg-gray-50 px-4 py-2 border-b flex items-center gap-2 text-[13px] font-bold text-gray-600">
+          <LayoutDashboard size={14} /> Profil
+        </div>
+
+        <div className="p-6 space-y-4">
+          {/* Input Nama */}
+          <div className="max-w-3xl">
+            <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1">Nama</label>
+            <input 
+              type="text" 
+              className="w-full bg-[#e8edf0] border border-gray-300 rounded p-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-400"
+              value={profileData.nama}
+              onChange={(e) => setProfileData({...profileData, nama: e.target.value})}
+            />
+          </div>
+
+          {/* Input Email */}
+          <div className="max-w-3xl">
+            <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1">Email</label>
+            <input 
+              type="email" 
+              className="w-full bg-[#e8edf0] border border-gray-300 rounded p-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-400"
+              value={profileData.email}
+              onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+            />
+          </div>
+
+          {/* Status */}
+          <div className="max-w-3xl">
+            <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1">Status</label>
+            <div className="w-full bg-[#e8edf0] border border-gray-300 rounded p-2 text-sm text-gray-700 italic">
+              {profileData.status}
+            </div>
+          </div>
+
+          {/* Notifikasi */}
+          <div className="space-y-1">
+            <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1">Notifikasi</label>
+            <div className="flex items-center gap-6 pl-1">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 rounded border-gray-300 text-blue-600" 
+                  checked={profileData.notifDepo}
+                  onChange={(e) => setProfileData({...profileData, notifDepo: e.target.checked})}
+                />
+                <span className="text-sm text-gray-700">Depo & WD</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="w-4 h-4 rounded border-gray-300 text-blue-600" 
+                  checked={profileData.notifTogel}
+                  onChange={(e) => setProfileData({...profileData, notifTogel: e.target.checked})}
+                />
+                <span className="text-sm text-gray-700">Togel</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Button Group */}
+          <div className="flex flex-wrap gap-2 pt-4">
+            <button 
+              onClick={handleSave}
+              disabled={loading}
+              className="bg-[#007bff] hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-bold flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+            >
+              {loading ? "..." : "Simpan"}
+            </button>
+            <button className="bg-[#198754] hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-bold flex items-center gap-2 transition-all active:scale-95">
+              <Key size={14} /> Ubah Password
+            </button>
+            <button 
+              onClick={() => setActiveMenu('dashboard')}
+              className="bg-[#ffc107] hover:bg-yellow-500 text-black px-4 py-2 rounded text-sm font-bold transition-all active:scale-95"
+            >
+              Kembali
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
