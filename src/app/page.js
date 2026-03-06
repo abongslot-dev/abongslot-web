@@ -233,7 +233,7 @@ const handleSetujuLogin = () => {
         {/* --- LOGO MOBILE (Hanya muncul di HP sebelum login) --- */}
         <div className="flex md:hidden w-full justify-center items-center">
           <img 
-            src="https://i.postimg.cc/vB1LDghW/image-2026-03-07-051329.png" 
+            src="https://i.postimg.cc/XYgNTswc/download-(3).png" 
             alt="Logo" 
             className="h-12 w-auto drop-shadow-[0_0_8px_rgba(212,175,55,0.4)] object-contain" 
           />
@@ -242,7 +242,7 @@ const handleSetujuLogin = () => {
         {/* --- LOGO DESKTOP (Hanya muncul di Laptop sebelum login) --- */}
         <div className="hidden md:flex flex-1 items-center justify-start">
           <img 
-            src="https://i.postimg.cc/vB1LDghW/image-2026-03-07-051329.png" 
+            src="https://i.postimg.cc/XYgNTswc/download-(3).png" 
             alt="Logo" 
             className="h-28 md:h-32 w-auto drop-shadow-[0_0_15px_rgba(212,175,55,0.6)] object-contain" 
           />
@@ -336,7 +336,7 @@ const handleSetujuLogin = () => {
     ) : (
       /* --- TAMPILAN SETELAH LOGIN (Ganti dengan Saldo/Username) --- */
      <div className="w-full flex items-center justify-between py-2">
-     <img src="https://i.postimg.cc/vB1LDghW/image-2026-03-07-051329.png" className="h-10 w-auto" alt="Logo" />
+     <img src="https://i.postimg.cc/XYgNTswc/download-(3).png" className="h-10 w-auto" alt="Logo" />
      <div className="flex items-center gap-4">
         <div className="text-right">
           <p className="text-[10px] text-gray-400">Selamat Datang,</p>
