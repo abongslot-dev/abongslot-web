@@ -1,9 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
 
-const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co'
-const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6'
+// Ambil otomatis dari Environment Variables yang sudah kamu input tadi
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-// Koneksi utama yang dipanggil oleh halaman admin
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error("Waduh! URL atau Key Supabase belum terpasang di Env.");
+}
+
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 const db = () => supabase;
