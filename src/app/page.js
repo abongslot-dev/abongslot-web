@@ -244,7 +244,7 @@ const handleSetujuLogin = () => {
           <img 
             src="https://i.postimg.cc/XYgNTswc/download-(3).png" 
             alt="Logo" 
-            className="h-28 md:h-50 w-auto drop-shadow-[0_0_15px_rgba(212,175,55,0.6)] object-contain" 
+            className="h-28 md:h-32 w-auto drop-shadow-[0_0_15px_rgba(212,175,55,0.6)] object-contain" 
           />
         </div>
 
