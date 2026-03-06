@@ -1,15 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js"; 
 import { useRouter } from "next/navigation";
+import { createClient } from "@supabase/supabase-js"; 
 import { Lock, Mail, ShieldCheck, Loader2 } from "lucide-react";
 
-import { supabase } from "../../lib/supabase";
-
-// GUNAKAN INI, JANGAN PAKAI 'createClientComponentClient'
+// LANGSUNG DEKLARASI DI SINI (Supaya Webpack tidak nyasar ke folder lib)
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  'https://hqsahuywehlbwywzylsz.supabase.co', 
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhxc2FodXl3ZWhsYnd5d3p5bHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMzE2MjMsImV4cCI6MjA4NzcwNzYyM30.DtGLxyHyaeLedVzBdbQHe3A_79Cymh__TQ0SJ_z-V5k'
 );
 
 export default function AdminLogin() {
@@ -32,8 +30,10 @@ export default function AdminLogin() {
     setLoading(true);
     setError(null);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      
+      // Berhasil Login
       router.push("/admin");
       router.refresh();
     } catch (err) {
@@ -43,7 +43,7 @@ export default function AdminLogin() {
     }
   };
 
- return (
+  return (
     <div className="min-h-screen flex items-center justify-center bg-[#1a2226] p-4">
       <div className="max-w-md w-full">
         {/* LOGO AREA */}
