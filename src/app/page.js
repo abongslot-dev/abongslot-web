@@ -1033,7 +1033,7 @@ const handleSetujuLogin = () => {
       { name: "OVO", img: "https://i.ibb.co/ggVpydg/ovo.gif" },
       { name: "Gopay", img: "https://i.ibb.co/fNSDN3F/gopay.gif" },
       { name: " BSI", img: "https://i.ibb.co/6txWM16/bsi.gif" },
-      { name: "BCA", img: "https://i.ibb.co/thxxzzw/bca.gif" },
+      { name: "BCA", img: "https://cdn.bunkerkiamat.com/djarum4d/images/bank/BCA-ON_NEW.gif" },
       { name: "BNI", img: "https://i.ibb.co/0Y7KZJ6/bni.gif" },
       { name: "BRI", img: "https://i.ibb.co/WPBzqD7/bri.gif" },
       { name: "Mandiri", img: "https://i.ibb.co/pvvtN4p/mandiri.gif" },
