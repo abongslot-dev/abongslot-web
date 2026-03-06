@@ -1,13 +1,14 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@supabase/supabase-js"; // Panggil langsung di sini
+import { createClient } from "@supabase/supabase-js";
 import { 
   Users, LogOut, ChevronDown, LayoutDashboard, Search, 
-  RotateCcw, CheckCircle2, XCircle, Landmark, ArrowRightLeft,Gift
+  RotateCcw, CheckCircle2, XCircle, Landmark, ArrowRightLeft, 
+  Gift, Gamepad2, FileBarChart, Mail, FileDown, Key 
 } from "lucide-react";
 
-// GUNAKAN ANON KEY (Bukan Secret Key)
+// Koneksi tetap di sini (Sudah benar)
 const supabaseUrl = 'https://hqsahuywehlbwywzylsz.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhxc2FodXl3ZWhsYnd5d3p5bHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMzE2MjMsImV4cCI6MjA4NzcwNzYyM30.DtGLxyHyaeLedVzBdbQHe3A_79Cymh__TQ0SJ_z-V5k';
 
