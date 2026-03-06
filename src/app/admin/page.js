@@ -13,7 +13,7 @@ import {
 // LANGSUNG DEKLARASIKAN DI SINI (Jalur Anti-Gagal)
 const supabase = createClient(
   'https://hqsahuywehlbwywzylsz.supabase.co', 
-  'sb_secret_oAmh3QwRBQivTeGj0zwhIw_Dn_vwHxA'
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhxc2FodXl3ZWhsYnd5d3p5bHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMzE2MjMsImV4cCI6MjA4NzcwNzYyM30.DtGLxyHyaeLedVzBdbQHe3A_79Cymh__TQ0SJ_z-V5k'
 );
 
 export default function AdminDashboard() {
@@ -165,18 +165,16 @@ const [isProfileOpen, setIsProfileOpen] = useState(false);
 const router = useRouter();
 
 const handleLogout = async () => {
-  try {
-    // Sekarang 'supabase' sudah pasti ada di atas
-    await supabase.auth.signOut();
-    
-    localStorage.removeItem("activeAdminMenu");
-    router.push("/admin/login");
-    router.refresh(); 
-  } catch (err) {
-    console.error("Logout error:", err.message);
-    router.push("/admin/login");
-  }
-};
+    try {
+      await supabase.auth.signOut();
+      localStorage.removeItem("activeAdminMenu");
+      router.push("/admin/login");
+      router.refresh();
+    } catch (err) {
+      console.error("Logout error:", err.message);
+      router.push("/admin/login");
+    }
+  };
 
   return (
     // 1. CONTAINER UTAMA: h-screen (pas selayar) & overflow-hidden (scroll luar mati)
