@@ -1,20 +1,17 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Link from 'next/link';
 import { useRouter } from "next/navigation";
-// HAPUS import { supabase } ... yang lama
-import { createClient } from "@supabase/supabase-js"; // Import library-nya langsung
+import { createClient } from "@supabase/supabase-js"; // Panggil langsung di sini
 import { 
-  Search, RotateCcw, CheckCircle2, XCircle, 
-  ChevronDown, Landmark, ArrowRightLeft, LayoutDashboard, 
-  Users, Gift, Gamepad2, FileBarChart, Mail, FileDown, Key, LogOut 
+  Users, LogOut, ChevronDown, LayoutDashboard, Search, 
+  RotateCcw, CheckCircle2, XCircle, Landmark, ArrowRightLeft
 } from "lucide-react";
 
-// LANGSUNG DEKLARASIKAN DI SINI (Jalur Anti-Gagal)
-const supabase = createClient(
-  'https://hqsahuywehlbwywzylsz.supabase.co', 
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhxc2FodXl3ZWhsYnd5d3p5bHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMzE2MjMsImV4cCI6MjA4NzcwNzYyM30.DtGLxyHyaeLedVzBdbQHe3A_79Cymh__TQ0SJ_z-V5k'
-);
+// GUNAKAN ANON KEY (Bukan Secret Key)
+const supabaseUrl = 'https://hqsahuywehlbwywzylsz.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhxc2FodXl3ZWhsYnd5d3p5bHN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMzE2MjMsImV4cCI6MjA4NzcwNzYyM30.DtGLxyHyaeLedVzBdbQHe3A_79Cymh__TQ0SJ_z-V5k';
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function AdminDashboard() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
