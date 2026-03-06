@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Link from 'next/link';
 import { useRouter } from "next/navigation"; // INI YANG KURANG
-import { supabase } from "../../lib/supabase";
+import { supabase } from "./supabase";
 import { 
   Search, RotateCcw, CheckCircle2, XCircle, 
   ChevronDown, Landmark, ArrowRightLeft, LayoutDashboard, 
