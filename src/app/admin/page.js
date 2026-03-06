@@ -3206,8 +3206,12 @@ const handleSimpan = async (e) => {
 
 
 // --- HALAMAN PROFIL (SESUAI GAMBAR) ---
+// --- HALAMAN PROFIL (KONEKSI SUPABASE) ---
 function ProfilePage({ setActiveMenu }) {
   const [loading, setLoading] = useState(false);
+  const [showPassModal, setShowPassModal] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  
   const [profileData, setProfileData] = useState({
     nama: "ABONGSLOT",
     email: "admin@abongslot.com",
@@ -3216,106 +3220,127 @@ function ProfilePage({ setActiveMenu }) {
     notifTogel: true
   });
 
+  // FUNGSI 1: SIMPAN PROFIL (Local State)
   const handleSave = () => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      alert("Profil berhasil diperbarui!");
+      alert("Konfigurasi notifikasi berhasil diperbarui!");
     }, 800);
   };
 
+  // FUNGSI 2: UBAH PASSWORD LANGSUNG KE SUPABASE
+  const handleUpdatePassword = async () => {
+    if (newPassword.length < 6) return alert("Password minimal 6 karakter!");
+    
+    setLoading(true);
+    try {
+      // PERINTAH INI YANG MENGUBAH DATA DI SUPABASE AUTH
+      const { data, error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) throw error;
+      
+      alert("✅ Password di Supabase BERHASIL diubah!");
+      setShowPassModal(false);
+      setNewPassword("");
+    } catch (err) {
+      alert("❌ Gagal update: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="p-6 max-w-5xl">
-      {/* Breadcrumb sesuai gambar */}
+    <div className="p-6 max-w-5xl animate-in fade-in duration-500">
+      {/* Judul & Breadcrumb */}
       <h1 className="text-3xl font-normal mb-1">Profil</h1>
       <p className="text-xs text-blue-500 mb-6 font-medium">
         <span className="cursor-pointer hover:underline" onClick={() => setActiveMenu('dashboard')}>Dashboard</span> 
         <span className="text-gray-400 font-normal mx-2">/ Profil</span>
       </p>
 
-      {/* Card Profil */}
+      {/* Card Profil Utama */}
       <div className="bg-white border rounded shadow-sm overflow-hidden">
         <div className="bg-gray-50 px-4 py-2 border-b flex items-center gap-2 text-[13px] font-bold text-gray-600">
           <LayoutDashboard size={14} /> Profil
         </div>
 
         <div className="p-6 space-y-4">
-          {/* Input Nama */}
           <div className="max-w-3xl">
             <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1">Nama</label>
-            <input 
-              type="text" 
-              className="w-full bg-[#e8edf0] border border-gray-300 rounded p-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-400"
-              value={profileData.nama}
-              onChange={(e) => setProfileData({...profileData, nama: e.target.value})}
-            />
+            <input type="text" className="w-full bg-[#e8edf0] border border-gray-300 rounded p-2 text-sm text-gray-700 outline-none" value={profileData.nama} readOnly />
           </div>
 
-          {/* Input Email */}
           <div className="max-w-3xl">
             <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1">Email</label>
-            <input 
-              type="email" 
-              className="w-full bg-[#e8edf0] border border-gray-300 rounded p-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-400"
-              value={profileData.email}
-              onChange={(e) => setProfileData({...profileData, email: e.target.value})}
-            />
+            <input type="email" className="w-full bg-[#e8edf0] border border-gray-300 rounded p-2 text-sm text-gray-700 outline-none" value={profileData.email} readOnly />
           </div>
 
-          {/* Status */}
           <div className="max-w-3xl">
             <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1">Status</label>
-            <div className="w-full bg-[#e8edf0] border border-gray-300 rounded p-2 text-sm text-gray-700 italic">
-              {profileData.status}
-            </div>
+            <div className="w-full bg-[#e8edf0] border border-gray-300 rounded p-2 text-sm text-gray-700 italic">{profileData.status}</div>
           </div>
 
-          {/* Notifikasi */}
+          {/* Notifikasi Checkbox */}
           <div className="space-y-1">
             <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1 ml-1">Notifikasi</label>
             <div className="flex items-center gap-6 pl-1">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  className="w-4 h-4 rounded border-gray-300 text-blue-600" 
-                  checked={profileData.notifDepo}
-                  onChange={(e) => setProfileData({...profileData, notifDepo: e.target.checked})}
-                />
-                <span className="text-sm text-gray-700">Depo & WD</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  className="w-4 h-4 rounded border-gray-300 text-blue-600" 
-                  checked={profileData.notifTogel}
-                  onChange={(e) => setProfileData({...profileData, notifTogel: e.target.checked})}
-                />
-                <span className="text-sm text-gray-700">Togel</span>
-              </label>
+              {['Depo & WD', 'Togel'].map((item) => (
+                <label key={item} className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-blue-600" defaultChecked />
+                  <span className="text-sm text-gray-700">{item}</span>
+                </label>
+              ))}
             </div>
           </div>
 
-          {/* Button Group */}
+          {/* Tombol Aksi */}
           <div className="flex flex-wrap gap-2 pt-4">
-            <button 
-              onClick={handleSave}
-              disabled={loading}
-              className="bg-[#007bff] hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-bold flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50"
-            >
-              {loading ? "..." : "Simpan"}
-            </button>
-            <button className="bg-[#198754] hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-bold flex items-center gap-2 transition-all active:scale-95">
+            <button onClick={handleSave} className="bg-[#007bff] hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-bold active:scale-95">Simpan</button>
+            
+            {/* Tombol ini akan membuka Pop-up */}
+            <button onClick={() => setShowPassModal(true)} className="bg-[#198754] hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-bold flex items-center gap-2 active:scale-95">
               <Key size={14} /> Ubah Password
             </button>
-            <button 
-              onClick={() => setActiveMenu('dashboard')}
-              className="bg-[#ffc107] hover:bg-yellow-500 text-black px-4 py-2 rounded text-sm font-bold transition-all active:scale-95"
-            >
-              Kembali
-            </button>
+            
+            <button onClick={() => setActiveMenu('dashboard')} className="bg-[#ffc107] hover:bg-yellow-500 text-black px-4 py-2 rounded text-sm font-bold active:scale-95">Kembali</button>
           </div>
         </div>
       </div>
+
+      {/* --- MODAL UBAH PASSWORD --- */}
+      {showPassModal && (
+        <div className="fixed inset-0 bg-black/50 z-[999] flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in duration-300">
+            <div className="bg-[#198754] p-4 text-white font-bold flex justify-between items-center">
+              <div className="flex items-center gap-2"><Key size={18} /> Ganti Password Supabase</div>
+              <button onClick={() => setShowPassModal(false)}>✕</button>
+            </div>
+            <div className="p-6">
+              <p className="text-xs text-gray-500 mb-4">Masukkan password baru untuk akun <strong>{profileData.email}</strong>. Perubahan akan langsung berefek pada login berikutnya.</p>
+              <input 
+                type="password" 
+                placeholder="Password Baru..." 
+                className="w-full border rounded p-3 text-sm outline-none focus:ring-2 focus:ring-green-500"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+              <div className="flex gap-2 mt-6">
+                <button 
+                  onClick={handleUpdatePassword} 
+                  disabled={loading}
+                  className="flex-1 bg-[#198754] text-white py-2 rounded font-bold hover:bg-green-800 disabled:opacity-50"
+                >
+                  {loading ? "Memproses..." : "Update Sekarang"}
+                </button>
+                <button onClick={() => setShowPassModal(false)} className="flex-1 bg-gray-200 py-2 rounded font-bold">Batal</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
