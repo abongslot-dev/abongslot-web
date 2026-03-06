@@ -1,13 +1,20 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from 'next/link';
-import { useRouter } from "next/navigation"; // INI YANG KURANG
-import { supabase } from "../../lib/supabase";
+import { useRouter } from "next/navigation";
+// HAPUS import { supabase } ... yang lama
+import { createClient } from "@supabase/supabase-js"; // Import library-nya langsung
 import { 
   Search, RotateCcw, CheckCircle2, XCircle, 
   ChevronDown, Landmark, ArrowRightLeft, LayoutDashboard, 
-  Users, Gift, Gamepad2, FileBarChart, Mail, FileDown, Key 
+  Users, Gift, Gamepad2, FileBarChart, Mail, FileDown, Key, LogOut 
 } from "lucide-react";
+
+// LANGSUNG DEKLARASIKAN DI SINI (Jalur Anti-Gagal)
+const supabase = createClient(
+  'https://hqsahuywehlbwywyzlsz.supabase.co', 
+  'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6'
+);
 
 export default function AdminDashboard() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
@@ -159,24 +166,14 @@ const router = useRouter();
 
 const handleLogout = async () => {
   try {
-    // Pastikan kita panggil client-nya dengan benar
-    if (!supabase) {
-      console.error("Supabase client belum ter-load!");
-      return;
-    }
-
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-
-    // Bersihkan localStorage agar tidak nyangkut menu lamanya
-    localStorage.removeItem("activeAdminMenu");
+    // Sekarang 'supabase' sudah pasti ada di atas
+    await supabase.auth.signOut();
     
-    // Tendang ke login
+    localStorage.removeItem("activeAdminMenu");
     router.push("/admin/login");
     router.refresh(); 
   } catch (err) {
     console.error("Logout error:", err.message);
-    // Jika gagal karena session sudah expired, tetap tendang ke login
     router.push("/admin/login");
   }
 };
