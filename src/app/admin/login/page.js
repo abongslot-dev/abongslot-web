@@ -52,7 +52,7 @@ export default function AdminLogin() {
             <ShieldCheck size={32} className="text-white" />
           </div>
           <h1 className="text-2xl font-black text-white tracking-tighter uppercase">
-            Admin<span className="text-[#3c8dbc]">Control</span>Panel
+            Database<span className="text-[#3c8dbc]">Control</span>Panel
           </h1>
           <p className="text-gray-400 text-xs mt-1 uppercase tracking-widest">Restricted Access Only</p>
         </div>
@@ -83,7 +83,7 @@ export default function AdminLogin() {
             </div>
 
             <div>
-              <label className="text-gray-400 text-[10px] font-bold uppercase mb-1 block">Security Password</label>
+              <label className="text-gray-400 text-[10px] font-bold uppercase mb-1 block">Password</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
                   <Lock size={16} />
@@ -106,7 +106,7 @@ export default function AdminLogin() {
               {loading ? (
                 <Loader2 size={18} className="animate-spin" />
               ) : (
-                "Authorize Login"
+                "LOGIN"
               )}
             </button>
           </form>
