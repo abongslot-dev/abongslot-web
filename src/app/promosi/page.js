@@ -36,7 +36,7 @@ export default function Home() {
   const daftarPromo = [
     { 
       title: "LOMBA TEBAK ANGKA", 
-      image: "https://ibb.co/QtLkcpD/banner1.png", 
+      image: "https://i.postimg.cc/SxPMK5xB/banner3.png", 
       content: "Tebak 4 angka keberuntungan Anda dan menangkan total hadiah 50 Juta Rupiah setiap harinya! Berlaku untuk semua member aktif."
     },
     { 
@@ -312,7 +312,7 @@ export default function Home() {
   md:bottom-auto md:right-auto md:left-0 md:top-1/2 md:-translate-y-1/2 
   z-[100] flex flex-col gap-2 items-end md:items-start">
   
-<a href="#" className="group flex flex-row-reverse items-center bg-[#1a0033]/95 border border-[#D4AF37] rounded-full md:rounded-l-none md:rounded-r-full p-1.5 transition-all duration-500 shadow-[5px_5px_15px_rgba(0,0,0,0.6)]">
+<a href="" className="group flex flex-row-reverse items-center bg-[#1a0033]/95 border border-[#D4AF37] rounded-full md:rounded-l-none md:rounded-r-full p-1.5 transition-all duration-500 shadow-[5px_5px_15px_rgba(0,0,0,0.6)]">
     <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] z-10 overflow-hidden">
       <img 
         src="https://img-mgscorp.kangpermen13.workers.dev/whatsapp-converter.webp" 
@@ -326,18 +326,21 @@ export default function Home() {
   </a>
 
   {/* 2. RTP Gacor */}
-  <a href="#" className="hidden md:flex group flex-row-reverse items-center bg-[#1a0033]/95 border border-[#D4AF37] rounded-l-none rounded-r-full p-1.5 transition-all duration-500 shadow-[5px_5px_15px_rgba(0,0,0,0.6)]">
-    <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] z-10 animate-pulse overflow-hidden">
-      <img 
-        src="https://img-mgscorp.kangpermen13.workers.dev/rtpslot-webp-converter.webp" 
-        alt="RTP" 
-        className="w-full h-full object-contain p-1" // P-1 supaya lebih mepet ke pinggir (lebih besar)
-      />
-    </div>
-    <span className="max-w-0 overflow-hidden group-hover:max-w-[150px] transition-all duration-500 ease-in-out text-[#D4AF37] font-black text-xs uppercase whitespace-nowrap px-0 group-hover:pl-4 group-hover:pr-2">
-      RTP Gacor
-    </span>
-  </a>
+  <a 
+  href="/rtp" 
+  className="group flex flex-row-reverse items-center bg-[#1a0033]/95 border border-[#D4AF37] rounded-full md:rounded-l-none md:rounded-r-full p-1.5 transition-all duration-500 shadow-[5px_5px_15px_rgba(0,0,0,0.6)]"
+>
+  <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] z-10 animate-pulse overflow-hidden">
+    <img 
+      src="https://img-mgscorp.kangpermen13.workers.dev/rtpslot-webp-converter.webp" 
+      alt="RTP" 
+      className="w-full h-full object-contain p-1" 
+    />
+  </div>
+  <span className="max-w-0 overflow-hidden group-hover:max-w-[150px] transition-all duration-500 ease-in-out text-[#D4AF37] font-black text-xs uppercase whitespace-nowrap px-0 group-hover:pl-4 group-hover:pr-2">
+    RTP Gacor
+  </span>
+</a>
 
   {/* 3. Live Chat */}
   <a href="#" className="group flex flex-row-reverse items-center bg-[#1a0033]/95 border border-[#D4AF37] rounded-full md:rounded-l-none md:rounded-r-full p-1.5 transition-all duration-500 shadow-[5px_5px_15px_rgba(0,0,0,0.6)]">
