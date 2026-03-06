@@ -151,7 +151,15 @@ export default function AdminDashboard() {
   };
 
 
+// Tambahkan di atas return
+const [isProfileOpen, setIsProfileOpen] = useState(false);
+const router = useRouter();
 
+const handleLogout = async () => {
+  await supabase.auth.signOut(); // Pastikan supabase sudah di-import
+  router.push("/admin/login");
+  router.refresh();
+};
 
 
   return (
@@ -353,12 +361,57 @@ export default function AdminDashboard() {
     </button>
   </div>
 
-  <div className="flex items-center gap-4">
-    <div className="bg-[#1e2225] px-3 py-1 rounded-full border border-yellow-500/20 flex items-center gap-2">
-      <span className="text-yellow-500 font-bold text-xs font-mono">💰 256.375.664,04</span>
-    </div>
-    <Users size={18} className="text-white opacity-70" />
+ <div className="flex items-center gap-4">
+  {/* Saldo Area */}
+  <div className="bg-[#1e2225] px-3 py-1 rounded-full border border-yellow-500/20 flex items-center gap-2">
+    <span className="text-yellow-500 font-bold text-xs tracking-tighter font-mono">💰 256.375.664,04</span>
   </div>
+
+  {/* Dropdown Profile Container */}
+  <div className="relative">
+    <div 
+      onClick={() => setIsProfileOpen(!isProfileOpen)}
+      className="p-1 hover:bg-white/10 rounded-full transition-all cursor-pointer"
+    >
+      <Users size={18} className="text-white opacity-70" />
+    </div>
+
+    {/* Menu Dropdown (Muncul jika isProfileOpen true) */}
+    {isProfileOpen && (
+      <>
+        {/* Invisible backdrop untuk nutup kalau klik di luar area */}
+        <div 
+          className="fixed inset-0 z-[60]" 
+          onClick={() => setIsProfileOpen(false)}
+        ></div>
+        
+        {/* Kotak Menu */}
+        <div className="absolute right-0 mt-2 w-40 bg-white rounded shadow-lg py-1 z-[70] border border-gray-200">
+          <button 
+            onClick={() => {
+              setIsProfileOpen(false);
+              router.push('/admin/profile');
+            }}
+            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+          >
+            <Users size={14} className="text-gray-500" />
+            Profil
+          </button>
+          
+          <div className="border-t border-gray-100 my-1"></div>
+          
+          <button 
+            onClick={handleLogout}
+            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+          >
+            <span className="text-lg leading-none">⏻</span>
+            Keluar
+          </button>
+        </div>
+      </>
+    )}
+  </div>
+</div>
 </header>
         <main className="flex-1 overflow-y-auto bg-white">
           {renderContent()}
