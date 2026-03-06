@@ -1,8 +1,14 @@
 "use client";
 import React, { useState, useEffect } from "react";
-
+// 1. Pakai createClient yang stabil
+import { createClient } from "@supabase/supabase-js"; 
 import { useRouter } from "next/navigation";
 import { Lock, Mail, ShieldCheck, Loader2 } from "lucide-react";
+
+// 2. Tambahkan inisialisasi ini (Ini yang tadi hilang, Bos!)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -11,7 +17,6 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   
   const router = useRouter();
- 
 
   // Cek kalau sudah login, langsung lempar ke dashboard
   useEffect(() => {
@@ -20,7 +25,7 @@ export default function AdminLogin() {
       if (session) router.push("/admin");
     };
     checkUser();
-  }, [router, supabase]);
+  }, [router]); // Hapus 'supabase' dari array dependency agar lebih stabil
 
   const handleLogin = async (e) => {
     e.preventDefault();
