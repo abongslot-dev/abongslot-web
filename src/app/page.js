@@ -240,13 +240,13 @@ const handleSetujuLogin = () => {
         </div>
 
         {/* --- LOGO DESKTOP (Hanya muncul di Laptop sebelum login) --- */}
-        <div className="hidden md:flex flex-1 items-center justify-start">
-          <img 
-            src="https://i.postimg.cc/XYgNTswc/download-(3).png" 
-            alt="Logo" 
-            className="h-28 md:h-32 w-auto drop-shadow-[0_0_15px_rgba(212,175,55,0.6)] object-contain" 
-          />
-        </div>
+        <div className="hidden md:flex flex-1 items-center justify-center"> {/* <--- GANTI justify-start JADI justify-center */}
+  <img 
+    src="https://i.postimg.cc/XYgNTswc/download-(3).png" 
+    alt="Logo" 
+    className="h-28 md:h-32 w-auto drop-shadow-[0_0_15px_rgba(212,175,55,0.6)] object-contain" 
+  />
+</div>
 
         {/* --- PANEL LOGIN DESKTOP --- */}
         <div className="hidden md:flex flex-1 flex-col justify-center items-end py-2">
