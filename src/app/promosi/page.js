@@ -312,18 +312,23 @@ export default function Home() {
   md:bottom-auto md:right-auto md:left-0 md:top-1/2 md:-translate-y-1/2 
   z-[100] flex flex-col gap-2 items-end md:items-start">
   
-<a href="" className="group flex flex-row-reverse items-center bg-[#1a0033]/95 border border-[#D4AF37] rounded-full md:rounded-l-none md:rounded-r-full p-1.5 transition-all duration-500 shadow-[5px_5px_15px_rgba(0,0,0,0.6)]">
+<a 
+  href="https://wa.me/6281234567890" // <--- GANTI dengan nomor WA admin (awali dengan 62)
+  target="_blank"                  // <--- Tambahkan ini biar buka tab baru
+  rel="noopener noreferrer"        // <--- Tambahkan ini untuk keamanan
+  className="group flex flex-row-reverse items-center bg-[#1a0033]/95 border border-[#D4AF37] rounded-full md:rounded-l-none md:rounded-r-full p-1.5 transition-all duration-500 shadow-[5px_5px_15px_rgba(0,0,0,0.6)]"
+>
     <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] z-10 overflow-hidden">
       <img 
         src="https://img-mgscorp.kangpermen13.workers.dev/whatsapp-converter.webp" 
         alt="WA" 
-        className="w-full h-full object-contain p-1.5" // Ukuran penuh dengan sedikit jarak aman
+        className="w-full h-full object-contain p-1.5"
       />
     </div>
     <span className="max-w-0 overflow-hidden group-hover:max-w-[150px] transition-all duration-500 ease-in-out text-[#D4AF37] font-black text-xs uppercase whitespace-nowrap px-0 group-hover:pl-4 group-hover:pr-2">
       WhatsApp
     </span>
-  </a>
+</a>
 
   {/* 2. RTP Gacor */}
   <a 
