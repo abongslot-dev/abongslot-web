@@ -293,17 +293,37 @@ const handleSetujuLogin = () => {
 <button 
   onClick={handleLogin} 
   disabled={loading}    
-  className="bg-[#c5a021] hover:bg-yellow-500 text-black font-black px-5 py-2 rounded text-[11px] uppercase whitespace-nowrap disabled:opacity-50 transition-all shadow-md active:scale-95 flex items-center justify-center min-w-[80px]"
+  className="relative overflow-hidden bg-[#c5a021] hover:bg-yellow-500 text-black font-black px-8 py-3 rounded-md text-sm md:text-base uppercase whitespace-nowrap disabled:opacity-50 transition-all shadow-lg active:scale-95 flex items-center justify-center min-w-[120px] border-b-4 border-yellow-700 hover:border-yellow-600 h-[52px] group"
 >
+  {/* --- INI CAHAYA BERJALANNYA (PASTI NYALA) --- */}
+  <style jsx>{`
+    @keyframes shimmer {
+      0% { transform: translateX(-150%) skewX(-20deg); }
+      100% { transform: translateX(150%) skewX(-20deg); }
+    }
+    .shimmer-effect {
+      animation: shimmer 2.5s infinite;
+      background: linear-gradient(
+        to right, 
+        transparent, 
+        rgba(255, 255, 255, 0.6), 
+        transparent
+      );
+    }
+  `}</style>
+  
+  <span className="absolute inset-0 shimmer-effect w-[100px] h-full"></span>
+
   {loading ? (
     <div className="flex items-center gap-1">
-      {/* Spinner kecil di dalam tombol */}
-      <svg className="animate-spin h-3 w-3 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <svg className="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
     </div>
-  ) : "LOGIN"}
+  ) : (
+    <span className="relative z-10">LOGIN</span>
+  )}
 </button>      </div>
 
 
