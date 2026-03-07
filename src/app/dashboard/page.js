@@ -171,13 +171,13 @@ const handleLogout = () => {
     >
       
     
-<header ref={headerRef} className="w-full max-w-5xl bg-[#1a0033] shadow-2xl sticky top-0 z-[100] border-b border-[#D4AF37]/20">
+<header ref={headerRef} className="w-full max-w-6xl bg-[#1a0033] shadow-2xl sticky top-0 z-[100] border-b border-[#D4AF37]/20">
   <div className="px-5 py-3 flex items-center justify-center min-h-[60px] md:min-h-[120px]"> 
     
     {/* --- LOGO TETAP DI TENGAH (MOBILE & DESKTOP) --- */}
     <div className="flex justify-center items-center">
       <img 
-        src="https://i.postimg.cc/BvTrMrkD/logo-abong.png" 
+        src="https://i.postimg.cc/XYgNTswc/download-(3).png" 
         alt="Logo" 
         className="h-12 md:h-20 w-auto drop-shadow-[0_0_10px_rgba(212,175,55,0.4)] object-contain cursor-pointer"
         onClick={() => router.push('/dashboard')}
@@ -208,7 +208,7 @@ const handleLogout = () => {
 {/* --- MENU KATEGORI GAME --- */}
 <div 
   ref={menuNavRef}
-  className="w-full max-w-5xl bg-[#1a0033] border-b-2 border-[#D4AF37]/20 shadow-xl sticky top-[65px] md:top-[120px] z-40 mx-auto"
+  className="w-full max-w-6xl bg-[#1a0033] border-b-2 border-[#D4AF37]/20 shadow-xl sticky top-[65px] md:top-[120px] z-40 mx-auto"
 >
   <div className="flex items-center justify-between px-4 py-4 overflow-x-auto no-scrollbar gap-2">
     {[
@@ -246,7 +246,7 @@ const handleLogout = () => {
 
 
 {/* --- WRAPPER UTAMA KONTEN (Penyatuan agar rapi & tidak ada celah) --- */}
-<div className="w-full max-w-5xl bg-[#1a0033] p-4 flex flex-col gap-6 shadow-2xl pb-20 mx-auto">
+<div className="w-full max-w-6xl bg-[#1a0033] p-4 flex flex-col gap-6 shadow-2xl pb-20 mx-auto">
   
   {/* --- 0. PANEL INFORMASI MEMBER --- */}
   {menuAktif === 'populer' && (
@@ -305,7 +305,7 @@ const handleLogout = () => {
 
 
  {/* --- WRAPPER UTAMA KONTEN (Agar Lebar Konsisten) --- */}
-<div className="w-full max-w-5xl bg-[#1a0033] p-0 flex flex-col gap-8 shadow-2xl pb-40 min-h-[70vh] md:min-h-[80vh] transition-all duration-500">    
+<div className="w-full max-w-6xl bg-[#1a0033] p-0 flex flex-col gap-8 shadow-2xl pb-40 min-h-[70vh] md:min-h-[80vh] transition-all duration-500">    
   {/* 1. SECTION PALING POPULER */}
   {(menuAktif === 'populer') && (
   <section id="populer" className="scroll-mt-[180px] md:scroll-mt-[220px]">
