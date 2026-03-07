@@ -510,41 +510,60 @@ const handleSetujuLogin = () => {
 {/* --- MENU KATEGORI GAME --- */}
 <div 
   ref={menuNavRef} // <--- 1. TAMBAHKAN REF DI SINI
-  className="w-full max-w-6xl bg-[#1a0033] border-b-2 border-[#D4AF37]/20 shadow-xl sticky top-[65px] md:top-[160px] z-40"
+  className="w-full max-w-6xl bg-[#1a0033] border-b-2 border-[#D4AF37]/20 shadow-xl sticky top-[65px] md:top-[150px] z-40"
 >
   <div className="flex items-center justify-between px-4 py-4 overflow-x-auto no-scrollbar-blur gap-2">
     
-    
-    {[
-      { id: 'populer', name: 'POPULER', icon: '🔥' },
-      { id: 'toto', name: 'TOTO', icon: '🎱' },
-      { id: 'slot', name: 'SLOT', icon: '🎰' },
-      { id: 'live', name: 'LIVE', icon: '♠️' },
-      { id: 'sport', name: 'SPORT', icon: '⚽' },
-      { id: 'virtual', name: 'VIRTUAL', icon: '🎮' },
-      { id: 'fishing', name: 'FISHING', icon: '🎣' },
-      { id: 'crash', name: 'CRASH GAME', icon: '🚀' },
-    ].map((item) => (
-      <div 
-        key={item.id}
-        onClick={() => scrollToSection(item.id)} // <--- 2. GANTI FUNGSI KLIK DISINI
-        className="flex flex-col items-center min-w-[70px] cursor-pointer group"
-      >
-        <div className={`transition-all duration-300 p-2 mb-1 rounded-lg flex items-center justify-center
-          ${menuAktif === item.id 
-            ? "bg-[#4b0082] border-2 border-[#D4AF37] scale-110 shadow-[0_0_10px_rgba(212,175,55,0.5)]" 
-            : "border-2 border-transparent group-hover:translate-y-[-2px]"
-          }`}
-        >
-          <span className={`text-xl ${menuAktif === item.id ? "" : "filter grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100"}`}>
-            {item.icon}
-          </span>
-        </div>
-        <span className={`text-[13px] font-bold transition-colors ${menuAktif === item.id ? "text-[#D4AF37]" : "text-white group-hover:text-[#D4AF37]"}`}>
-          {item.name}
-        </span>
-      </div>
-    ))}
+  {[
+  { id: 'populer', name: 'POPULER', icon: '🔥' },
+  { id: 'toto', name: 'TOTO', icon: '🎱' },
+  { id: 'slot', name: 'SLOT', icon: '🎰' },
+  { id: 'live', name: 'LIVE', icon: '♠️' },
+  { id: 'sport', name: 'SPORT', icon: '⚽' },
+  { id: 'virtual', name: 'VIRTUAL', icon: '🎮' },
+  { id: 'fishing', name: 'FISHING', icon: '🎣' },
+  { id: 'crash', name: 'CRASH GAME', icon: '🚀' },
+].map((item) => (
+  <div 
+    key={item.id}
+    onClick={() => scrollToSection(item.id)}
+    className="flex flex-col items-center min-w-[75px] cursor-pointer group"
+  >
+    {/* CSS UNTUK GOYANG MELAMBAI (TILT ANIMATION) */}
+    <style jsx>{`
+      @keyframes melambai {
+        0% { transform: rotate(0deg); }
+        25% { transform: rotate(-7deg); }
+        75% { transform: rotate(7deg); }
+        100% { transform: rotate(0deg); }
+      }
+      .kotak-goyang {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+      }
+      /* Goyang terus kalau Aktif, atau Goyang pas di-Hover */
+      .goyang-aktif, .group:hover .kotak-goyang {
+        animation: melambai 0.6s ease-in-out infinite;
+      }
+    `}</style>
+
+    {/* KOTAK MENU */}
+    <div className={`kotak-goyang w-[65px] h-[65px] rounded-xl mb-1 shadow-lg border-2
+      ${menuAktif === item.id 
+        ? "bg-[#1a0033] border-yellow-400 goyang-aktif shadow-blue-500/50 scale-110" 
+        : "bg-[#1a0033] border-white/10"
+      }`}
+    >
+      <span className="text-2xl mb-1">{item.icon}</span>
+      <span className="text-[10px] font-black text-white uppercase tracking-tighter">
+        {item.name}
+      </span>
+    </div>
+  </div>
+))}
 
   </div>
 </div>
