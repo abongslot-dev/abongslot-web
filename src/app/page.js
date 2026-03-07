@@ -2,6 +2,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { User, Key, Eye, EyeOff, LayoutDashboard } from 'lucide-react';
 
 // Taruh komponen ini di atas (atau di file terpisah)
 const LoadingOverlay = () => (
@@ -33,6 +34,7 @@ export default function Home() {
   const [showModal, setShowModal] = useState(false);
   const [selectedGame, setSelectedGame] = useState("");
   const [errorNotif, setErrorNotif] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   
 
   // --- 2. STATE DATA API (PENTING: Agar tidak "Not Defined") ---
@@ -224,8 +226,8 @@ const handleSetujuLogin = () => {
    
      {/* HEADER UTAMA (Nempel di atas baik di HP maupun Laptop) */}
       {/* GANTI BARIS INI */}
-       <header ref={headerRef} className="w-full max-w-5xl bg-[#1a0033] shadow-2xl sticky top-0 z-[100] border-b border-[#D4AF37]/20 mx-auto">
-  <div className="px-5 py-2 md:py-0 flex items-center md:items-stretch justify-between min-h-[60px] md:min-h-[120px]"> 
+<header ref={headerRef} className="w-full max-w-6xl bg-[#1a0033] shadow-2xl sticky top-0 z-[100] border-b border-[#D4AF37]/20 mx-auto">
+<div className="px-3 py-2 md:py-0 flex items-center md:items-stretch justify-between min-h-[60px] md:min-h-[160px]"> 
     
     {/* SEMUA ISI HEADER DIBUNGKUS KONDISI !isLoggedIn */}
     {!isLoggedIn ? (
@@ -253,28 +255,41 @@ const handleSetujuLogin = () => {
           <div className="w-full max-w-[450px] flex flex-col gap-1.5">
             {/* INPUT LOGIN */}
             <div className="flex items-center gap-1 w-full">
-              <input 
-    type="text" 
-    name="username" // Tambahkan identitas
-    value={loginData.username} // Hubungkan ke state
-    onChange={(e) => setLoginData({...loginData, username: e.target.value})} // Simpan ketikan user
-    placeholder="Username" 
-    className="bg-white text-black px-4 py-2 rounded text-[11px] flex-1 min-w-0 outline-none border border-zinc-300" 
-  />
-  <input 
-  type="password" 
-  name="password"
-  value={loginData.password}
-  onChange={(e) => setLoginData({...loginData, password: e.target.value})}
-  // --- TAMBAHAN BIAR BISA ENTER ---
-  onKeyDown={(e) => {
-    if (e.key === 'Enter') {
-      handleLogin();
-    }
-  }}
-  placeholder="Password" 
-  className="bg-white text-black px-4 py-2 rounded text-[11px] flex-1 min-w-0 outline-none border border-zinc-300" 
-/>
+<div className="relative flex-1 group">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
+          <User size={25} strokeWidth={2.5} />
+        </div>
+        <input 
+          type="text" 
+          name="username"
+          value={loginData.username}
+          onChange={(e) => setLoginData({...loginData, username: e.target.value})}
+          placeholder="Username" 
+          className="w-full bg-white text-black pl-10 pr-4 py-3 rounded-md text-sm md:text-base outline-none border-2 border-zinc-300 focus:border-blue-500 transition-all font-bold shadow-sm placeholder:font-normal"
+        />
+      </div>
+<div className="relative flex-1 group">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
+          <Key size={25} strokeWidth={2.5} />
+        </div>
+        <input 
+          type={showPassword ? "text" : "password"}
+          name="password"
+          value={loginData.password}
+          onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+          onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+          placeholder="Password" 
+          className="w-full bg-white text-black pl-10 pr-10 py-3 rounded-md text-sm md:text-base outline-none border-2 border-zinc-300 focus:border-blue-500 transition-all font-bold shadow-sm placeholder:font-normal"
+        />
+        {/* Tombol Mata untuk intip password */}
+        <button 
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
+      </div>
 <button 
   onClick={handleLogin} 
   disabled={loading}    
@@ -291,26 +306,38 @@ const handleSetujuLogin = () => {
   ) : "LOGIN"}
 </button>      </div>
 
-            {/* TOMBOL NAVIGASI BAWAH */}
-            <div className="bg-[#5D3FD3] rounded-full p-0.5 shadow-lg w-full">
-              <div className="flex justify-between items-center text-white">
-                <button onClick={() => router.push('/promosi')} className="flex-1 py-2.5 rounded-full hover:bg-black/10 text-[9px] font-bold uppercase flex items-center justify-center gap-1">🎁 PROMOSI</button>
-                <button onClick={() => router.push('/hubungi')} className="flex-1 py-2.5 rounded-full hover:bg-black/10 text-[9px] font-bold uppercase flex items-center justify-center gap-1 border-l border-white/10">🎧 HUBUNGI</button>
-                <button onClick={() => router.push('/daftar')} className="flex-1 py-2.5 rounded-full hover:bg-black/10 text-[9px] font-bold uppercase flex items-center justify-center gap-1 border-l border-white/10 text-yellow-300">👤 DAFTAR</button>
-                <div className="flex-1 relative"> 
-                  <button 
-    type="button" // Pastikan tipenya button
-    onClick={(e) => {
-      e.stopPropagation(); // Mencegah klik "tembus" ke elemen di bawahnya
-      setShowLainnya(!showLainnya);
-    }} 
-    className={`w-full py-2.5 rounded-full transition-all text-[9px] font-bold uppercase flex items-center justify-center gap-1 border-l border-white/10 ${
-      showLainnya ? 'bg-yellow-400 text-black' : 'hover:bg-black/10 text-white'
-    }`}
-  >
-    <span>💬</span>
-    <span className="font-black uppercase tracking-tighter">Lainnya</span>
-  </button>
+
+
+<div className="bg-[#5D3FD3] rounded-full p-1 shadow-lg w-full mt-2"> {/* P-1 biar border luarnya lebih kelihatan mewah */}
+  <div className="flex justify-between items-center text-white">
+    
+    {/* Tombol Promosi - PY-4 biar lebih tinggi */}
+    <button onClick={() => router.push('/promosi')} className="flex-1 py-3 rounded-full hover:bg-black/10 text-[11px] font-black uppercase flex flex-col md:flex-row items-center justify-center gap-1 transition-all">
+      <span>🎁</span> PROMOSI
+    </button>
+    
+    <button onClick={() => router.push('/hubungi')} className="flex-1 py-3 rounded-full hover:bg-black/10 text-[11px] font-black uppercase flex flex-col md:flex-row items-center justify-center gap-1 border-l border-white/20">
+      <span>🎧</span> HUBUNGI
+    </button>
+    
+    <button onClick={() => router.push('/daftar')} className="flex-1 py-3 rounded-full hover:bg-black/10 text-[11px] font-black uppercase flex flex-col md:flex-row items-center justify-center gap-1 border-l border-white/20 text-yellow-300">
+      <span>👤</span> DAFTAR
+    </button>
+    
+    <div className="flex-1 relative"> 
+      <button 
+        type="button" 
+        onClick={(e) => {
+          e.stopPropagation();
+          setShowLainnya(!showLainnya);
+        }} 
+        className={`w-full py-4 rounded-full transition-all text-[11px] font-black uppercase flex flex-col md:flex-row items-center justify-center gap-1 border-l border-white/20 ${
+          showLainnya ? 'bg-yellow-400 text-black shadow-inner scale-95' : 'hover:bg-black/10 text-white'
+        }`}
+      >
+        <span>💬</span>
+        <span className="tracking-tighter">Lainnya</span>
+      </button>
 
   {/* Dropdown Menu */}
   {showLainnya && (
@@ -358,14 +385,14 @@ const handleSetujuLogin = () => {
 
       {/* Running Text */}
       
-      <div className="w-full max-w-5xl bg-[#5D3FD3] border-x border-b border-yellow-600/30 py-1">
+      <div className="w-full max-w-6xl bg-[#5D3FD3] border-x border-b border-yellow-600/30 py-1">
         <div className="px-4 flex items-center gap-2 text-[16px] font-bold italic">
            <span className="text-yellow-300 whitespace-nowrap">📢 INFO:</span>
            <marquee scrollamount="5">Selamat Datang Di Situs ABONGSLOT GACOR ! Prediksi Anda Akan Merubah Hidup Anda ! ! !</marquee>
         </div>
       </div>
 
-      <div className="w-full max-w-5xl overflow-hidden relative border-b-4 border-[#D4AF37] shadow-2xl">
+      <div className="w-full max-w-6xl overflow-hidden relative border-b-4 border-[#D4AF37] shadow-2xl">
         <div 
           className="flex transition-transform duration-700 ease-in-out" 
           style={{ transform: `translateX(-${current * 100}%)` }}
@@ -449,7 +476,7 @@ const handleSetujuLogin = () => {
 {/* --- MENU KATEGORI GAME --- */}
 <div 
   ref={menuNavRef} // <--- 1. TAMBAHKAN REF DI SINI
-  className="w-full max-w-5xl bg-[#1a0033] border-b-2 border-[#D4AF37]/20 shadow-xl sticky top-[65px] md:top-[120px] z-40"
+  className="w-full max-w-6xl bg-[#1a0033] border-b-2 border-[#D4AF37]/20 shadow-xl sticky top-[65px] md:top-[160px] z-40"
 >
   <div className="flex items-center justify-between px-4 py-4 overflow-x-auto no-scrollbar-blur gap-2">
     
@@ -491,7 +518,7 @@ const handleSetujuLogin = () => {
 
 
  {/* --- WRAPPER UTAMA KONTEN (Agar Lebar Konsisten) --- */}
-<div className="w-full max-w-5xl bg-[#1a0033] p-0 flex flex-col gap-8 shadow-2xl pb-20">
+<div className="w-full max-w-6xl bg-[#1a0033] p-0 flex flex-col gap-8 shadow-2xl pb-20">
     
   {/* 1. SECTION PALING POPULER */}
   <section id="populer" className="scroll-mt-[180px] md:scroll-mt-[220px] bg-[#1a0033] border border-[#D4AF37]/50 rounded-2xl p-4 shadow-2xl">
