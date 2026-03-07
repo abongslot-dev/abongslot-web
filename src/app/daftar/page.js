@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Swal from 'sweetalert2'; // Pastikan di import di paling atas file
+import { User, Key, Eye, EyeOff, LayoutDashboard } from 'lucide-react';
 
 export default function DaftarPage() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function DaftarPage() {
   const [loginData, setLoginData] = useState({ username: "", password: "" });
   const [errorNotif, setErrorNotif] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
 // Tambahkan ini di bawah state isLoggedIn
 
