@@ -533,7 +533,7 @@ const handleSetujuLogin = () => {
   { id: 'sport', name: 'SPORT', icon: '⚽' },
   { id: 'virtual', name: 'VIRTUAL', icon: '🎮' },
   { id: 'fishing', name: 'FISHING', icon: '🎣' },
-  { id: 'crash', name: 'CRASH GAME', icon: '🚀' },
+  { id: 'crash', name: 'CRASH', icon: '🚀' },
 ].map((item) => (
   <div 
     key={item.id}
