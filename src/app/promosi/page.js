@@ -317,7 +317,7 @@ export default function Home() {
       {/* --- ISI KONTEN --- */}
     {/* --- ISI KONTEN --- */}
     
-     <div className="w-full max-w-5xl bg-[#1a0033] flex flex-col gap-3 p-4 shadow-2xl border-x border-white/5 pb-24 mx-auto flex-grow">
+     <div className="w-full max-w-6xl bg-[#1a0033] flex flex-col gap-3 p-4 shadow-2xl border-x border-white/5 pb-24 mx-auto flex-grow">
         
         {/* Header Judul yang Lebih Tegas */}
         <div className="border-b-2 border-[#D4AF37] pb-3 mb-2">
