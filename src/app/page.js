@@ -470,23 +470,37 @@ const handleSetujuLogin = () => {
   </div>
 
   {/* Tombol Login */}
-  <button 
-    onClick={handleLogin}
-    disabled={loading}
-    className="w-full bg-[#c5a021] hover:bg-yellow-500 text-black font-black py-3 rounded-md shadow-lg transition-all active:scale-95 uppercase text-sm flex justify-center items-center"
-  >
-    {loading ? (
-      <div className="animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full"></div>
-    ) : "Login"}
-  </button>
+<button 
+  onClick={handleLogin}
+  disabled={loading}
+  className="relative overflow-hidden w-full bg-[#c5a021] hover:bg-yellow-500 text-black font-black py-3 rounded-md shadow-[0_0_15px_rgba(197,160,33,0.4)] transition-all active:scale-95 uppercase text-sm flex justify-center items-center group"
+>
+  {/* Efek Cahaya */}
+  <span className="absolute inset-0 -translate-x-full group-hover:duration-0 duration-1000 animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent w-[150%] h-full skew-x-[-20deg]"></span>
 
-  {/* Tombol Daftar */}
-  <button 
-    onClick={() => router.push('/daftar')}
-    className="w-full bg-[#1a0033] hover:bg-red-700 text-white font-black py-3 rounded-md shadow-lg transition-all active:scale-95 uppercase text-sm border border-white/10"
-  >
-    Daftar
-  </button>
+  {loading ? (
+    <div className="relative z-10 animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full"></div>
+  ) : (
+    <span className="relative z-10">Login</span>
+  )}
+
+  <style jsx>{`
+    @keyframes shimmer {
+      100% { transform: translateX(100%); }
+    }
+  `}</style>
+</button>
+
+{/* Tombol Daftar dengan Cahaya Berjalan */}
+<button 
+  onClick={() => router.push('/daftar')}
+  className="relative overflow-hidden w-full bg-[#1a0033] hover:bg-red-700 text-white font-black py-3 rounded-md shadow-lg transition-all active:scale-95 uppercase text-sm border border-white/10 group mt-2"
+>
+  {/* Efek Cahaya Putih Tipis */}
+  <span className="absolute inset-0 -translate-x-full animate-[shimmer_3s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent w-[150%] h-full skew-x-[-20deg]"></span>
+  
+  <span className="relative z-10">Daftar</span>
+</button>
 </div>
      
      
