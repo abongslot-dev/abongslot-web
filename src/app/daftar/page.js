@@ -300,7 +300,7 @@ const handleLogin = async () => {
           <img 
             src="https://i.postimg.cc/XYgNTswc/download-(3).png" 
             alt="Logo" 
-            className="h-13 w-auto drop-shadow-[0_0_8px_rgba(212,175,55,0.4)] object-contain" 
+            className="h-12 w-auto drop-shadow-[0_0_8px_rgba(212,175,55,0.4)] object-contain" 
           />
         </div>
 
@@ -465,7 +465,6 @@ const handleLogin = async () => {
 )}
   </div>
 </header>
-
 
 {/* --- WRAPPER UTAMA (CONTAINER UNGU SOLID - TIDAK TRANSPARAN) --- */}
 <div className="w-full max-w-6xl bg-[#1a0033] p-4 md:p-10 flex flex-col items-center gap-6 shadow-2xl min-h-screen pb-40 border-x border-white/10">
