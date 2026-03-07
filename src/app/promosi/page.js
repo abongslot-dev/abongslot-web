@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { User, Key, Eye, EyeOff, LayoutDashboard } from 'lucide-react';
 
 
 const LoadingOverlay = () => (
@@ -28,6 +29,7 @@ export default function Home() {
   const [halamanAktif, setHalamanAktif] = useState('promosi');
   const [loginData, setLoginData] = useState({ username: "", password: "" });
   const [errorNotif, setErrorNotif] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
 
   const headerRef = useRef(null);
