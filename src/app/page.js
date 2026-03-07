@@ -252,7 +252,7 @@ const handleSetujuLogin = () => {
 
         {/* --- PANEL LOGIN DESKTOP --- */}
         <div className="hidden md:flex flex-1 flex-col justify-center items-end py-2">
-          <div className="w-full max-w-[450px] flex flex-col gap-1.5">
+          <div className="w-full max-w-[600px] flex flex-col gap-3">
             {/* INPUT LOGIN */}
             <div className="flex items-center gap-1 w-full">
 <div className="relative flex-1 group">
