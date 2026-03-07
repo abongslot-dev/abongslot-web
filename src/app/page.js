@@ -206,7 +206,7 @@ const handleSetujuLogin = () => {
     setMenuAktif(id);
     const targetElement = document.getElementById(id);
     if (targetElement) {
-      const offset = 250; // Jarak aman agar tidak tertutup sticky header
+      const offset = 255; // Jarak aman agar tidak tertutup sticky header
       const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
       window.scrollTo({ top: elementPosition - offset, behavior: 'smooth' });
     }
