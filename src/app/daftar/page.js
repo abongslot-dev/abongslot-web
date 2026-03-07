@@ -296,13 +296,14 @@ const handleLogin = async () => {
     {!isLoggedIn ? (
       <>
         {/* --- LOGO MOBILE (Hanya muncul di HP sebelum login) --- */}
-        <div className="flex md:hidden w-full justify-center items-center">
-          <img 
-            src="https://i.postimg.cc/XYgNTswc/download-(3).png" 
-            alt="Logo" 
-            className="h-12 w-auto drop-shadow-[0_0_8px_rgba(212,175,55,0.4)] object-contain" 
-          />
-        </div>
+       <div className="flex md:hidden w-full justify-center items-center py-2">
+  <img 
+    src="https://i.postimg.cc/XYgNTswc/download-(3).png" 
+    alt="Logo" 
+    /* w-40 atau w-48 bikin dia LEBAR ke samping, h-10 jaga agar tetap ada jarak atas-bawah */
+    className="w-48 h-10 drop-shadow-[0_0_8px_rgba(212,175,55,0.4)] object-contain" 
+  />
+</div>
 
         {/* --- LOGO DESKTOP (Hanya muncul di Laptop sebelum login) --- */}
         <div className="hidden md:flex flex-1 items-center justify-start">
