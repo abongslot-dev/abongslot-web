@@ -206,7 +206,7 @@ const handleSetujuLogin = () => {
     setMenuAktif(id);
     const targetElement = document.getElementById(id);
     if (targetElement) {
-      const offset = 220; // Jarak aman agar tidak tertutup sticky header
+      const offset = 250; // Jarak aman agar tidak tertutup sticky header
       const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
       window.scrollTo({ top: elementPosition - offset, behavior: 'smooth' });
     }
@@ -510,7 +510,7 @@ const handleSetujuLogin = () => {
 {/* --- MENU KATEGORI GAME --- */}
 <div 
   ref={menuNavRef} // <--- 1. TAMBAHKAN REF DI SINI
-  className="w-full max-w-6xl bg-[#1a0033] border-b-2 border-[#D4AF37]/20 shadow-xl sticky top-[65px] md:top-[150px] z-40"
+  className="w-full max-w-6xl bg-[#1a0033] border-b-2 border-[#D4AF37]/20 shadow-xl sticky top-[65px] md:top-[160px] z-40"
 >
   <div className="flex items-center justify-between px-4 py-4 overflow-x-auto no-scrollbar-blur gap-2">
     
