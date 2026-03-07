@@ -202,16 +202,27 @@ const handleSetujuLogin = () => {
   router.push('/dashboard');
 };
 
-  const scrollToSection = (id) => {
-    setMenuAktif(id);
-    const targetElement = document.getElementById(id);
-    if (targetElement) {
-      const offset = 255; // Jarak aman agar tidak tertutup sticky header
-      const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
-      window.scrollTo({ top: elementPosition - offset, behavior: 'smooth' });
-    }
-  };
+ const scrollToSection = (id) => {
+  setMenuAktif(id);
+  const targetElement = document.getElementById(id);
+  
+  if (targetElement) {
+    // CEK APAKAH LAYAR HP ATAU LAPTOP (768px adalah standar Mobile)
+    const isMobile = window.innerWidth < 768;
+    
+    // HITUNGAN DINAMIS:
+    // Jika HP: 80 (Header) + 70 (Nav) + 10 (Jarak Aman) = 160
+    // Jika Laptop: 150 (Header) + 80 (Nav) + 20 (Jarak Aman) = 250
+    const offset = isMobile ? 190 : 250; 
 
+    const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+    
+    window.scrollTo({ 
+      top: elementPosition - offset, 
+      behavior: 'smooth' 
+    });
+  }
+};
   return (
     <main 
       className="min-h-screen text-white font-sans flex flex-col items-center bg-fixed bg-cover bg-center "
