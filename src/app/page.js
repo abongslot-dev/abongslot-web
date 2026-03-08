@@ -65,54 +65,48 @@ const [halamanAktif, setHalamanAktif] = useState('utama');
   const audioRef = useRef(null);
 
 const fetchData = async () => {
-  setLoadingData(true);
-  try {
-    const response = await fetch("/api/get-results");
-    const json = await response.json();
+    setLoadingData(true);
+    try {
+      // 1. Ambil data langsung dari API Supabase kita
+      const response = await fetch("/api/get-results");
+      const json = await response.json();
 
-    if (json.success && json.data) {
-      // 1. JANGAN PAKAI {}, TAPI PAKAI ARRAY []
-      let listSemuaData = []; 
-      
-      // 2. Ambil semua data tanpa filter "if (!resultsMap[key])"
-      json.data.forEach((item) => {
-        let key = item.pasaran.trim().toUpperCase();
+      if (json.success && json.data) {
+        const resultsMap = {};
         
-        // Standarisasi Nama agar sesuai dengan tombol pasaran
-        if (!key.includes("POOLS") && !key.includes("LOTTO") && !key.includes("MACAU")) {
-          key += " POOLS";
-        }
+        // 2. Mapping data agar pasaran jadi KEY (biar kotak di depan update)
+        json.data.forEach((item) => {
+          let key = item.pasaran.trim().toUpperCase();
+          
+          // Standarisasi Nama (Sama dengan logika Bos sebelumnya)
+          if (!key.includes("POOLS") && !key.includes("LOTTO") && !key.includes("MACAU")) {
+            key += " POOLS";
+          }
 
-        listSemuaData.push({
-          id: item.id,
-          pasaran: key,
-          tanggal: item.tanggal,
-          angka: item.result,
-          periode: item.periode
+          // Hanya ambil yang paling baru untuk setiap pasaran
+          if (!resultsMap[key]) {
+            resultsMap[key] = {
+              tanggal: item.tanggal,
+              angka: item.result,
+              periode: item.periode
+            };
+          }
         });
-      });
 
-      // 3. Filter berdasarkan pasaran yang sedang diklik user
-      // Misal: PasaranAktif nilainya "CHINA POOLS"
-      const dataPasaranIni = listSemuaData.filter(item => 
-        item.pasaran === pasaranAktif.toUpperCase().trim()
-      );
-
-      // 4. Urutkan berdasarkan ID (terbesar ke terkecil) agar yang baru di atas
-      const dataFinal = dataPasaranIni.sort((a, b) => Number(b.id) - Number(a.id));
-
-      console.log("✅ DATA RIWAYAT LENGKAP:", dataFinal);
-      
-      // Kirim data ke state untuk ditampilkan di tabel
-      setDataRiwayat(dataFinal); 
-      setDataTampil(dataFinal);
+        console.log("✅ DATA SUPABASE SIAP:", resultsMap);
+        
+        // 3. Update tampilan muka
+        setDataRiwayat(resultsMap);
+        
+        // Simpan cache ringan buat performa
+        localStorage.setItem("cache_riwayat", JSON.stringify(resultsMap));
+      }
+    } catch (error) {
+      console.error("Gagal ambil data Supabase:", error);
+    } finally {
+      setLoadingData(false);
     }
-  } catch (error) {
-    console.error("Gagal tarik riwayat:", error);
-  } finally {
-    setLoadingData(false);
-  }
-};
+  };
   
   // --- 4. EFFECTS ---
   useEffect(() => {
