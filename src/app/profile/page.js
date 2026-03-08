@@ -192,7 +192,7 @@ useEffect(() => {
         {/* DEPOSIT */}
         <button 
           onClick={() => router.push('/deposit')}
-          className="bg-[#ccff33] text-black text-[10px] font-black rounded-lg py-2 flex flex-col items-center justify-center shadow-md active:scale-95 transition-all"
+          className="bg-white/10 border border-white/10 text-white text-[10px] font-black rounded-lg py-2 flex flex-col items-center justify-center active:scale-95 transition-all"
         >
           DEPOSIT
         </button>
