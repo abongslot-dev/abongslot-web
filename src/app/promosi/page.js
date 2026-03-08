@@ -127,6 +127,15 @@ export default function Home() {
     return () => document.removeEventListener("mousedown", handleKlikLuar);
   }, []);
 
+
+// Tambahkan ini di bawah fungsi handleLogin Bos
+const handleLogout = () => {
+  localStorage.removeItem("isLoggedIn");
+  localStorage.removeItem("username");
+  setIsLoggedIn(false);
+  router.push("/");
+};
+
   return (
     <main 
        className="min-h-screen text-white font-sans flex-grow flex-col items-center bg-fixed bg-cover bg-center"
