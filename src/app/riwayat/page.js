@@ -140,41 +140,47 @@ const handleLogin = async () => {
 
 
 
-// --- Perbaikan Effect Load Data ---
-  useEffect(() => {
-    const loadRiwayatDariDB = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch("/api/get-results");
-        const json = await res.json();
+useEffect(() => {
+  const loadRiwayatDariDB = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/get-results");
+      const json = await res.json();
 
-        if (json.success && Array.isArray(json.data)) {
-          // Gunakan .includes() supaya kalau nama 'CHINA POOLS' 
-          // dicari pakai kata 'CHINA' saja tetap ketemu
-          const hasilFilter = json.data.filter(item => {
-            const pNamaDB = item.pasaran.toUpperCase().trim();
-            const pNamaAktif = pasaranAktif.toUpperCase().trim();
-            return pNamaDB.includes(pNamaAktif) || pNamaAktif.includes(pNamaDB);
-          });
+      if (json.success && Array.isArray(json.data)) {
+        // --- LOGIKA FILTER YANG LEBIH LONGGAR ---
+        const hasilFilter = json.data.filter(item => {
+          // Kita bersihkan semua spasi dan paksa jadi huruf besar
+          const pNamaDB = item.pasaran.toUpperCase().replace(/\s/g, "");
+          const pNamaAktif = pasaranAktif.toUpperCase().replace(/\s/g, "");
+          
+          // Cek apakah namanya mengandung satu sama lain (biar CHINA vs CHINA POOLS tetap ketemu)
+          return pNamaDB.includes(pNamaAktif) || pNamaAktif.includes(pNamaDB);
+        });
 
-          // URUTKAN BERDASARKAN ID (Biar ID 322 di atas, ID 41 di bawah)
-          const dataUrut = hasilFilter.sort((a, b) => {return Number(b.id) - Number(a.id);});
+        // Urutkan ID (Terbaru di atas)
+        const dataUrut = hasilFilter.sort((a, b) => Number(b.id) - Number(a.id));
 
-          setDataRiwayat(dataUrut);
-          setDataTampil(dataUrut);
-        }
-      } catch (err) {
-        console.error("Gagal tarik riwayat:", err);
-      } finally {
-        setLoading(false);
+        // PENTING: Pastikan kita mapping agar nama kolomnya jadi 'angka' agar nyambung ke tabel
+        const dataFinal = dataUrut.map(item => ({
+          ...item,
+          angka: item.result // Memastikan tabel bisa baca item.angka
+        }));
+
+        setDataRiwayat(dataFinal);
+        setDataTampil(dataFinal);
       }
-    };
-
-    if (pasaranAktif) {
-      loadRiwayatDariDB();
+    } catch (err) {
+      console.error("Gagal tarik riwayat:", err);
+    } finally {
+      setLoading(false);
     }
-  }, [pasaranAktif]);
+  };
 
+  if (pasaranAktif) {
+    loadRiwayatDariDB();
+  }
+}, [pasaranAktif]);
 
 
   // TIPS: Fungsi ini bisa dipanggil jika Bos ingin menambah result baru secara manual
