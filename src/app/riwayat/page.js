@@ -155,18 +155,17 @@ useEffect(() => {
         const pNamaAktif = pasaranAktif.toUpperCase().trim();
 
         // 2. FILTER: Ambil semua yang mengandung nama pasaran aktif
-       const hasilFilter = json.data.filter(item => {
-  const pNamaDB = item.pasaran.toUpperCase().trim();
-  const pNamaAktif = pasaranAktif.toUpperCase().trim();
+const hasilFilter = json.data.filter(item => {
+  // 1. Bersihkan semua spasi, ganti semua simbol jadi kosong, paksa huruf besar
+  const pNamaDB = String(item.pasaran).toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const pNamaAktif = String(pasaranAktif).toUpperCase().replace(/[^A-Z0-9]/g, "");
 
-  // AMBIL KATA PERTAMA SAJA (Misal: "CHINA POOLS" jadi "CHINA")
-  // Supaya pencarian lebih akurat
-  const kataKunciDB = pNamaDB.split(" ")[0]; 
-  const kataKunciAktif = pNamaAktif.split(" ")[0];
+  // 2. Cek apakah kata "CHINA" ada di dalamnya
+  // Kita ambil 5 huruf pertama saja biar pasti tembus
+  const kataKunci = pNamaAktif.substring(0, 5); 
 
-  return pNamaDB.includes(kataKunciAktif) || pNamaAktif.includes(kataKunciDB);
+  return pNamaDB.includes(kataKunci);
 });
-
         console.log(`DATA TERFILTER UNTUK ${pNamaAktif}:`, hasilFilter.length);
 
         // 3. MAPPING: Pastikan nama kolom 'angka' & 'result' aman keduanya
