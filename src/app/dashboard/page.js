@@ -804,7 +804,7 @@ const handleLogout = () => {
     e.preventDefault();
     e.stopPropagation();
     // Ganti total cara pindahnya
-    window.location.replace('/hubungi');
+    window.location.replace('/hubungi-user');
   }} 
   className="flex flex-col items-center justify-center flex-1 gap-1 active:scale-90 cursor-pointer"
 >
