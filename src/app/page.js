@@ -854,12 +854,23 @@ const handleSetujuLogin = () => {
   </section>
 
   
+
+
+
   <section id="live" className="scroll-mt-[180px] md:scroll-mt-[220px] bg-[1a0033] border border-[#D4AF37]/50 rounded-2xl p-4 shadow-2xl">
     <div className="flex items-center justify-between mb-4 border-b border-[#D4AF37]/20 pb-3">
-      <div className="flex items-center gap-2">
-        <span className="text-xl">♠️</span>
-        <h2 className="text-sm font-bold uppercase text-white tracking-widest">Live Games</h2>
-      </div>
+  <div className="flex items-center gap-2">
+    {/* Ikon kartu tetap dipertahankan agar ada variasi */}
+    <span className="text-xl">♠️</span>
+    
+    {/* GIF JUDUL LIVE CASINO */}
+    <img 
+      src="https://photoku.io/images/2024/11/29/GIF_LIVECASINO.gif" 
+      alt="Live Casino Title" 
+      className="h-8 md:h-10 w-auto object-contain drop-shadow-[0_0_8px_rgba(212,175,55,0.4)]"
+      // h-8 (HP), md:h-10 (Laptop), ditambah efek glow emas tipis
+    />
+  </div>
       <div className="relative">
          <input type="text" placeholder="Cari game..." className="bg-black/40 border border-[#D4AF37]/30 rounded-full py-1 px-4 text-[10px] w-32 text-white outline-none" />
       </div>
