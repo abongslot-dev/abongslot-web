@@ -180,21 +180,25 @@ useEffect(() => {
           
 
 {/* 2. BARIS DOMPET, DEPOSIT, WITHDRAW, LOGOUT */}
-<div className="grid grid-cols-4 gap-2">
-        <div className="bg-black/40 border border-white/5 rounded-lg p-2 text-center flex flex-col justify-center">
-          <p className="text-[8px] uppercase font-bold text-white/50 tracking-tighter">Dompet</p>
-          <p className="text-xs font-black text-yellow-400">
-            {Number(saldo).toLocaleString('id-ID')}
-          </p>
-        </div>
-  
+{/* 2. BARIS DOMPET, DEPOSIT, WITHDRAW, LOGOUT */}
+<div className="grid grid-cols-3 md:grid-cols-4 gap-2">
+  {/* DOMPET */}
+  <div className="bg-black/40 border border-white/5 rounded-lg p-2 text-center flex flex-col justify-center">
+    <p className="text-[8px] uppercase font-bold text-white/50 tracking-tighter">Dompet</p>
+    <p className="text-xs font-black text-yellow-400">
+      {Number(saldo).toLocaleString('id-ID')}
+    </p>
+  </div>
+
+  {/* DEPOSIT */}
   <button 
     onClick={() => router.push('/deposit')}
     className="bg-[#ccff33] text-black text-[10px] font-black rounded-lg py-2 flex flex-col items-center justify-center shadow-md active:scale-95 transition-all"
   >
     DEPOSIT
   </button>
-  
+
+  {/* WITHDRAW */}
   <button 
     onClick={() => router.push('/withdraw')}
     className="bg-white/10 border border-white/10 text-white text-[10px] font-black rounded-lg py-2 flex flex-col items-center justify-center active:scale-95 transition-all"
@@ -202,15 +206,8 @@ useEffect(() => {
     WITHDRAW
   </button>
 
-  <button 
-    onClick={() => { 
-      localStorage.clear(); 
-      window.location.href = "/"; 
-    }}
-    className="bg-red-600 text-white text-[10px] font-black rounded-lg py-2 flex flex-col items-center justify-center shadow-md active:scale-95 transition-all"
-  >
-    LOGOUT
-  </button>
+  {/* LOGOUT: Pindah ke bawah di Mobile, Sejajar di Desktop */}
+  
 </div>
 
 {/* --- 3. REFERRAL SECTION (GRID 2 KOLOM) --- */}
@@ -245,23 +242,19 @@ useEffect(() => {
   </div>
 
 </div>
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  {/* 1. LOOPING MENU PROFILE */}
   {menuProfile.map((item, index) => (
     <div
       key={index}
-      onClick={() => {
-        console.log("Mencoba pindah ke:", item.path); // Cek di F12
-        
-        // JANGAN pakai setLoading(true) dulu untuk ngetes
-        // Kalau tanpa loading ini bisa pindah, berarti masalahnya di state loading Bos
-        router.push(item.path); 
-      }}
-      className="bg-[#000080] border border-white/10 py-5 px-2 rounded-md shadow-md cursor-pointer hover:bg-[#a00000] hover:border-white/40 transition-all active:scale-95 flex items-center justify-center relative overflow-hidden group"
+      onClick={() => router.push(item.path)}
+      className="bg-[#000080] border border-white/10 py-5 px-2 rounded-md shadow-md cursor-pointer hover:bg-[#a00000] transition-all flex items-center justify-center relative group"
     >
-      <span className="text-white font-bold text-[11px] uppercase tracking-tight text-center group-hover:text-yellow-400 transition-colors">
+      <span className="text-white font-bold text-[11px] uppercase group-hover:text-yellow-400">
         {item.name}
       </span>
       
+      {/* Jika ada menu bernama Memo, tampilkan notifikasi angka */}
       {item.name === "Memo" && (
         <div className="absolute right-1 bottom-1 bg-white text-[#8b0000] text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
           63
@@ -269,7 +262,19 @@ useEffect(() => {
       )}
     </div>
   ))}
-</div>
+
+  {/* 2. TOMBOL LOGOUT (Di luar loop, agar jadi yang paling bawah) */}
+  <div 
+    onClick={() => { 
+      localStorage.clear(); 
+      window.location.href = "/"; 
+    }}
+    className="col-span-1 md:col-span-2 bg-red-600 border border-white/10 py-5 px-2 rounded-md shadow-md cursor-pointer hover:bg-red-700 transition-all active:scale-95 flex items-center justify-center group mt-2"
+  >
+    <span className="text-white font-black text-[11px] uppercase tracking-widest">
+      LOGOUT AKUN
+    </span>
+  </div>
 </div>
  
 
