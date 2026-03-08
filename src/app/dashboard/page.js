@@ -208,7 +208,7 @@ const handleLogout = () => {
 {/* --- MENU KATEGORI GAME --- */}
 <div 
   ref={menuNavRef}
-  className="w-full max-w-6xl bg-[#1a0033] border-b-2 border-[#D4AF37]/20 shadow-xl sticky top-[65px] md:top-[120px] z-100 mx-auto"
+  className="w-full max-w-6xl bg-[#1a0033] border-b-2 border-[#D4AF37]/20 shadow-xl sticky top-[65px] md:top-[120px] z-40 mx-auto"
 >
   <div className="flex items-center justify-between px-4 py-4 overflow-x-auto no-scrollbar gap-2">
     {[
@@ -255,7 +255,7 @@ const handleLogout = () => {
 {/* Kotak Saldo */}
 <div className="bg-[#2d0055] border border-[#D4AF37]/40 rounded-2xl p-5 shadow-inner">
   <p className="text-[10px] text-gray-400 uppercase font-black tracking-wider mb-1">
-  Selamat Datang, <span className="text-white uppercase font-bold">{username || "Guest"}</span>
+  Selamat Datang, <span className="text-white  font-bold">{username || "Guest"}</span>
 </p>
   
   <div className="flex items-center gap-3 mb-5">
