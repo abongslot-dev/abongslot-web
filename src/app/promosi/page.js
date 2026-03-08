@@ -303,27 +303,29 @@ const handleLogout = () => {
       </>
     ) : (
       /* --- TAMPILAN SETELAH LOGIN (Ganti dengan Saldo/Username) --- */
- <div className="flex justify-center items-center">
-      <img 
-        src="https://i.postimg.cc/BvTrMrkD/logo-abong.png" 
-        alt="Logo" 
-        className="h-12 md:h-20 w-auto drop-shadow-[0_0_10px_rgba(212,175,55,0.4)] object-contain cursor-pointer"
-        onClick={() => router.push('/dashboard')}
-      />
-    </div>
+     <div className="w-full flex items-center justify-center min-h-[60px] md:min-h-[120px] relative">
+        {/* Logo Tengah */}
+        <div className="flex justify-center items-center">
+          <img 
+            src="https://i.postimg.cc/XYgNTswc/download-(3).png" 
+            alt="Logo" 
+            className="h-12 md:h-20 w-auto drop-shadow-[0_0_10px_rgba(212,175,55,0.4)] object-contain cursor-pointer"
+            onClick={() => router.push('/dashboard')}
+          />
+        </div>
 
-    {/* Tombol Logout (Opsional - Pojok Kanan Desktop) */}
-    <div className="hidden md:block absolute right-5">
-      <button 
-  onClick={() => {
-    localStorage.removeItem("isLoggedIn"); // Menghapus status login
-    localStorage.removeItem("username");   // Menghapus data user
-    window.location.href = "/";            // Balik ke home dan refresh total
-  }}
-  className="bg-red-600/20 border border-red-600 text-red-500 text-[10px] font-black px-3 py-1.5 rounded-lg hover:bg-red-600 hover:text-white transition-all"
->
-  LOGOUT
-</button>
+        {/* Tombol Logout Kanan (Hanya Desktop) */}
+        <div className="hidden md:block absolute right-5">
+          <button 
+            onClick={() => {
+              localStorage.removeItem("isLoggedIn");
+              localStorage.removeItem("username");
+              window.location.href = "/";
+            }}
+            className="bg-red-600/20 border border-red-600 text-red-500 text-[10px] font-black px-4 py-2 rounded-lg hover:bg-red-600 hover:text-white transition-all uppercase"
+          >
+            LOGOUT
+          </button>
      </div>
   </div>
 )}
