@@ -144,12 +144,20 @@ const handleLogin = async () => {
         const res = await fetch("/api/get-results");
         const json = await res.json();
 
-        if (json.success) {
-          const hasilFilter = json.data.filter(item => 
-            item.pasaran.toUpperCase().trim() === pasaranAktif.toUpperCase().trim()
-          );
-          setDataRiwayat(hasilFilter);
-          setDataTampil(hasilFilter);
+        if (json.success && Array.isArray(json.data)) {
+          // Gunakan .includes() supaya kalau nama 'CHINA POOLS' 
+          // dicari pakai kata 'CHINA' saja tetap ketemu
+          const hasilFilter = json.data.filter(item => {
+            const pNamaDB = item.pasaran.toUpperCase().trim();
+            const pNamaAktif = pasaranAktif.toUpperCase().trim();
+            return pNamaDB.includes(pNamaAktif) || pNamaAktif.includes(pNamaDB);
+          });
+
+          // URUTKAN BERDASARKAN ID (Biar ID 322 di atas, ID 41 di bawah)
+          const dataUrut = hasilFilter.sort((a, b) => Number(b.id) - Number(a.id));
+
+          setDataRiwayat(dataUrut);
+          setDataTampil(dataUrut);
         }
       } catch (err) {
         console.error("Gagal tarik riwayat:", err);
@@ -158,7 +166,9 @@ const handleLogin = async () => {
       }
     };
 
-    loadRiwayatDariDB();
+    if (pasaranAktif) {
+      loadRiwayatDariDB();
+    }
   }, [pasaranAktif]);
 
 
