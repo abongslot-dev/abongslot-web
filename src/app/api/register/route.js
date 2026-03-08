@@ -46,7 +46,8 @@ export async function POST(req) {
           nama_bank: bank, 
           nama_rekening: namaRekening, 
           nomor_rekening: nomorRekening, 
-          saldo: 0 
+          saldo: 0,
+          upline: referral || null // 2. MASUKKAN KE KOLOM 'upline' DI DATABASE 
         }
       ]);
 
