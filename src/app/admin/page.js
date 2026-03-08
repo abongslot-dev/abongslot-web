@@ -2034,8 +2034,8 @@ return (
                 {m.upline ? m.upline : <span className="text-gray-300 font-normal not-italic">Direct</span>}
                 </td>
                 {/* 5. Kode Ref (Kode punya dia) */}
-                <td className="p-2 border-r text-center font-bold text-blue-600">
-                  {m.referral || "-"}
+                <td className="p-2 border-r text-center font-bold text-blue-600 uppercase">
+                {m.kode_referral || "-"} 
                 </td>
 
                 {/* 6. Kolom Saldo */}
