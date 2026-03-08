@@ -87,6 +87,14 @@ useEffect(() => {
     localStorage.clear();
     router.push("/");
   };
+
+
+const handleCopyLink = () => {
+    const linkRef = `https://abongslot.com/register?referral=${username}`;
+    navigator.clipboard.writeText(linkRef);
+    alert("Link Referral Berhasil Disalin!");
+  };
+
   return (
     <main 
       className="min-h-screen text-white font-sans flex flex-col items-center bg-fixed bg-cover bg-center"
@@ -214,16 +222,23 @@ useEffect(() => {
           <button className="bg-[#ccff33] text-black text-[10px] font-black px-4 py-2 rounded-md w-full">Salin Link</button>
         </div>
 
-        <div className="bg-black/40 border border-white/10 rounded-xl p-3 flex flex-col gap-2">
-          <p className="text-[10px] font-bold text-white/70 uppercase">Daftar Referral</p>
-          <div className="flex flex-col items-center justify-center flex-1">
-             <p className="text-xl font-black text-[#4da6ff]">0</p>
-             <p className="text-[9px] text-white/50 uppercase">Total Downline</p>
-          </div>
-          <button className="bg-white/10 text-white text-[10px] font-bold px-4 py-2 rounded-md border border-white/10">Lihat Detail</button>
+<div className="bg-black/40 border border-white/10 rounded-xl p-3 flex flex-col gap-2 shadow-inner">
+        <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Link Referral Anda</p>
+        <div className="flex flex-col gap-2">
+          <input 
+            readOnly 
+            value={`https://abongslot.com/register?referral=${username}`} 
+            className="bg-white/90 text-black text-[11px] w-full px-3 py-2.5 rounded-md font-black outline-none border-none shadow-sm"
+          />
+          <button 
+            onClick={handleCopyLink}
+            className="bg-[#ccff33] hover:bg-yellow-400 text-black text-[10px] font-black px-4 py-2.5 rounded-md active:scale-95 transition-all w-full shadow-lg"
+          >
+            SALIN LINK REFERRAL
+          </button>
         </div>
       </div>
-
+      
       {/* --- 4. MENU PROFILE & LOGOUT --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* LOOPING MENU PROFILE */}
