@@ -67,26 +67,30 @@ useEffect(() => {
 
 
 const handleCariData = () => {
-    if (!tglMulai || !tglAkhir) {
-      alert("Pilih rentang tanggal dulu, Bos!");
-      return;
-    }
+  if (!tglMulai || !tglAkhir) {
+    alert("Pilih rentang tanggal dulu, Bos!");
+    return;
+  }
 
-    const mulai = new Date(tglMulai).getTime();
-    const akhir = new Date(tglAkhir).getTime();
+  // Set jam mulai ke 00:00:00 dan jam akhir ke 23:59:59
+  const mulai = new Date(tglMulai);
+  mulai.setHours(0, 0, 0, 0);
+  
+  const akhir = new Date(tglAkhir);
+  akhir.setHours(23, 59, 59, 999);
 
-    const hasil = dataRiwayat.filter((item) => {
-      if (!item.tanggal) return false;
-      const tglItem = new Date(item.tanggal).getTime();
-      return tglItem >= mulai && tglItem <= akhir;
-    });
+  const hasil = dataRiwayat.filter((item) => {
+    if (!item.tanggal) return false;
+    const tglItem = new Date(item.tanggal).getTime();
+    return tglItem >= mulai.getTime() && tglItem <= akhir.getTime();
+  });
 
-    setDataTampil(hasil);
-    
-    if (hasil.length === 0) {
-      alert("Data tidak ditemukan untuk tanggal tersebut.");
-    }
-  }; // HANYA SATU TUTUP KURUNG DI SINI
+  setDataTampil(hasil);
+  
+  if (hasil.length === 0) {
+    alert("Data tidak ditemukan untuk tanggal tersebut.");
+  }
+}; // HANYA SATU TUTUP KURUNG DI SINI
 
 
   // --- 3. LOGIKA LOGIN ---
@@ -154,7 +158,7 @@ const handleLogin = async () => {
           });
 
           // URUTKAN BERDASARKAN ID (Biar ID 322 di atas, ID 41 di bawah)
-          const dataUrut = hasilFilter.sort((a, b) => Number(b.id) - Number(a.id));
+          const dataUrut = hasilFilter.sort((a, b) => {return Number(b.id) - Number(a.id);});
 
           setDataRiwayat(dataUrut);
           setDataTampil(dataUrut);
@@ -341,22 +345,30 @@ const handleLogin = async () => {
         <th className="py-3 px-4 text-[13px] font-black text-gray-500 uppercase italic">Result (Prize 1)</th>
       </tr>
     </thead>
-    <tbody className="text-gray-700 text-xs font-bold">
+<tbody className="text-gray-700 text-xs font-bold">
   {dataTampil
-    .filter(item => item.result && item.result !== "----") // <--- TAMBAHKAN FILTER INI
+    /* GANTI item.result menjadi item.angka */
+    .filter(item => item.angka && item.angka !== "----") 
     .length > 0 ? (
       dataTampil
-        .filter(item => item.result && item.result !== "----")
+        .filter(item => item.angka && item.angka !== "----")
         .map((item, idx) => (
-          <tr key={idx} className="border-b border-gray-100 hover:bg-red-50 transition-colors">
+          <tr key={item.id || idx} className="border-b border-gray-100 hover:bg-red-50 transition-colors text-center">
+            {/* Pakai item.periode */}
             <td className="py-4 border-r border-gray-200 text-gray-400">*{item.periode}</td>
+            {/* Pakai item.tanggal */}
             <td className="py-4 border-r border-gray-200">{item.tanggal}</td>
-            <td className="py-4 text-[18px] font-black text-[#cc1d1d] tracking-[6px]">{item.result}</td>
+            {/* GANTI item.result menjadi item.angka */}
+            <td className="py-4 text-[18px] font-black text-[#cc1d1d] tracking-[6px]">
+              {item.angka}
+            </td>
           </tr>
         ))
   ) : (
     <tr>
-      <td colSpan="3" className="py-10 text-gray-400 italic text-center">Data tidak ditemukan.</td>
+      <td colSpan="3" className="py-10 text-gray-400 italic text-center">
+        Data tidak ditemukan untuk pasaran {pasaranAktif}.
+      </td>
     </tr>
   )}
 </tbody>
