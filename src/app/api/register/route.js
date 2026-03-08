@@ -3,6 +3,20 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
+
+const generateRandomCode = (length = 6) => {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+};
+
+
+
+
+
 // Mengambil kunci dari Environment Variables Vercel yang sudah kita pasang tadi
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -47,25 +61,24 @@ export async function POST(req) {
           nama_rekening: namaRekening, 
           nomor_rekening: nomorRekening, 
           saldo: 0,
-          upline: referral || null // 2. MASUKKAN KE KOLOM 'upline' DI DATABASE 
+          upline: referral || null, // 2. MASUKKAN KE KOLOM 'upline' DI DATABASE 
+          kode_referral: myNewReferralCode // <--- MASUK KE DATABASE DISINI
         }
       ]);
 
-    if (insertError) {
+if (insertError) {
       console.error("Insert Error:", insertError.message);
-      return NextResponse.json({ success: false, message: "Gagal simpan: " + insertError.message }, { status: 500 });
+      return NextResponse.json({ success: false, message: "Gagal simpan ke database" }, { status: 500 });
     }
 
     return NextResponse.json({ 
       success: true, 
-      message: "Pendaftaran Berhasil!" 
+      message: "Pendaftaran Berhasil!",
+      referralCode: myNewReferralCode // (Opsional) Kasih tau member kodenya apa
     }, { status: 200 });
 
   } catch (error) {
     console.error("Critical Error:", error);
-    return NextResponse.json({ 
-      success: false, 
-      message: "Server Error: " + error.message 
-    }, { status: 500 });
+    return NextResponse.json({ success: false, message: "Server Error" }, { status: 500 });
   }
 }
