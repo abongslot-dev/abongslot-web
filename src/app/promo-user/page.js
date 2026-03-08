@@ -380,7 +380,7 @@ const handleLogout = () => {
           <span className="text-xl">🏠</span>
           <span className="text-[9px] font-black uppercase">Beranda</span>
         </button>
-        <button onClick={() => setHalamanAktif('promosi')} className={`flex flex-col items-center flex-1 ${halamanAktif === 'promosi' ? 'text-yellow-500' : 'text-gray-400'}`}>
+        <button onClick={() => setHalamanAktif('promo-user')} className={`flex flex-col items-center flex-1 ${halamanAktif === 'promo-user' ? 'text-yellow-500' : 'text-gray-400'}`}>
           <span className="text-xl">🎁</span>
           <span className="text-[9px] font-black uppercase">Promo</span>
         </button>
@@ -419,7 +419,7 @@ const handleLogout = () => {
           </button>
 
           {/* Tombol Promosi */}
-          <button onClick={() => router.push('/promosi')} className="flex flex-col items-center justify-center flex-1 gap-1 active:scale-90">
+          <button onClick={() => router.push('/promo-user')} className="flex flex-col items-center justify-center flex-1 gap-1 active:scale-90">
             <span className="text-xl">🎁</span>
             <span className="text-[10px] font-black text-white uppercase leading-none">Promosi</span>
           </button>
