@@ -135,7 +135,7 @@ useEffect(() => {
 
 
 {/* --- KONTEN PROFILE --- */}
-<div className="w-full max-w-5xl bg-[#1a0033] flex flex-col gap-3 p-4 shadow-2xl min-h-screen border-x border-white/5 pb-40">
+<div className="w-full max-w-6xl bg-[#1a0033] flex flex-col gap-3 p-4 shadow-2xl min-h-screen border-x border-white/5 pb-40">
   
   {/* BOX HITAM: Kita kasih 'justify-center' agar isinya ke tengah */}
   <div className="bg-black/40 border border-white/10 rounded-xl p-6 flex items-center justify-center gap-5 shadow-lg min-h-[140px]">
