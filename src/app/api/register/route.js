@@ -48,7 +48,7 @@ export async function POST(req) {
 
       return NextResponse.json({ success: false, message: pesanError }, { status: 400 });
     }
-
+    const myNewReferralCode = generateRandomCode(8);
     // --- 2. QUERY INSERT (Pindah dari MySQL ke Supabase) ---
     const { error: insertError } = await supabase
       .from('members')
