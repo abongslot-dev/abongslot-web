@@ -157,7 +157,7 @@ const handleCopyLink = () => {
     <div className="flex flex-col">
       
       {/* Username */}
-      <h2 className="text-lg font-bold leading-tight uppercase text-white">
+      <h2 className="text-lg font-bold leading-tight  text-white">
         {username || "Loading..."}
       </h2>
       
