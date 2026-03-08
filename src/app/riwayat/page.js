@@ -155,11 +155,17 @@ useEffect(() => {
         const pNamaAktif = pasaranAktif.toUpperCase().trim();
 
         // 2. FILTER: Ambil semua yang mengandung nama pasaran aktif
-        const hasilFilter = json.data.filter(item => {
-          const pNamaDB = item.pasaran.toUpperCase().trim();
-          // Kita pakai includes agar 'CHINA POOLS' & 'CHINA' tetap nyambung
-          return pNamaDB.includes(pNamaAktif) || pNamaAktif.includes(pNamaDB);
-        });
+       const hasilFilter = json.data.filter(item => {
+  const pNamaDB = item.pasaran.toUpperCase().trim();
+  const pNamaAktif = pasaranAktif.toUpperCase().trim();
+
+  // AMBIL KATA PERTAMA SAJA (Misal: "CHINA POOLS" jadi "CHINA")
+  // Supaya pencarian lebih akurat
+  const kataKunciDB = pNamaDB.split(" ")[0]; 
+  const kataKunciAktif = pNamaAktif.split(" ")[0];
+
+  return pNamaDB.includes(kataKunciAktif) || pNamaAktif.includes(kataKunciDB);
+});
 
         console.log(`DATA TERFILTER UNTUK ${pNamaAktif}:`, hasilFilter.length);
 
