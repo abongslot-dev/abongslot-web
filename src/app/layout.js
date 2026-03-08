@@ -17,6 +17,7 @@ export const metadata = {
   title: "ABONGSLOT - Link Situs Gacor Portal VIP Resmi 24 Jam",
   description: "Selamat datang di ABONGSLOT, portal VIP resmi dengan layanan terbaik 24 jam nonstop. Mainkan Demo Slot terlengkap dan cek hasil Togel tercepat.",
   keywords: "ABONGSLOT, slot gacor, demo slot, portal vip, prediksi togel",
+
   // Metadata untuk tampilan saat link di-share (WA, FB, Twitter)
   openGraph: {
     title: "ABONGSLOT VIP - Portal Gacor Terpercaya",
@@ -43,6 +44,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="id" suppressHydrationWarning> 
+    <meta name="google-site-verification" content="P2K28zgoQYYkwKxiP-R2_3Db8lW8e0_U8YyO1H4DTDc" />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#1a0033]`} // Tambahkan background default biar gak kedip putih
       >
