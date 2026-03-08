@@ -208,7 +208,7 @@ const handleLogout = () => {
 {/* --- MENU KATEGORI GAME --- */}
 <div 
   ref={menuNavRef}
-  className="w-full max-w-6xl bg-[#1a0033] border-b-2 border-[#D4AF37]/20 shadow-xl sticky top-[65px] md:top-[120px] z-40 mx-auto"
+  className="w-full max-w-6xl bg-[#1a0033] border-b-2 border-[#D4AF37]/20 shadow-xl sticky top-[65px] md:top-[120px] z-100 mx-auto"
 >
   <div className="flex items-center justify-between px-4 py-4 overflow-x-auto no-scrollbar gap-2">
     {[
