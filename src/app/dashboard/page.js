@@ -172,7 +172,7 @@ const handleLogout = () => {
       
     
 <header ref={headerRef} className="w-full max-w-6xl bg-[#1a0033] shadow-2xl sticky top-0 z-[100] border-b border-[#D4AF37]/20">
-  <div className="px-5 py-3 flex items-center justify-center min-h-[60px] md:min-h-[120px]"> 
+  <div className="px-3 py-2 md:py-0 flex items-center md:items-stretch justify-between min-h-[60px] md:min-h-[160px]"> 
     
     {/* --- LOGO TETAP DI TENGAH (MOBILE & DESKTOP) --- */}
     <div className="flex justify-center items-center">
