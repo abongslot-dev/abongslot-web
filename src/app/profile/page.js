@@ -223,7 +223,7 @@ const handleCopyLink = () => {
         <div className="flex flex-col gap-2">
           <input 
             readOnly 
-            value={`https://abongslot-web.vercel.app/register?referral=${username}`} 
+            value={`https://abongslot-web.vercel.app/daftar?referral=${username}`} 
             className="bg-white/90 text-black text-[11px] w-full px-3 py-2.5 rounded-md font-black outline-none border-none shadow-sm"
           />
           <button 
