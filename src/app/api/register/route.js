@@ -12,7 +12,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { username, password, whatsapp, bank, namaRekening, nomorRekening } = body;
+    const { username, password, whatsapp, bank, namaRekening, nomorRekening, referral } = body;
 
     // --- 1. VALIDASI DATA GANDA (Pindah dari MySQL ke Supabase) ---
     const { data: existingUsers, error: checkError } = await supabase
