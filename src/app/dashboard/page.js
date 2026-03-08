@@ -787,7 +787,7 @@ const handleLogout = () => {
           </button>
 
           {/* Tombol Promosi */}
-          <button onClick={() => router.push('/promosi')} className="flex flex-col items-center justify-center flex-1 gap-1 active:scale-90">
+          <button onClick={() => router.push('/promo-user')} className="flex flex-col items-center justify-center flex-1 gap-1 active:scale-90">
             <span className="text-xl">🎁</span>
             <span className="text-[10px] font-black text-white uppercase leading-none">Promosi</span>
           </button>
