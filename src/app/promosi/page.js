@@ -303,7 +303,7 @@ const handleLogout = () => {
       </>
     ) : (
       /* --- TAMPILAN SETELAH LOGIN (Ganti dengan Saldo/Username) --- */
-     <div className="px-5 py-3 flex items-center justify-center min-h-[60px] md:min-h-[120px]"> 
+     <div className="px-3 py-2 flex items-center justify-center min-h-[60px] md:min-h-[120px]"> 
         {/* Logo Tengah */}
         <div className="flex justify-center items-center">
       <img 
