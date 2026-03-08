@@ -13,8 +13,10 @@ export async function GET() {
     const { data, error } = await supabase
       .from('togel_results')
       .select('*')
-      .order('tanggal', { ascending: false })
-      .limit(200);
+      // 1. Urutkan berdasarkan ID agar urutan input tidak meleset
+      .order('id', { ascending: false }) 
+      // 2. Naikkan limit ke 1000 atau lebih agar riwayat lama terbaca
+      .limit(1000); 
 
     if (error) throw error;
     return NextResponse.json({ success: true, data: data });
