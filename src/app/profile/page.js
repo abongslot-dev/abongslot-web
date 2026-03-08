@@ -215,14 +215,10 @@ const handleCopyLink = () => {
       </div>
 
       {/* --- 3. REFERRAL SECTION --- */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div className="bg-black/40 border border-white/10 rounded-xl p-3 flex flex-col gap-2">
-          <p className="text-[10px] font-bold text-white/70 uppercase">Link Referral</p>
-          <input readOnly value="https://abongslot.com/register?referral=aurel123" className="bg-white/90 text-black text-[10px] w-full px-3 py-2 rounded-md font-bold outline-none" />
-          <button className="bg-[#ccff33] text-black text-[10px] font-black px-4 py-2 rounded-md w-full">Salin Link</button>
-        </div>
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-<div className="bg-black/40 border border-white/10 rounded-xl p-3 flex flex-col gap-2 shadow-inner">
+      {/* KOTAK KIRI: LINK REFERRAL */}
+      <div className="bg-black/40 border border-white/10 rounded-xl p-3 flex flex-col gap-2 shadow-inner">
         <p className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Link Referral Anda</p>
         <div className="flex flex-col gap-2">
           <input 
@@ -238,7 +234,17 @@ const handleCopyLink = () => {
           </button>
         </div>
       </div>
-      
+
+        <div className="bg-black/40 border border-white/10 rounded-xl p-3 flex flex-col gap-2">
+          <p className="text-[10px] font-bold text-white/70 uppercase">Daftar Referral</p>
+          <div className="flex flex-col items-center justify-center flex-1">
+             <p className="text-xl font-black text-[#4da6ff]">0</p>
+             <p className="text-[9px] text-white/50 uppercase">Total Downline</p>
+          </div>
+          <button className="bg-white/10 text-white text-[10px] font-bold px-4 py-2 rounded-md border border-white/10">Lihat Detail</button>
+        </div>
+      </div>
+
       {/* --- 4. MENU PROFILE & LOGOUT --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* LOOPING MENU PROFILE */}
