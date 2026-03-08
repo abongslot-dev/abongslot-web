@@ -1652,7 +1652,7 @@ function RangkumanWithdrawalPage() {
 
 
 
-// --- KOMPONEN KECIL ---
+// --- KOMPONEN KECIL ---//
 
 function FilterBox() {
   return (
@@ -1722,46 +1722,61 @@ function SubMenuItem({ label, onClick, active }) {
 }
 
 
-
+// ---TAMPILAN DAFTAR MEMBER ---//
 
 function MemberRow({ idMember, no, user, rek, upline, ref, saldo, total, onEditPassword }) {
   return (
-    <tr className="border-b hover:bg-gray-50 transition-colors">
-      <td className="p-2 border-r text-center">{no}</td>
+    <tr className="border-b hover:bg-gray-50 transition-colors text-[12px]">
+      <td className="p-2 border-r text-center text-gray-400">{no}</td>
       
-      {/* USERNAME BISA DIKLIK KE HALAMAN DETAIL */}
-      <td className="p-2 border-r text-blue-600 font-medium cursor-pointer hover:underline">
+      {/* USERNAME */}
+      <td className="p-2 border-r text-blue-600 font-bold cursor-pointer hover:underline">
         <Link href={`/admin/member/${idMember}`}>
           {user}
         </Link>
       </td>
       
-      <td className="p-2 border-r text-[10px] uppercase">{rek}</td>
-      <td className="p-2 border-r text-gray-500 italic">{upline || ""}</td>
-      <td className="p-2 border-r">{ref}</td>
+      {/* DATA REKENING */}
+      <td className="p-2 border-r text-[10px] uppercase font-medium">{rek}</td>
+      
+      {/* UPLINE (ORANG YANG MENGAJAK) */}
+      <td className="p-2 border-r text-gray-500 italic">
+        {upline ? `@${upline}` : <span className="text-gray-300">Mandiri</span>}
+      </td>
+      
+      {/* KODE REF (KODE MILIK DIA) */}
+      <td className="p-2 border-r font-bold text-purple-600">{ref || "-"}</td>
+      
+      {/* STATUS */}
       <td className="p-2 border-r text-center">
-        <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold flex items-center justify-center gap-1 w-fit mx-auto border border-emerald-200">
-          <CheckCircle2 size={10}/> Aktif
+        <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-black flex items-center justify-center gap-1 w-fit mx-auto border border-emerald-200">
+          <CheckCircle2 size={10}/> AKTIF
         </span>
       </td>
-      <td className="p-2 border-r text-right font-mono">{saldo}</td>
-      <td className="p-2 border-r text-right font-mono">{total}</td>
+      
+      {/* SALDO & TOTAL DEPO */}
+      <td className="p-2 border-r text-right font-mono text-blue-700 font-bold">{saldo}</td>
+      <td className="p-2 border-r text-right font-mono text-gray-600">{total}</td>
+      
+      {/* AKSI */}
       <td className="p-2 flex gap-1 justify-center">
-        {/* TOMBOL GANTI PASSWORD */}
         <button 
           onClick={onEditPassword} 
-          className="bg-[#ffc107] text-black p-1 rounded shadow-sm hover:brightness-90"
+          title="Ganti Password"
+          className="bg-[#ffc107] text-black p-1.5 rounded shadow-sm hover:brightness-90 transition-all"
         >
           <Key size={14} />
         </button>
-        <button className="bg-[#28a745] text-white p-1 rounded shadow-sm hover:brightness-90">
+        <button 
+          title="Detail Bank"
+          className="bg-[#28a745] text-white p-1.5 rounded shadow-sm hover:brightness-90 transition-all"
+        >
           <Landmark size={14}/>
         </button>
       </td>
     </tr>
   );
 }
-
 
 
 
@@ -1939,101 +1954,130 @@ function MemberPage({ initialUser, clearInitialUser }) {
     );
   }
 
+
+
+
   // --- 4. TAMPILAN DEFAULT (TABEL MEMBER) ---
-  return (
-    <div className="p-6 text-gray-800">
-      <h1 className="text-3xl font-normal mb-1">Member</h1>
-      <p className="text-xs text-blue-500 mb-6 font-medium">Dashboard <span className="text-gray-400 font-normal">/ Member</span></p>
-      
-      {/* FILTER (Sama seperti kodemu sebelumnya) */}
-      <div className="bg-[#fcfcfc] border rounded shadow-sm overflow-hidden border-gray-200 mb-6 text-[11px]">
-        <div className="bg-gray-100 px-4 py-2 border-b font-bold text-gray-600">▼ Filter</div>
-        <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-           <FilterInput label="Username" placeholder="Username" />
-           <FilterSelect label="Status" />
-           {/* ... tambahkan filter lainnya ... */}
-        </div>
-        <div className="px-4 pb-4 flex gap-1">
-          <button className="bg-[#00c0ef] text-white px-3 py-1.5 rounded font-bold shadow-sm">Reset</button>
-          <button className="bg-[#007bff] text-white px-3 py-1.5 rounded font-bold shadow-sm">Cari</button>
-        </div>
+return (
+  <div className="p-6 text-gray-800">
+    <h1 className="text-3xl font-normal mb-1">Member</h1>
+    <p className="text-xs text-blue-500 mb-6 font-medium">Dashboard <span className="text-gray-400 font-normal">/ Member</span></p>
+    
+    {/* FILTER SECTION */}
+    <div className="bg-[#fcfcfc] border rounded shadow-sm overflow-hidden border-gray-200 mb-6 text-[11px]">
+      <div className="bg-gray-100 px-4 py-2 border-b font-bold text-gray-600">▼ Filter</div>
+      <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="flex flex-col gap-1">
+            <label className="font-bold">Username</label>
+            <input type="text" placeholder="Cari Username..." className="border p-1.5 rounded outline-none focus:border-blue-400" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="font-bold">Status</label>
+            <select className="border p-1.5 rounded outline-none">
+              <option>Semua</option>
+              <option>Aktif</option>
+              <option>Blokir</option>
+            </select>
+          </div>
       </div>
-
-      {/* TABEL */}
-      <div className="bg-white border rounded shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[11px] border-collapse">
-<thead>
-  <tr className="border-b bg-gray-50 text-gray-800 font-bold uppercase tracking-tighter text-[11px]">
-    <th className="p-2 border-r text-center w-10">No.</th>
-    <th className="p-2 border-r">Username</th>
-    <th className="p-2 border-r text-center"> Rekening</th>
-    <th className="p-2 border-r text-right">Saldo</th>
-    <th className="p-2 border-r text-center">Status</th>
-    <th className="p-2 text-center text-center">Action</th>
-  </tr>
-</thead>
-         <tbody>
-  {loading ? (
-    <tr><td colSpan="6" className="p-4 text-center">Loading Data...</td></tr>
-  ) : members.map((m, index) => (
-    <tr key={m.id} className="border-b hover:bg-gray-50 text-black">
-      {/* 1. Nomor */}
-      <td className="p-2 border-r text-center">{index + 1}.</td>
-      
-      {/* 2. Username */}
-      <td 
-        className="p-2 border-r text-blue-600 font-bold cursor-pointer hover:underline"
-        onClick={() => {
-            setSelectedUser(m);
-            setView("edit");
-        }}
-      >
-        {m.username}
-      </td>
-
-      {/* 3. Kolom Gabungan: BANK - NOREK - NAMA (GABUNG DISINI) */}
-      <td className="p-2 border-r text-[10px] font-bold uppercase">
-        <div className="flex gap-1.5 items-center">
-          <span className="text-blue-700">{m.nama_bank || "-"}</span>
-          <span className="text-gray-400">-</span>
-          <span className="font-mono tracking-tighter">{m.nomor_rekening || "-"}</span>
-          <span className="text-gray-400">-</span>
-          <span className="text-gray-600 italic">{m.nama_rekening || "-"}</span>
-        </div>
-      </td>
-
-      {/* 4. Kolom Saldo */}
-      <td className="p-2 border-r text-right font-mono font-bold text-emerald-600">
-        {new Intl.NumberFormat('id-ID').format(m.saldo)}
-      </td>
-
-      {/* 5. Kolom Status */}
-      <td className="p-2 border-r text-center">
-        <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold border border-emerald-200">
-          Aktif
-        </span>
-      </td>
-
-      {/* 6. Kolom Action */}
-      <td className="p-2 flex gap-1 justify-center">
-        <button 
-          onClick={() => { setSelectedUser(m); setIsModalOpen(true); }}
-          className="bg-[#ffc107] p-1.5 rounded shadow-sm"
-          title="Ganti Password"
-        >
-          <Key size={14} />
-        </button>
-        <button className="bg-[#28a745] text-white p-1.5 rounded shadow-sm">
-          <Landmark size={14}/>
-        </button>
-      </td>
-    </tr>
-  ))}
-</tbody>
-          </table>
-        </div>
+      <div className="px-4 pb-4 flex gap-1">
+        <button className="bg-[#00c0ef] text-white px-3 py-1.5 rounded font-bold shadow-sm hover:brightness-95">Reset</button>
+        <button className="bg-[#007bff] text-white px-3 py-1.5 rounded font-bold shadow-sm hover:brightness-95">Cari</button>
       </div>
+    </div>
+
+    {/* TABEL MEMBER */}
+    <div className="bg-white border rounded shadow-sm overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-[11px] border-collapse">
+          <thead>
+            <tr className="border-b bg-gray-50 text-gray-800 font-bold uppercase tracking-tighter text-[11px]">
+              <th className="p-3 border-r text-center w-10">No.</th>
+              <th className="p-3 border-r">Username</th>
+              <th className="p-3 border-r text-center">Data Rekening</th>
+              <th className="p-3 border-r text-center bg-orange-50 text-orange-700">Upline</th>
+              <th className="p-3 border-r text-center bg-blue-50 text-blue-700">Kode Ref</th>
+              <th className="p-3 border-r text-right">Saldo</th>
+              <th className="p-3 border-r text-center">Status</th>
+              <th className="p-3 text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan="8" className="p-10 text-center font-bold text-gray-400">Sedang Mengambil Data...</td></tr>
+            ) : members.length === 0 ? (
+              <tr><td colSpan="8" className="p-10 text-center text-gray-400 italic">Belum ada member terdaftar.</td></tr>
+            ) : members.map((m, index) => (
+              <tr key={m.id} className="border-b hover:bg-gray-50 text-black transition-colors">
+                {/* 1. Nomor */}
+                <td className="p-2 border-r text-center text-gray-400">{index + 1}.</td>
+                
+                {/* 2. Username */}
+                <td 
+                  className="p-2 border-r text-blue-600 font-bold cursor-pointer hover:underline"
+                  onClick={() => { setSelectedUser(m); setView("edit"); }}
+                >
+                  {m.username}
+                </td>
+
+                {/* 3. Kolom Gabungan Rekening */}
+                <td className="p-2 border-r text-[10px] font-bold uppercase">
+                  <div className="flex gap-1.5 items-center justify-center">
+                    <span className="text-blue-700 bg-blue-50 px-1 rounded">{m.nama_bank || "-"}</span>
+                    <span className="font-mono tracking-tighter text-gray-800">{m.nomor_rekening || "-"}</span>
+                    <span className="text-gray-400 font-normal italic">({m.nama_rekening || "-"})</span>
+                  </div>
+                </td>
+
+                {/* 4. Upline (Siapa yang ngajak) */}
+                <td className="p-2 border-r text-center text-orange-600 font-medium italic">
+                  {m.upline ? `@${m.upline}` : <span className="text-gray-300 font-normal not-italic">Direct</span>}
+                </td>
+
+                {/* 5. Kode Ref (Kode punya dia) */}
+                <td className="p-2 border-r text-center font-bold text-blue-600">
+                  {m.referral || "-"}
+                </td>
+
+                {/* 6. Kolom Saldo */}
+                <td className="p-2 border-r text-right font-mono font-bold text-emerald-600 bg-emerald-50/30">
+                  {new Intl.NumberFormat('id-ID').format(m.saldo)}
+                </td>
+
+                {/* 7. Kolom Status */}
+                <td className="p-2 border-r text-center">
+                  <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-black border border-emerald-200 uppercase">
+                    Aktif
+                  </span>
+                </td>
+
+                {/* 8. Kolom Action */}
+                <td className="p-2 flex gap-1 justify-center">
+                  <button 
+                    onClick={() => { setSelectedUser(m); setIsModalOpen(true); }}
+                    className="bg-[#ffc107] p-1.5 rounded shadow-sm hover:bg-yellow-500 transition-colors"
+                    title="Ganti Password"
+                  >
+                    <Key size={14} className="text-black" />
+                  </button>
+                  <button 
+                    className="bg-[#28a745] text-white p-1.5 rounded shadow-sm hover:bg-green-600 transition-colors"
+                    title="Transaksi Member"
+                  >
+                    <Landmark size={14}/>
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+
+
+
 
 {/* --- MODAL HARUS DI DALAM SINI (Sebelum penutup div utama MemberPage) --- */}
       {isModalOpen && (
