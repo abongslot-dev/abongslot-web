@@ -179,104 +179,86 @@ useEffect(() => {
 
           
 
-{/* 2. BARIS DOMPET, DEPOSIT, WITHDRAW, LOGOUT */}
-{/* 2. BARIS DOMPET, DEPOSIT, WITHDRAW, LOGOUT */}
-<div className="grid grid-cols-3 md:grid-cols-4 gap-2">
-  {/* DOMPET */}
-  <div className="bg-black/40 border border-white/5 rounded-lg p-2 text-center flex flex-col justify-center">
-    <p className="text-[8px] uppercase font-bold text-white/50 tracking-tighter">Dompet</p>
-    <p className="text-xs font-black text-yellow-400">
-      {Number(saldo).toLocaleString('id-ID')}
-    </p>
-  </div>
-
-  {/* DEPOSIT */}
-  <button 
-    onClick={() => router.push('/deposit')}
-    className="bg-[#ccff33] text-black text-[10px] font-black rounded-lg py-2 flex flex-col items-center justify-center shadow-md active:scale-95 transition-all"
-  >
-    DEPOSIT
-  </button>
-
-  {/* WITHDRAW */}
-  <button 
-    onClick={() => router.push('/withdraw')}
-    className="bg-white/10 border border-white/10 text-white text-[10px] font-black rounded-lg py-2 flex flex-col items-center justify-center active:scale-95 transition-all"
-  >
-    WITHDRAW
-  </button>
-
-  {/* LOGOUT: Pindah ke bawah di Mobile, Sejajar di Desktop */}
-  
-</div>
-
-{/* --- 3. REFERRAL SECTION (GRID 2 KOLOM) --- */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-  {/* KOTAK KIRI: LINK REFERRAL */}
-  <div className="bg-black/40 border border-white/10 rounded-xl p-3 flex flex-col gap-2">
-    <p className="text-[10px] font-bold text-white/70 uppercase">Link Referral</p>
-    <div className="flex flex-col gap-2">
-      <input 
-        readOnly 
-        value="https://abongslot.com/register?referral=aurel123" 
-        className="bg-white/90 text-black text-[10px] w-full px-3 py-2 rounded-md font-bold outline-none"
-      />
-      <button className="bg-[#ccff33] text-black text-[10px] font-black px-4 py-2 rounded-md active:bg-yellow-400 w-full">
-        Salin Link
-      </button>
-    </div>
-  </div>
-
-  {/* KOTAK KANAN: DAFTAR REFERRAL */}
-  <div className="bg-black/40 border border-white/10 rounded-xl p-3 flex flex-col gap-2">
-    <p className="text-[10px] font-bold text-white/70 uppercase">Daftar Referral</p>
-    <div className="flex flex-col items-center justify-center flex-1">
-       {/* Contoh tampilan jumlah referral */}
-       <p className="text-xl font-black text-[#4da6ff]">0</p>
-       <p className="text-[9px] text-white/50 uppercase">Total Downline</p>
-    </div>
-    <button className="bg-white/10 text-white text-[10px] font-bold px-4 py-2 rounded-md border border-white/10">
-      Lihat Detail
-    </button>
-  </div>
-
-</div>
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-  {/* 1. LOOPING MENU PROFILE */}
-  {menuProfile.map((item, index) => (
-    <div
-      key={index}
-      onClick={() => router.push(item.path)}
-      className="bg-[#000080] border border-white/10 py-5 px-2 rounded-md shadow-md cursor-pointer hover:bg-[#a00000] transition-all flex items-center justify-center relative group"
-    >
-      <span className="text-white font-bold text-[11px] uppercase group-hover:text-yellow-400">
-        {item.name}
-      </span>
-      
-      {/* Jika ada menu bernama Memo, tampilkan notifikasi angka */}
-      {item.name === "Memo" && (
-        <div className="absolute right-1 bottom-1 bg-white text-[#8b0000] text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
-          63
+{/* 2. BARIS DOMPET, DEPOSIT, WITHDRAW */}
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        {/* DOMPET */}
+        <div className="bg-black/40 border border-white/5 rounded-lg p-2 text-center flex flex-col justify-center">
+          <p className="text-[8px] uppercase font-bold text-white/50 tracking-tighter">Dompet</p>
+          <p className="text-xs font-black text-yellow-400">
+            {Number(saldo).toLocaleString('id-ID')}
+          </p>
         </div>
-      )}
-    </div>
-  ))}
 
-  {/* 2. TOMBOL LOGOUT (Di luar loop, agar jadi yang paling bawah) */}
-  <div 
-    onClick={() => { 
-      localStorage.clear(); 
-      window.location.href = "/"; 
-    }}
-    className="col-span-1 md:col-span-2 bg-red-600 border border-white/10 py-5 px-2 rounded-md shadow-md cursor-pointer hover:bg-red-700 transition-all active:scale-95 flex items-center justify-center group mt-2"
-  >
-    <span className="text-white font-black text-[11px] uppercase tracking-widest">
-      LOGOUT AKUN
-    </span>
-  </div>
-</div>
- 
+        {/* DEPOSIT */}
+        <button 
+          onClick={() => router.push('/deposit')}
+          className="bg-[#ccff33] text-black text-[10px] font-black rounded-lg py-2 flex flex-col items-center justify-center shadow-md active:scale-95 transition-all"
+        >
+          DEPOSIT
+        </button>
+
+        {/* WITHDRAW */}
+        <button 
+          onClick={() => router.push('/withdraw')}
+          className="bg-white/10 border border-white/10 text-white text-[10px] font-black rounded-lg py-2 flex flex-col items-center justify-center active:scale-95 transition-all"
+        >
+          WITHDRAW
+        </button>
+      </div>
+
+      {/* --- 3. REFERRAL SECTION --- */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="bg-black/40 border border-white/10 rounded-xl p-3 flex flex-col gap-2">
+          <p className="text-[10px] font-bold text-white/70 uppercase">Link Referral</p>
+          <input readOnly value="https://abongslot.com/register?referral=aurel123" className="bg-white/90 text-black text-[10px] w-full px-3 py-2 rounded-md font-bold outline-none" />
+          <button className="bg-[#ccff33] text-black text-[10px] font-black px-4 py-2 rounded-md w-full">Salin Link</button>
+        </div>
+
+        <div className="bg-black/40 border border-white/10 rounded-xl p-3 flex flex-col gap-2">
+          <p className="text-[10px] font-bold text-white/70 uppercase">Daftar Referral</p>
+          <div className="flex flex-col items-center justify-center flex-1">
+             <p className="text-xl font-black text-[#4da6ff]">0</p>
+             <p className="text-[9px] text-white/50 uppercase">Total Downline</p>
+          </div>
+          <button className="bg-white/10 text-white text-[10px] font-bold px-4 py-2 rounded-md border border-white/10">Lihat Detail</button>
+        </div>
+      </div>
+
+      {/* --- 4. MENU PROFILE & LOGOUT --- */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* LOOPING MENU PROFILE */}
+        {menuProfile.map((item, index) => (
+          <div
+            key={index}
+            onClick={() => router.push(item.path)}
+            className="bg-[#000080] border border-white/10 py-5 px-2 rounded-md shadow-md cursor-pointer hover:bg-[#a00000] transition-all flex items-center justify-center relative group"
+          >
+            <span className="text-white font-bold text-[11px] uppercase group-hover:text-yellow-400">
+              {item.name}
+            </span>
+            
+            {/* Notifikasi Memo di dalam Loop */}
+            {item.name === "Memo" && (
+              <div className="absolute right-1 bottom-1 bg-white text-[#8b0000] text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
+                63
+              </div>
+            )}
+          </div>
+        ))}
+
+        {/* TOMBOL LOGOUT (Tepat di bawah Ganti Password di mobile) */}
+        <div 
+          onClick={() => { 
+            localStorage.clear(); 
+            window.location.href = "/"; 
+          }}
+          className="col-span-1 md:col-span-2 bg-red-600 border border-white/10 py-5 px-2 rounded-md shadow-md cursor-pointer hover:bg-red-700 transition-all active:scale-95 flex items-center justify-center group"
+        >
+          <span className="text-white font-black text-[11px] uppercase tracking-widest">
+            LOGOUT AKUN
+          </span>
+        </div>
+      </div>
 
 
 
