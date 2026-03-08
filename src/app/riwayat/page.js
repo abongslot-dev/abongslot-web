@@ -140,6 +140,7 @@ const handleLogin = async () => {
 
 
 
+
 useEffect(() => {
   const loadRiwayatDariDB = async () => {
     setLoading(true);
@@ -148,27 +149,33 @@ useEffect(() => {
       const json = await res.json();
 
       if (json.success && Array.isArray(json.data)) {
-        // --- LOGIKA FILTER YANG LEBIH LONGGAR ---
+        // 1. CEK DULU: Ada berapa total data dari database?
+        console.log("TOTAL DATA DARI DB:", json.data.length);
+
+        const pNamaAktif = pasaranAktif.toUpperCase().trim();
+
+        // 2. FILTER: Ambil semua yang mengandung nama pasaran aktif
         const hasilFilter = json.data.filter(item => {
-          // Kita bersihkan semua spasi dan paksa jadi huruf besar
-          const pNamaDB = item.pasaran.toUpperCase().replace(/\s/g, "");
-          const pNamaAktif = pasaranAktif.toUpperCase().replace(/\s/g, "");
-          
-          // Cek apakah namanya mengandung satu sama lain (biar CHINA vs CHINA POOLS tetap ketemu)
+          const pNamaDB = item.pasaran.toUpperCase().trim();
+          // Kita pakai includes agar 'CHINA POOLS' & 'CHINA' tetap nyambung
           return pNamaDB.includes(pNamaAktif) || pNamaAktif.includes(pNamaDB);
         });
 
-        // Urutkan ID (Terbaru di atas)
-        const dataUrut = hasilFilter.sort((a, b) => Number(b.id) - Number(a.id));
+        console.log(`DATA TERFILTER UNTUK ${pNamaAktif}:`, hasilFilter.length);
 
-        // PENTING: Pastikan kita mapping agar nama kolomnya jadi 'angka' agar nyambung ke tabel
-        const dataFinal = dataUrut.map(item => ({
+        // 3. MAPPING: Pastikan nama kolom 'angka' & 'result' aman keduanya
+        const dataFinal = hasilFilter.map(item => ({
           ...item,
-          angka: item.result // Memastikan tabel bisa baca item.angka
+          // Kita paksa buat properti 'angka' biar tabel Bos bisa baca
+          angka: item.result || item.angka, 
+          result: item.result || item.angka
         }));
 
-        setDataRiwayat(dataFinal);
-        setDataTampil(dataFinal);
+        // 4. URUTKAN: Berdasarkan ID (Terbesar/Terbaru di atas)
+        const dataUrut = dataFinal.sort((a, b) => Number(b.id) - Number(a.id));
+
+        setDataRiwayat(dataUrut);
+        setDataTampil(dataUrut);
       }
     } catch (err) {
       console.error("Gagal tarik riwayat:", err);
@@ -351,30 +358,22 @@ useEffect(() => {
         <th className="py-3 px-4 text-[13px] font-black text-gray-500 uppercase italic">Result (Prize 1)</th>
       </tr>
     </thead>
-<tbody className="text-gray-700 text-xs font-bold">
+    <tbody className="text-gray-700 text-xs font-bold">
   {dataTampil
-    /* GANTI item.result menjadi item.angka */
-    .filter(item => item.angka && item.angka !== "----") 
+    .filter(item => item.result && item.result !== "----") // <--- TAMBAHKAN FILTER INI
     .length > 0 ? (
       dataTampil
-        .filter(item => item.angka && item.angka !== "----")
+        .filter(item => item.result && item.result !== "----")
         .map((item, idx) => (
-          <tr key={item.id || idx} className="border-b border-gray-100 hover:bg-red-50 transition-colors text-center">
-            {/* Pakai item.periode */}
+          <tr key={idx} className="border-b border-gray-100 hover:bg-red-50 transition-colors">
             <td className="py-4 border-r border-gray-200 text-gray-400">*{item.periode}</td>
-            {/* Pakai item.tanggal */}
             <td className="py-4 border-r border-gray-200">{item.tanggal}</td>
-            {/* GANTI item.result menjadi item.angka */}
-            <td className="py-4 text-[18px] font-black text-[#cc1d1d] tracking-[6px]">
-              {item.angka}
-            </td>
+            <td className="py-4 text-[18px] font-black text-[#cc1d1d] tracking-[6px]">{item.result}</td>
           </tr>
         ))
   ) : (
     <tr>
-      <td colSpan="3" className="py-10 text-gray-400 italic text-center">
-        Data tidak ditemukan untuk pasaran {pasaranAktif}.
-      </td>
+      <td colSpan="3" className="py-10 text-gray-400 italic text-center">Data tidak ditemukan.</td>
     </tr>
   )}
 </tbody>
