@@ -1,11 +1,20 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import Swal from 'sweetalert2'; // Pastikan di import di paling atas file
-import { User, Key, Eye, EyeOff, LayoutDashboard } from 'lucide-react';
+import { useState, useEffect, useRef, Suspense } from "react"; // Tambahkan Suspense
+import { useRouter, useSearchParams } from "next/navigation"; // Tambahkan useSearchParams
+import Swal from 'sweetalert2';
+import { User, Key, Eye, EyeOff, LayoutDashboard, Ticket } from 'lucide-react';
 
-export default function DaftarPage() {
+
+export default function Register() {
+  return (
+    <Suspense fallback={<div className="text-white text-center mt-20 font-bold">MEMUAT FORM...</div>}>
+      <DaftarPage />
+    </Suspense>
+  );
+}
+function DaftarPage() { // Ganti 'export default' jadi 'function' biasa karena sudah di-wrap di atas
   const router = useRouter();
+  const searchParams = useSearchParams(); // WAJIB ADA DI SINI
   
   // --- SEMUA STATE DISINI (TIDAK ADA DUPLIKAT) ---
   const [halamanAktif] = useState('daftar');
@@ -26,7 +35,31 @@ export default function DaftarPage() {
     whatsapp: "",
     namaRekening: "",
     nomorRekening: "",
+    referral: "",
   });
+
+
+useEffect(() => {
+    const ref = searchParams.get('referral');
+    if (ref) {
+      setFormData(prev => ({ ...prev, referral: ref }));
+      
+      // Kasih notifikasi kecil biar user tau mereka dapet referral
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      Toast.fire({
+        icon: 'success',
+        title: `Referral aktif: ${ref}`
+      });
+    }
+}, [searchParams]);
+
+
 
 const [statusCek, setStatusCek] = useState({
   username: { msg: "", color: "" },
@@ -635,6 +668,33 @@ const handleLogin = async () => {
     )}
   </div>
 </div>
+
+
+{/* --- KODE REFERRAL (OTOMATIS) --- */}
+<div className="flex flex-col gap-1.5">
+  <label className="text-xs font-black text-gray-700 uppercase italic">
+    Kode Referral {searchParams.get('referral') ? <span className="text-green-600">(Terpasang)</span> : "(Opsional)"}
+  </label>
+  <div className="relative">
+    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+      <Ticket size={18} />
+    </span>
+    <input 
+      type="text" 
+      name="referral"
+      value={formData.referral}
+      onChange={(e) => setFormData({...formData, referral: e.target.value})}
+      placeholder="Masukkan kode referral jika ada" 
+      readOnly={!!searchParams.get('referral')} // Kunci jika otomatis dari link
+      className={`w-full border rounded-xl py-3.5 pl-11 text-sm outline-none transition-all ${
+        searchParams.get('referral') 
+        ? "bg-green-50 border-green-500 font-bold text-green-700" 
+        : "border-gray-200 focus:border-[#D4AF37]"
+      }`} 
+    />
+  </div>
+</div>
+
 
 
     {/* Tombol Submit */}
