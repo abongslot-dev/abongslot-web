@@ -252,7 +252,7 @@ useEffect(() => {
             localStorage.clear(); 
             window.location.href = "/"; 
           }}
-          className="col-span-1 md:col-span-2 bg-red-600 border border-white/10 py-5 px-2 rounded-md shadow-md cursor-pointer hover:bg-red-700 transition-all active:scale-95 flex items-center justify-center group"
+          className="col-span-1 md:col-span-2 bg-[#000080] border border-white/10 py-5 px-2 rounded-md shadow-md cursor-pointer hover:bg-red-700 transition-all active:scale-95 flex items-center justify-center group"
         >
           <span className="text-white font-black text-[11px] uppercase tracking-widest">
             LOGOUT AKUN
