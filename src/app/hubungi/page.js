@@ -23,7 +23,14 @@ export default function Hubungi() {
     { name: "Live Chat", desc: "Layanan 24 Jam Nonstop", icon: "💬", color: "from-blue-600 to-blue-400", link: "#", action: "Chat Sekarang" },
     { name: "WhatsApp", desc: "Respon Cepat & Ramah", icon: "📱", color: "from-green-600 to-green-400", link: "https://wa.me/628123456789", action: "Kirim Pesan" },
     { name: "Telegram", desc: "Update Promo Tercepat", icon: "✈️", color: "from-sky-600 to-sky-400", link: "https://t.me/username", action: "Gabung Grup" },
-    { name: "Instagram", desc: "Follow Untuk Info Event", icon: "📸", color: "from-purple-600 to-pink-500", link: "https://instagram.com/username", action: "Follow Kami" }
+    { 
+  name: "Instagram", 
+  desc: "Follow Untuk Info Event", 
+  icon: <img src="https://photoku.io/images/2024/09/25/ig.png" className="w-6 h-6 object-contain" alt="IG" />, 
+  color: "from-purple-600 to-pink-500", 
+  link: "https://instagram.com/username", 
+  action: "Follow Kami" 
+}
   ];
 
   const menuLainnya = [
@@ -307,9 +314,12 @@ const handleLogout = () => {
           {daftarKontak.map((kontak, i) => (
             <div key={i} className="bg-[#2d0055] border border-white/10 rounded-2xl p-6 flex items-center justify-between group shadow-xl">
               <div className="flex items-center gap-4">
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${kontak.color} flex items-center justify-center text-3xl shadow-lg`}>
-                  {kontak.icon}
-                </div>
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${kontak.color} flex items-center justify-center text-3xl shadow-lg transition-all duration-300 group-hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]`}>
+  {/* Jika kontak.icon adalah tag <img>, dia akan tampil di sini */}
+  <div className="transition-transform duration-300 group-hover:scale-110">
+    {kontak.icon}
+  </div>
+</div>
                 <div>
                   <h3 className="font-black text-lg text-white uppercase tracking-tighter">{kontak.name}</h3>
                   <p className="text-[10px] text-gray-300 uppercase italic">{kontak.desc}</p>
