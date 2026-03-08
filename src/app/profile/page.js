@@ -90,7 +90,7 @@ useEffect(() => {
 
 
 const handleCopyLink = () => {
-    const linkRef = `https://abongslot.com/register?referral=${username}`;
+    const linkRef = `https://abongslot-web.vercel.app/daftar?referral=${username}`;
     navigator.clipboard.writeText(linkRef);
     alert("Link Referral Berhasil Disalin!");
   };
