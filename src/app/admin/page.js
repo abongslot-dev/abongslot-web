@@ -1979,6 +1979,14 @@ return (
               <option>Blokir</option>
             </select>
           </div>
+          <div className="flex flex-col gap-1">
+            <label className="font-bold">Status</label>
+            <select className="border p-1.5 rounded outline-none">
+              <option>Semua</option>
+              <option>Aktif</option>
+              <option>Blokir</option>
+            </select>
+          </div>
       </div>
       <div className="px-4 pb-4 flex gap-1">
         <button className="bg-[#00c0ef] text-white px-3 py-1.5 rounded font-bold shadow-sm hover:brightness-95">Reset</button>
