@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
-import Link from "next/link";
 import { 
   Users, LogOut, ChevronDown, LayoutDashboard, Search, 
   RotateCcw, CheckCircle2, XCircle, Landmark, ArrowRightLeft, 
@@ -1786,46 +1785,63 @@ function MemberRow({ idMember, no, user, rek, upline, ref, saldo, total, onEditP
 
 
 
-import React, { useState, useEffect } from 'react';
-import { Key, Landmark, CheckCircle2, Search, RotateCcw } from 'lucide-react';
-import Link from 'next/link';
-
-export default function MemberPage({ initialUser, clearInitialUser }) {
-  // --- 1. STATE UTAMA ---
+function MemberPage({ initialUser, clearInitialUser }) {
+  // --- 1. STATE UTAMA (WAJIB LENGKAP) ---
   const [view, setView] = useState("table"); 
   const [selectedUser, setSelectedUser] = useState(null);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("Member Data");
+  const [activeTab, setActiveTab] = useState("Member Data"); // <--- INI BIAR GAK ERROR PAS KLIK USER
+const [searchTerm, setSearchTerm] = useState(""); // Buat nampung ketikan Bos
+const [filteredMembers, setFilteredMembers] = useState([]); // Buat nampung hasil saringannya
+
+const [filter, setFilter] = useState({
+  username: "",
+  nomorRekening: "",
+  namaRekening: "",
+  nomorHp: "",
+  upline: "",
+  kodeRef: "",
+  tglMulai: "",
+  tglSampai: "",
+  status: "Semua",
+  sort: "baru"
+});
+
+
+// Sinkronkan data saat pertama kali load
+useEffect(() => {
+  setFilteredMembers(members);
+}, [members]);
+
+  // State untuk Modal Password
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newPassword, setNewPassword] = useState("");
 
-  // --- 2. STATE FILTER (UNTUK PENCARIAN) ---
-  const [filter, setFilter] = useState({
-    username: "",
-    nomorRekening: "",
-    namaRekening: "",
-    nomorHp: "",
-    upline: "",
-    kodeRef: "",
-    tglMulai: "",
-    tglSampai: "",
-    status: "Semua",
-    sort: "baru"
-  });
+  // --- FUNGSI UPDATE PASSWORD ---
+  const handleUpdatePassword = async () => {
+    if (!newPassword) return alert("Password tidak boleh kosong!");
+    alert("Password berhasil diperbarui!");
+    setNewPassword("");
+    setIsModalOpen(false);
+  };
 
-  // State untuk menampung hasil filter yang tampil di tabel
-  const [filteredMembers, setFilteredMembers] = useState([]);
+  // --- JURUS SAKTI PENGALIH ---
+  useEffect(() => {
+    if (initialUser) {
+      setSelectedUser(initialUser);
+      setView("edit");
+      if (clearInitialUser) clearInitialUser();
+    }
+  }, [initialUser, clearInitialUser]);
 
-  // --- 3. FUNGSI AMBIL DATA ---
+  // --- AMBIL DATA ---
   const fetchMembers = async () => {
     try {
       setLoading(true);
       const response = await fetch('/api/admin?target=members'); 
       const data = await response.json();
-      const dataArray = Array.isArray(data) ? data : [];
-      setMembers(dataArray);
-      setFilteredMembers(dataArray); // Set awal sama dengan data asli
+      setMembers(Array.isArray(data) ? data : []);
       setLoading(false);
     } catch (error) {
       console.error("Gagal ambil data", error);
@@ -1835,50 +1851,29 @@ export default function MemberPage({ initialUser, clearInitialUser }) {
 
   useEffect(() => { fetchMembers(); }, []);
 
-  // --- 4. LOGIKA PENCARIAN & RESET ---
+
   const handleSearch = () => {
-    const hasil = members.filter((m) => {
-      return (
-        (filter.username === "" || m.username?.toLowerCase().includes(filter.username.toLowerCase())) &&
-        (filter.nomorRekening === "" || m.nomor_rekening?.includes(filter.nomorRekening)) &&
-        (filter.namaRekening === "" || m.nama_rekening?.toLowerCase().includes(filter.namaRekening.toLowerCase())) &&
-        (filter.nomorHp === "" || m.nomor_whatsapp?.includes(filter.nomorHp)) &&
-        (filter.upline === "" || m.upline?.toLowerCase().includes(filter.upline.toLowerCase())) &&
-        (filter.kodeRef === "" || m.kode_referral?.toLowerCase().includes(filter.kodeRef.toLowerCase())) &&
-        (filter.status === "Semua" || m.status === filter.status)
-      );
-    });
-    setFilteredMembers(hasil);
-  };
+  const hasil = members.filter((m) => {
+    return (
+      (filter.username === "" || m.username.toLowerCase().includes(filter.username.toLowerCase())) &&
+      (filter.nomorRekening === "" || m.nomor_rekening.includes(filter.nomorRekening)) &&
+      (filter.nomorHp === "" || m.nomor_whatsapp.includes(filter.nomorHp)) &&
+      (filter.upline === "" || (m.upline && m.upline.toLowerCase().includes(filter.upline.toLowerCase()))) &&
+      (filter.kodeRef === "" || (m.kode_referral && m.kode_referral.toLowerCase().includes(filter.kodeRef.toLowerCase()))) &&
+      (filter.status === "Semua" || m.status === filter.status.toUpperCase())
+    );
+  });
+  setFilteredMembers(hasil);
+};
 
-  const handleReset = () => {
-    const resetState = {
-      username: "", nomorRekening: "", namaRekening: "", nomorHp: "",
-      upline: "", kodeRef: "", tglMulai: "", tglSampai: "",
-      status: "Semua", sort: "baru"
-    };
-    setFilter(resetState);
-    setFilteredMembers(members);
-  };
+const handleReset = () => {
+  setFilter({ username: "", nomorRekening: "", namaRekening: "", nomorHp: "", upline: "", kodeRef: "", status: "Semua" });
+  setFilteredMembers(members);
+};
 
-  // --- 5. FUNGSI UPDATE PASSWORD ---
-  const handleUpdatePassword = async () => {
-    if (!newPassword) return alert("Password tidak boleh kosong!");
-    alert("Password berhasil diperbarui!");
-    setNewPassword("");
-    setIsModalOpen(false);
-  };
+  // --- 1. PASTIKAN STATE INI ADA DI PALING ATAS FUNGSI MEMBERPAGE ---
+  // const [activeTab, setActiveTab] = useState("Member Data");
 
-  // --- 6. JURUS SAKTI PENGALIH (DARI DASHBOARD) ---
-  useEffect(() => {
-    if (initialUser) {
-      setSelectedUser(initialUser);
-      setView("edit");
-      if (clearInitialUser) clearInitialUser();
-    }
-  }, [initialUser, clearInitialUser]);
-
-  // --- 7. TAMPILAN: UBAH MEMBER (EDIT) ---
   if (view === "edit" && selectedUser) {
     return (
       <div className="p-6 text-gray-800 bg-[#f4f6f9] min-h-screen font-sans">
@@ -2176,7 +2171,7 @@ return (
               <tr><td colSpan="8" className="p-10 text-center font-bold text-gray-400">Sedang Mengambil Data...</td></tr>
             ) : members.length === 0 ? (
               <tr><td colSpan="8" className="p-10 text-center text-gray-400 italic">Belum ada member terdaftar.</td></tr>
-            ) : members.map((m, index) => (
+            ) :filteredMembers.map((m, index) => (
               <tr key={m.id} className="border-b hover:bg-gray-50 text-black transition-colors">
                 {/* 1. Nomor */}
                 <td className="p-2 border-r text-center text-gray-400">{index + 1}.</td>
