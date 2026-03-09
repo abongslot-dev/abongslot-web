@@ -1972,6 +1972,34 @@ return (
             <input type="text" placeholder="Cari Username..." className="border p-1.5 rounded outline-none focus:border-blue-400" />
           </div>
           <div className="flex flex-col gap-1">
+            <label className="font-bold">Nomor rekening</label>
+            <input type="text" placeholder="Cari No rekening..." className="border p-1.5 rounded outline-none focus:border-blue-400" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="font-bold">Nama rekening</label>
+            <input type="text" placeholder="Cari Nama rekening..." className="border p-1.5 rounded outline-none focus:border-blue-400" />
+          </div>
+           <div className="flex flex-col gap-1">
+            <label className="font-bold">Nomor Hp</label>
+            <input type="text" placeholder="Cari No Hp..." className="border p-1.5 rounded outline-none focus:border-blue-400" />
+          </div>
+           <div className="flex flex-col gap-1">
+            <label className="font-bold">Upline</label>
+            <input type="text" placeholder="Cari Upline..." className="border p-1.5 rounded outline-none focus:border-blue-400" />
+          </div>
+           <div className="flex flex-col gap-1">
+            <label className="font-bold">Kode Refferral</label>
+            <input type="text" placeholder="Cari kode ref..." className="border p-1.5 rounded outline-none focus:border-blue-400" />
+          </div>
+          <div>
+            <label className="text-[10px] font-bold mb-1 block uppercase text-gray-400">Mulai Tanggal</label>
+            <input type="date" className="w-full border p-2 text-xs rounded outline-none bg-white" />
+          </div>
+          <div>
+            <label className="text-[10px] font-bold mb-1 block uppercase text-gray-400">Sampai Tanggal</label>
+            <input type="date" className="w-full border p-2 text-xs rounded outline-none bg-white" />
+          </div>
+          <div className="flex flex-col gap-1">
             <label className="font-bold">Status</label>
             <select className="border p-1.5 rounded outline-none">
               <option>Semua</option>
