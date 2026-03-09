@@ -1,8 +1,7 @@
-// app/admin/member/page.js
 "use client";
-import React, { useState, useEffect } from "react"; // Tambahkan useEffect di sini!
-// Import tabel, filter, dll
-
+import React, { useState, useEffect } from "react";
+// Tambahkan Key dan Landmark di sini Bosku
+import { Key, Landmark, Search, RotateCcw } from "lucide-react";
 
 const FilterInput = ({ label, placeholder }) => (
   <div className="flex flex-col gap-1">
