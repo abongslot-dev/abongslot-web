@@ -3,13 +3,20 @@ export const dynamic = 'force-dynamic';
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
-const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co'
-const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6'
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+// AMBIL DARI ENV (Jangan di-hardcode kuncinya di sini!)
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 export async function GET() {
   try {
-    // 1. Ambil data Deposit & Withdraw sekaligus
+    // Tambahkan pengecekan koneksi
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      throw new Error("Missing Supabase Configuration");
+    }
+
+    // Ambil data dengan timeout/safety
     const [depoRes, wdRes] = await Promise.all([
       supabase.from('deposits').select('status, nominal'),
       supabase.from('withdrawals').select('status, nominal')
@@ -18,12 +25,14 @@ export async function GET() {
     if (depoRes.error) throw depoRes.error;
     if (wdRes.error) throw wdRes.error;
 
-    // 2. Fungsi hitung summary manual (Karena Supabase client lebih simpel)
     const calculateSummary = (data) => {
+      if (!data) return { countPending: 0, totalPending: 0, countSuccess: 0, totalSuccess: 0, countReject: 0, totalReject: 0 };
+      
       return data.reduce((acc, curr) => {
         const status = (curr.status || 'pending').toLowerCase();
         const nominal = parseFloat(curr.nominal || 0);
 
+        // Gabungkan status 'approve' dan 'success'
         if (status === 'pending') {
           acc.countPending++;
           acc.totalPending += nominal;
@@ -46,6 +55,9 @@ export async function GET() {
 
   } catch (error) {
     console.error("Dashboard API Error:", error.message);
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json({ 
+      success: false, 
+      message: error.message || "Fetch Failed" 
+    }, { status: 500 });
   }
 }
