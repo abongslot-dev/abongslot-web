@@ -1702,6 +1702,7 @@ function SummaryItem({ label, count, amount, color, bg, icon, isHighlight }) {
 }
 
 function SidebarItem({ icon, label, hasChild, children, isOpen, onClick, active }) {
+  
   return (
     <div className="flex flex-col">
       <div onClick={onClick} className={`flex items-center justify-between px-3 py-2.5 cursor-pointer transition-all border-l-4 ${active ? 'bg-zinc-800 text-white border-blue-500' : 'hover:bg-zinc-800 text-gray-400 hover:text-white border-transparent'}`}>
@@ -1725,6 +1726,7 @@ function SubMenuItem({ label, onClick, active }) {
 // ---TAMPILAN DAFTAR MEMBER ---//
 
 function MemberRow({ idMember, no, user, rek, upline, ref, saldo, total, onEditPassword }) {
+  
   return (
     <tr className="border-b hover:bg-gray-50 transition-colors text-[12px]">
       <td className="p-2 border-r text-center text-gray-400">{no}</td>
@@ -1783,42 +1785,46 @@ function MemberRow({ idMember, no, user, rek, upline, ref, saldo, total, onEditP
 
 
 
-function MemberPage({ initialUser, clearInitialUser }) {
-  // --- 1. STATE UTAMA (WAJIB LENGKAP) ---
+import React, { useState, useEffect } from 'react';
+import { Key, Landmark, CheckCircle2, Search, RotateCcw } from 'lucide-react';
+import Link from 'next/link';
+
+export default function MemberPage({ initialUser, clearInitialUser }) {
+  // --- 1. STATE UTAMA ---
   const [view, setView] = useState("table"); 
   const [selectedUser, setSelectedUser] = useState(null);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("Member Data"); // <--- INI BIAR GAK ERROR PAS KLIK USER
-
-  // State untuk Modal Password
+  const [activeTab, setActiveTab] = useState("Member Data");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newPassword, setNewPassword] = useState("");
 
-  // --- FUNGSI UPDATE PASSWORD ---
-  const handleUpdatePassword = async () => {
-    if (!newPassword) return alert("Password tidak boleh kosong!");
-    alert("Password berhasil diperbarui!");
-    setNewPassword("");
-    setIsModalOpen(false);
-  };
+  // --- 2. STATE FILTER (UNTUK PENCARIAN) ---
+  const [filter, setFilter] = useState({
+    username: "",
+    nomorRekening: "",
+    namaRekening: "",
+    nomorHp: "",
+    upline: "",
+    kodeRef: "",
+    tglMulai: "",
+    tglSampai: "",
+    status: "Semua",
+    sort: "baru"
+  });
 
-  // --- JURUS SAKTI PENGALIH ---
-  useEffect(() => {
-    if (initialUser) {
-      setSelectedUser(initialUser);
-      setView("edit");
-      if (clearInitialUser) clearInitialUser();
-    }
-  }, [initialUser, clearInitialUser]);
+  // State untuk menampung hasil filter yang tampil di tabel
+  const [filteredMembers, setFilteredMembers] = useState([]);
 
-  // --- AMBIL DATA ---
+  // --- 3. FUNGSI AMBIL DATA ---
   const fetchMembers = async () => {
     try {
       setLoading(true);
       const response = await fetch('/api/admin?target=members'); 
       const data = await response.json();
-      setMembers(Array.isArray(data) ? data : []);
+      const dataArray = Array.isArray(data) ? data : [];
+      setMembers(dataArray);
+      setFilteredMembers(dataArray); // Set awal sama dengan data asli
       setLoading(false);
     } catch (error) {
       console.error("Gagal ambil data", error);
@@ -1828,9 +1834,50 @@ function MemberPage({ initialUser, clearInitialUser }) {
 
   useEffect(() => { fetchMembers(); }, []);
 
-  // --- 1. PASTIKAN STATE INI ADA DI PALING ATAS FUNGSI MEMBERPAGE ---
-  // const [activeTab, setActiveTab] = useState("Member Data");
+  // --- 4. LOGIKA PENCARIAN & RESET ---
+  const handleSearch = () => {
+    const hasil = members.filter((m) => {
+      return (
+        (filter.username === "" || m.username?.toLowerCase().includes(filter.username.toLowerCase())) &&
+        (filter.nomorRekening === "" || m.nomor_rekening?.includes(filter.nomorRekening)) &&
+        (filter.namaRekening === "" || m.nama_rekening?.toLowerCase().includes(filter.namaRekening.toLowerCase())) &&
+        (filter.nomorHp === "" || m.nomor_whatsapp?.includes(filter.nomorHp)) &&
+        (filter.upline === "" || m.upline?.toLowerCase().includes(filter.upline.toLowerCase())) &&
+        (filter.kodeRef === "" || m.kode_referral?.toLowerCase().includes(filter.kodeRef.toLowerCase())) &&
+        (filter.status === "Semua" || m.status === filter.status)
+      );
+    });
+    setFilteredMembers(hasil);
+  };
 
+  const handleReset = () => {
+    const resetState = {
+      username: "", nomorRekening: "", namaRekening: "", nomorHp: "",
+      upline: "", kodeRef: "", tglMulai: "", tglSampai: "",
+      status: "Semua", sort: "baru"
+    };
+    setFilter(resetState);
+    setFilteredMembers(members);
+  };
+
+  // --- 5. FUNGSI UPDATE PASSWORD ---
+  const handleUpdatePassword = async () => {
+    if (!newPassword) return alert("Password tidak boleh kosong!");
+    alert("Password berhasil diperbarui!");
+    setNewPassword("");
+    setIsModalOpen(false);
+  };
+
+  // --- 6. JURUS SAKTI PENGALIH (DARI DASHBOARD) ---
+  useEffect(() => {
+    if (initialUser) {
+      setSelectedUser(initialUser);
+      setView("edit");
+      if (clearInitialUser) clearInitialUser();
+    }
+  }, [initialUser, clearInitialUser]);
+
+  // --- 7. TAMPILAN: UBAH MEMBER (EDIT) ---
   if (view === "edit" && selectedUser) {
     return (
       <div className="p-6 text-gray-800 bg-[#f4f6f9] min-h-screen font-sans">
@@ -1963,64 +2010,149 @@ return (
     <h1 className="text-3xl font-normal mb-1">Member</h1>
     <p className="text-xs text-blue-500 mb-6 font-medium">Dashboard <span className="text-gray-400 font-normal">/ Member</span></p>
     
-    {/* FILTER SECTION */}
-    <div className="bg-[#fcfcfc] border rounded shadow-sm overflow-hidden border-gray-200 mb-6 text-[11px]">
-      <div className="bg-gray-100 px-4 py-2 border-b font-bold text-gray-600">▼ Filter</div>
-      <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="flex flex-col gap-1">
-            <label className="font-bold">Username</label>
-            <input type="text" placeholder="Cari Username..." className="border p-1.5 rounded outline-none focus:border-blue-400" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="font-bold">Nomor rekening</label>
-            <input type="text" placeholder="Cari No rekening..." className="border p-1.5 rounded outline-none focus:border-blue-400" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="font-bold">Nama rekening</label>
-            <input type="text" placeholder="Cari Nama rekening..." className="border p-1.5 rounded outline-none focus:border-blue-400" />
-          </div>
-           <div className="flex flex-col gap-1">
-            <label className="font-bold">Nomor Hp</label>
-            <input type="text" placeholder="Cari No Hp..." className="border p-1.5 rounded outline-none focus:border-blue-400" />
-          </div>
-           <div className="flex flex-col gap-1">
-            <label className="font-bold">Upline</label>
-            <input type="text" placeholder="Cari Upline..." className="border p-1.5 rounded outline-none focus:border-blue-400" />
-          </div>
-           <div className="flex flex-col gap-1">
-            <label className="font-bold">Kode Refferral</label>
-            <input type="text" placeholder="Cari kode ref..." className="border p-1.5 rounded outline-none focus:border-blue-400" />
-          </div>
-          <div>
-            <label className="text-[10px] font-bold mb-1 block uppercase text-gray-400">Mulai Tanggal</label>
-            <input type="date" className="w-full border p-2 text-xs rounded outline-none bg-white" />
-          </div>
-          <div>
-            <label className="text-[10px] font-bold mb-1 block uppercase text-gray-400">Sampai Tanggal</label>
-            <input type="date" className="w-full border p-2 text-xs rounded outline-none bg-white" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="font-bold">Status</label>
-            <select className="border p-1.5 rounded outline-none">
-              <option>Semua</option>
-              <option>Aktif</option>
-              <option>Blokir</option>
-            </select>
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="font-bold">Status</label>
-            <select className="border p-1.5 rounded outline-none">
-              <option>Semua</option>
-              <option>Aktif</option>
-              <option>Blokir</option>
-            </select>
-          </div>
-      </div>
-      <div className="px-4 pb-4 flex gap-1">
-        <button className="bg-[#00c0ef] text-white px-3 py-1.5 rounded font-bold shadow-sm hover:brightness-95">Reset</button>
-        <button className="bg-[#007bff] text-white px-3 py-1.5 rounded font-bold shadow-sm hover:brightness-95">Cari</button>
-      </div>
+  {/* FILTER SECTION */}
+<div className="bg-[#fcfcfc] border rounded shadow-sm overflow-hidden border-gray-200 mb-6 text-[11px]">
+  <div className="bg-gray-100 px-4 py-2 border-b font-bold text-gray-600">▼ Filter</div>
+  <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+    
+    {/* Username */}
+    <div className="flex flex-col gap-1">
+      <label className="font-bold">Username</label>
+      <input 
+        type="text" 
+        placeholder="Cari Username..." 
+        className="border p-1.5 rounded outline-none focus:border-blue-400"
+        value={filter.username}
+        onChange={(e) => setFilter({...filter, username: e.target.value})}
+      />
     </div>
+
+    {/* Nomor Rekening */}
+    <div className="flex flex-col gap-1">
+      <label className="font-bold">Nomor rekening</label>
+      <input 
+        type="text" 
+        placeholder="Cari No rekening..." 
+        className="border p-1.5 rounded outline-none focus:border-blue-400"
+        value={filter.nomorRekening}
+        onChange={(e) => setFilter({...filter, nomorRekening: e.target.value})}
+      />
+    </div>
+
+    {/* Nama Rekening */}
+    <div className="flex flex-col gap-1">
+      <label className="font-bold">Nama rekening</label>
+      <input 
+        type="text" 
+        placeholder="Cari Nama rekening..." 
+        className="border p-1.5 rounded outline-none focus:border-blue-400"
+        value={filter.namaRekening}
+        onChange={(e) => setFilter({...filter, namaRekening: e.target.value})}
+      />
+    </div>
+
+    {/* Nomor HP */}
+    <div className="flex flex-col gap-1">
+      <label className="font-bold">Nomor Hp</label>
+      <input 
+        type="text" 
+        placeholder="Cari No Hp..." 
+        className="border p-1.5 rounded outline-none focus:border-blue-400"
+        value={filter.nomorHp}
+        onChange={(e) => setFilter({...filter, nomorHp: e.target.value})}
+      />
+    </div>
+
+    {/* Upline */}
+    <div className="flex flex-col gap-1">
+      <label className="font-bold">Upline</label>
+      <input 
+        type="text" 
+        placeholder="Cari Upline..." 
+        className="border p-1.5 rounded outline-none focus:border-blue-400"
+        value={filter.upline}
+        onChange={(e) => setFilter({...filter, upline: e.target.value})}
+      />
+    </div>
+
+    {/* Kode Referral */}
+    <div className="flex flex-col gap-1">
+      <label className="font-bold">Kode Refferral</label>
+      <input 
+        type="text" 
+        placeholder="Cari kode ref..." 
+        className="border p-1.5 rounded outline-none focus:border-blue-400"
+        value={filter.kodeRef}
+        onChange={(e) => setFilter({...filter, kodeRef: e.target.value})}
+      />
+    </div>
+
+    {/* Tanggal Mulai */}
+    <div>
+      <label className="text-[10px] font-bold mb-1 block uppercase text-gray-400">Mulai Tanggal</label>
+      <input 
+        type="date" 
+        className="w-full border p-2 text-xs rounded outline-none bg-white"
+        value={filter.tglMulai}
+        onChange={(e) => setFilter({...filter, tglMulai: e.target.value})}
+      />
+    </div>
+
+    {/* Tanggal Sampai */}
+    <div>
+      <label className="text-[10px] font-bold mb-1 block uppercase text-gray-400">Sampai Tanggal</label>
+      <input 
+        type="date" 
+        className="w-full border p-2 text-xs rounded outline-none bg-white"
+        value={filter.tglSampai}
+        onChange={(e) => setFilter({...filter, tglSampai: e.target.value})}
+      />
+    </div>
+
+    {/* Status 1 */}
+    <div className="flex flex-col gap-1">
+      <label className="font-bold">Status Akun</label>
+      <select 
+        className="border p-1.5 rounded outline-none bg-white"
+        value={filter.status}
+        onChange={(e) => setFilter({...filter, status: e.target.value})}
+      >
+        <option value="Semua">Semua</option>
+        <option value="AKTIF">Aktif</option>
+        <option value="BLOKIR">Blokir</option>
+      </select>
+    </div>
+
+    {/* Status 2 (Bisa untuk filter lain, misal: Bank) */}
+    <div className="flex flex-col gap-1">
+      <label className="font-bold">Urutkan</label>
+      <select 
+        className="border p-1.5 rounded outline-none bg-white"
+        value={filter.sort}
+        onChange={(e) => setFilter({...filter, sort: e.target.value})}
+      >
+        <option value="baru">Terbaru</option>
+        <option value="lama">Terlama</option>
+      </select>
+    </div>
+
+  </div>
+
+  <div className="px-4 pb-4 flex gap-1">
+    <button 
+      onClick={handleReset}
+      className="bg-[#00c0ef] text-white px-3 py-1.5 rounded font-bold shadow-sm hover:brightness-95"
+    >
+      Reset
+    </button>
+    <button 
+      onClick={handleSearch}
+      className="bg-[#007bff] text-white px-3 py-1.5 rounded font-bold shadow-sm hover:brightness-95"
+    >
+      Cari
+    </button>
+  </div>
+</div>
 
     {/* TABEL MEMBER */}
     <div className="bg-white border rounded shadow-sm overflow-hidden">
