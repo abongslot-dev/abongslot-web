@@ -119,6 +119,11 @@ const onAction = async (id, status, amount, user) => {
           setSelectedIds([]);
         }
       };
+
+      const handleUserClick = (username) => {
+    // Pindah ke halaman edit member berdasarkan username
+    router.push(`/admin/member/${username}`);
+  };
     
       const handleSelectOne = (id) => {
         setSelectedIds((prev) =>
@@ -208,7 +213,8 @@ const onAction = async (id, status, amount, user) => {
       promo={item.promo}
       waktu={item.created_at}
       onAction={onAction}
-      onUserClick={onUserClick}
+      onUserClick={() => handleUserClick(item.username)} // <--- Arahkan ke router
+      
       
     />
   ))
