@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
+import Link from "next/link";
 import { 
   Users, LogOut, ChevronDown, LayoutDashboard, Search, 
   RotateCcw, CheckCircle2, XCircle, Landmark, ArrowRightLeft, 
