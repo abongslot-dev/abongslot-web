@@ -1,7 +1,18 @@
+// --- BAGIAN ATAS FILE BOS ---
 "use client";
 import React, { useState, useEffect } from "react";
-// Tambahkan baris impor ikon ini
-import { FileBarChart, Search, Check, X, Eye, ArrowRightLeft } from "lucide-react";
+
+// Pastikan CheckCircle2 dan XCircle ada di dalam kurung kurawal ini
+import { 
+  FileBarChart, 
+  Search, 
+  Check, 
+  X, 
+  Eye, 
+  ArrowRightLeft, 
+  CheckCircle2, 
+  XCircle 
+} from "lucide-react";
 
 
 
@@ -65,38 +76,38 @@ export default function DepositBaruPage({ onUserClick }) {
         fetchDepo();
       }, []);
     
-    const onAction = async (id, status, amount, user) => {
-      // Samakan status: SUCCESS untuk terima, REJECTED untuk tolak
-      const finalStatus = status === 'SUCCESS' ? 'SUCCESS' : 'REJECTED';
-      const pesan = status === 'SUCCESS' ? 'MENERIMA' : 'MENOLAK';
-    
-      if (!confirm(`Yakin ingin ${pesan} Deposit dari ${user}?`)) return;
-    
-      try {
-      const res = await fetch('/api/update-depo', { 
-          method: 'POST', 
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            id: id,            
-            status: 'SUCCESS',  // <--- WAJIB PAKAI PETIK ' '
-            username: user,
-            nominal: amount
-          }),
-        });
-    
-        const result = await res.json();
-    
-        if (result.success) {
-          alert(`✅ Berhasil di-${finalStatus}!`);
-          // INI YANG BIKIN DATA MENGHILANG DARI LIST (Pindah ke Rangkuman)
-          setDeposits((prev) => prev.filter((item) => item.id !== id));
-        } else {
-          alert("❌ Gagal Update: " + result.message);
-        }
-      } catch (err) {
-        alert("❌ Error Server: " + err.message);
-      }
-    };
+// Di dalam file Dashboard Admin Bos
+const onAction = async (id, status, amount, user) => {
+  // Samakan dengan standar API Bos: 'approve' atau 'reject'
+  const actionStatus = status === 'SUCCESS' ? 'approve' : 'reject';
+  const label = actionStatus === 'approve' ? 'MENERIMA' : 'MENOLAK';
+
+  if (!confirm(`Yakin ingin ${label} Deposit dari ${user}?`)) return;
+
+  try {
+    const res = await fetch('/api/update-depo', { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        id: id,            
+        status: actionStatus, // Sekarang mengirim 'approve' atau 'reject'
+        username: user,
+        nominal: amount
+      }),
+    });
+
+    const result = await res.json();
+
+    if (result.success) {
+      alert(`✅ Berhasil di-${actionStatus}!`);
+      setDeposits((prev) => prev.filter((item) => item.id !== id));
+    } else {
+      alert("❌ Gagal: " + result.message);
+    }
+  } catch (err) {
+    alert("❌ Error Server: " + err.message);
+  }
+};
     
     
     // --- 2. LOGIKA CHECKBOX ---
@@ -198,7 +209,7 @@ export default function DepositBaruPage({ onUserClick }) {
       waktu={item.created_at}
       onAction={onAction}
       onUserClick={onUserClick}
-      no={indexOfFirstItem + index + 1} // Agar nomor urutnya nyambung
+      
     />
   ))
 ) : (
