@@ -1,26 +1,25 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, Database, History, Wallet, User as UserIcon } from "lucide-react";
 
 export default function EditMemberPage() {
-  const params = useParams(); // Mengambil username dari URL
+  const params = useParams();
   const router = useRouter();
-  const username = params.username; // Ini dapet dari folder [username]
+  const username = params.username;
 
   const [selectedUser, setSelectedUser] = useState(null);
-  const [activeTab, setActiveTab] = useState("Member Data");
   const [loading, setLoading] = useState(true);
   const [tabAktif, setTabAktif] = useState("Member Data");
+  const [dataDeposit, setDataDeposit] = useState([]);
 
-  // Ambil data user secara spesifik saat halaman dibuka
+  // 1. Ambil Detail User
   useEffect(() => {
     const fetchUserDetail = async () => {
       try {
         const response = await fetch(`/api/admin?target=members&username=${username}`);
         const data = await response.json();
-        // Cari user yang pas di array data
-        const user = data.find(u => u.username === username);
+        const user = data.find((u) => u.username === username);
         setSelectedUser(user);
         setLoading(false);
       } catch (error) {
@@ -31,10 +30,37 @@ export default function EditMemberPage() {
     fetchUserDetail();
   }, [username]);
 
-  if (loading) return <div className="p-10 text-center">Sedang mengambil data {username}...</div>;
+  // 2. Ambil Data Deposit Khusus User Ini
+  useEffect(() => {
+    if (tabAktif === "Deposit" && selectedUser) {
+      const getDeposits = async () => {
+        // Asumsi Bos menggunakan Supabase Client yang sudah di-import
+        // Jika pakai API, ganti bagian ini dengan fetch ke API deposits Bos
+        const { data, error } = await supabase
+          .from("deposits")
+          .select("*")
+          .eq("username", selectedUser.username)
+          .order("created_at", { ascending: false });
+
+        if (data) setDataDeposit(data);
+      };
+      getDeposits();
+    }
+  }, [tabAktif, selectedUser]);
+
+  if (loading) return <div className="p-10 text-center text-[12px] font-bold">LOADING DATA...</div>;
   if (!selectedUser) return <div className="p-10 text-center">User tidak ditemukan!</div>;
 
-return (
+  // Logika Terima Deposit (Contoh)
+  const handleTerimaDepo = async (depo) => {
+    const confirm = window.confirm(`Terima Deposit Rp ${new Intl.NumberFormat('id-ID').format(depo.nominal)}?`);
+    if (confirm) {
+      alert("Logic: Update status depo ke 'terima', tambah saldo member, dan catat ke transactions.");
+      // Di sini Bos panggil fungsi update ke database
+    }
+  };
+
+  return (
     <div className="p-6 text-gray-800 bg-[#f4f6f9] min-h-screen font-sans">
       {/* Breadcrumb & Judul */}
       <h1 className="text-[26px] font-normal mb-1">Ubah Member</h1>
@@ -152,34 +178,80 @@ return (
 
 
 
-          {/* 2. TAB DEPOSIT / WITHDRAWAL (Contoh Tabel) */}
-          {(tabAktif === "Deposit" ) && (
-            <div className="overflow-x-auto border rounded border-gray-200">
-              <table className="w-full text-left text-[11px]">
-                <thead className="bg-gray-50 border-b">
-                  <tr>
-                    <th className="p-2 border-r text-center w-10">No.</th>
-                    <th className="p-3 border-r text-right">Total</th>
-                    <th className="p-3 border-r text-center">Dari Rekening</th>
-                    <th className="p-3 border-r text-center">Ke Rekening</th>
-                    <th className="p-2 border-r text-center">Bukti</th>
-                    <th className="p-3 border-r text-center">Waktu Deposit</th>
-                    <th className="p-2 border-r text-center">Status</th>
-                    <th className="p-3 border-r text-center">Admin Respon</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td colSpan="4" className="p-10 text-center text-gray-400 italic font-mono uppercase">
-                      Belum ada data transaksi {tabAktif} ditemukan.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+       
+{(tabAktif === "Deposit") && (
+  <div className="space-y-4">
+    <div className="overflow-x-auto border rounded border-gray-200 shadow-sm bg-white">
+      <table className="w-full text-left text-[11px] border-collapse">
+        <thead className="bg-gray-50 border-b text-gray-700 font-bold uppercase">
+          <tr>
+            <th className="p-2 border-r text-center w-10">No.</th>
+            <th className="p-3 border-r text-right">Total</th>
+            <th className="p-3 border-r text-center">Dari Rekening</th>
+            <th className="p-3 border-r text-center">Ke Rekening</th>
+            <th className="p-2 border-r text-center">Bukti</th>
+            <th className="p-3 border-r text-center">Waktu Deposit</th>
+            <th className="p-2 border-r text-center">Status</th>
+            <th className="p-3 text-center">Admin Respon</th>
+          </tr>
+        </thead>
+        <tbody>
+          {dataDeposit && dataDeposit.length > 0 ? (
+            dataDeposit.map((depo, index) => (
+              <tr key={depo.id} className="border-b hover:bg-gray-50 transition-colors">
+                <td className="p-2 border-r text-center text-gray-400">{index + 1}</td>
+                {/* Kolom Total (Nominal) */}
+                <td className="p-3 border-r text-right font-bold text-emerald-600">
+                  {new Intl.NumberFormat('id-ID').format(depo.nominal)}
+                </td>
+                {/* Kolom Dari Rekening (Pengirim) */}
+                <td className="p-3 border-r text-center">
+                  <div className="font-bold uppercase text-blue-600">{depo.bank_pengirim}</div>
+                  <div className="text-[10px] text-gray-500">{depo.rek_pengirim}</div>
+                  <div className="text-[9px] text-gray-400 italic">a.n {depo.nama_pengirim}</div>
+                </td>
+                {/* Kolom Ke Rekening (Tujuan) */}
+                <td className="p-3 border-r text-center">
+                  <div className="font-bold">{depo.bank_tujuan}</div>
+                  <div className="text-[10px] text-gray-500">{depo.rek_tujuan}</div>
+                </td>
+                {/* Kolom Bukti */}
+                <td className="p-2 border-r text-center">
+                  <button className="text-blue-500 hover:text-blue-700 underline text-[10px]">Lihat</button>
+                </td>
+                {/* Kolom Waktu */}
+                <td className="p-3 border-r text-center text-gray-500 italic">
+                  {new Date(depo.created_at).toLocaleString('id-ID')}
+                </td>
+                {/* Kolom Status */}
+                <td className="p-2 border-r text-center font-black">
+                  {depo.status === 'pending' && <span className="text-orange-500">PENDING</span>}
+                  {depo.status === 'terima' && <span className="text-emerald-500 font-bold uppercase">Selesai</span>}
+                  {depo.status === 'tolak' && <span className="text-red-500 font-bold uppercase">Ditolak</span>}
+                </td>
+                {/* Kolom Admin Respon */}
+                <td className="p-3 text-center text-[10px] text-gray-400 italic font-medium uppercase">
+                  {depo.status === 'pending' ? '-' : 'System / Admin'}
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="8" className="p-10 text-center text-gray-400 italic font-mono uppercase">
+                Belum ada data transaksi {tabAktif} ditemukan.
+              </td>
+            </tr>
           )}
-
-
+        </tbody>
+      </table>
+    </div>
+    
+    {/* Footer Info Tambahan */}
+    <div className="bg-white p-2 text-right text-[10px] text-gray-400 border border-t-0 rounded-b italic">
+      Menampilkan riwayat deposit terakhir untuk member: <span className="font-bold">{selectedUser.username}</span>
+    </div>
+  </div>
+)}
 
 
 
