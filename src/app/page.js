@@ -785,11 +785,11 @@ const handleSetujuLogin = () => {
       </p>
      {/* Paparan JAM BUKA | JAM TUTUP */}
   <div className="flex flex-col border-t border-white/20 pt-1 mt-1">
-    <div className="flex justify-between text-[9px] text-gray-300 font-black uppercase tracking-tighter">
+    <div className="flex justify-between text-[12px] text-gray-300 font-black uppercase tracking-tighter">
       <span>Jam Buka</span>
       <span>Jam Tutup</span>
     </div>
-    <div className="flex justify-between text-white text-[11px] font-black drop-shadow-md">
+    <div className="flex justify-between text-white text-[13px] font-black drop-shadow-md">
       {/* Ambil dari database, kalau tak ada pakai default */}
       <span>{dataLive?.jam_buka || "00:00"}</span>
       <span className="text-gray-400">|</span>
