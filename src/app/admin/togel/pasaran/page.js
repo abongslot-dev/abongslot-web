@@ -120,14 +120,14 @@ export default function TogelPasaranPage() {
          
         </div>
 
-        <div className="bg-white rounded shadow-sm border border-gray-200 overflow-hidden">
- <button 
-            onClick={() => setShowModal(true)}
-            className="bg-[#00a65a] text-white px-3 py-1.5 rounded text-[11px] flex items-center gap-1 hover:bg-[#008d4c] transition uppercase font-bold"
-          >
-            <Plus size={14} /> Tambah Pasaran
-          </button>
-          </div>
+        <div className="flex justify-end bg-white p-2 rounded shadow-sm border border-gray-200 overflow-hidden">
+  <button 
+    onClick={() => setShowModal(true)}
+    className="bg-[#00a65a] text-white px-3 py-1.5 rounded text-[11px] flex items-center gap-1 hover:bg-[#008d4c] transition uppercase font-bold"
+  >
+    <Plus size={14} /> Tambah Pasaran
+  </button>
+</div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-[12px]">
             <thead>
