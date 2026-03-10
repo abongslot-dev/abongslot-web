@@ -1,6 +1,7 @@
 // --- BAGIAN ATAS FILE BOS ---
 "use client";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; // 2. Import useRouter dari 'next/navigation'
 
 // Pastikan CheckCircle2 dan XCircle ada di dalam kurung kurawal ini
 import { 
