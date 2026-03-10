@@ -133,7 +133,7 @@ return (
                <div className="flex gap-2 pt-2">
                  <button className="bg-[#007bff] text-white px-4 py-2 rounded text-[12px] font-bold shadow-sm uppercase hover:bg-blue-700 transition-all">Simpan</button>
                  <button 
-                   onClick={() => setView("table")} 
+                   onClick={() => setView("member")} 
                    className="bg-[#ffc107] text-black px-4 py-2 rounded text-[12px] font-bold shadow-sm uppercase hover:bg-yellow-500 transition-all"
                  >
                    Kembali
