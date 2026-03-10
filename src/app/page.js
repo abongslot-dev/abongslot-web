@@ -74,10 +74,10 @@ const [halamanAktif, setHalamanAktif] = useState('utama');
 const fetchData = async () => {
   setLoadingData(true);
   try {
-    // 1. Ambil data Result DAN data Pasaran secara bersamaan
+    // 1. Ambil data Result dan data Pasaran (untuk ambil jam)
     const [resResult, resPasaran] = await Promise.all([
       fetch("/api/get-results"),
-      supabase.from("togel_pasaran").select("nama, jam_buka, status") // Pastikan supabase sudah di-import
+      supabase.from("togel_pasaran").select("nama, jam_buka, jam_tutup")
     ]);
 
     const jsonResult = await resResult.json();
@@ -86,18 +86,20 @@ const fetchData = async () => {
     if (jsonResult.success && jsonResult.data) {
       const resultsMap = {};
       
-      // 2. Mapping data Pasaran (Biar kita tahu Jam Buka setiap pasaran)
+      // 2. Buat mapping jam berdasarkan nama pasaran
       const jamMap = {};
       dataPasaran.forEach(p => {
-        jamMap[p.nama.trim().toUpperCase()] = p.jam_buka;
+        jamMap[p.nama.trim().toUpperCase()] = {
+          buka: p.jam_buka,
+          tutup: p.jam_tutup
+        };
       });
 
-      // 3. Mapping data Result
+      // 3. Gabungkan ke dalam resultsMap
       jsonResult.data.forEach((item) => {
         let keyOriginal = item.pasaran.trim().toUpperCase();
         let keyDisplay = keyOriginal;
         
-        // Standarisasi Nama untuk Key Display
         if (!keyDisplay.includes("POOLS") && !keyDisplay.includes("LOTTO") && !keyDisplay.includes("MACAU")) {
           keyDisplay += " POOLS";
         }
@@ -107,18 +109,17 @@ const fetchData = async () => {
             tanggal: item.tanggal,
             angka: item.result,
             periode: item.periode,
-            // AMBIL JAM DARI TABEL PASARAN, jika tidak ada pakai default 00:00
-            jam: jamMap[keyOriginal] || "00:00" 
+            // INI BAGIAN PENTING:
+            jam_buka: jamMap[keyOriginal]?.buka || "00:00",
+            jam_tutup: jamMap[keyOriginal]?.tutup || "00:00"
           };
         }
       });
 
-      console.log("✅ DATA DENGAN JAM PASARAN:", resultsMap);
       setDataRiwayat(resultsMap);
-      localStorage.setItem("cache_riwayat", JSON.stringify(resultsMap));
     }
   } catch (error) {
-    console.error("Gagal ambil data:", error);
+    console.error("Gagal sinkronisasi jam:", error);
   } finally {
     setLoadingData(false);
   }
@@ -779,11 +780,20 @@ const handleSetujuLogin = () => {
       <p className="text-white text-[11px] font-bold drop-shadow-md">
         {dataLive?.tanggal || toto.date}
       </p>
-      <p className="text-white text-[11px] font-bold drop-shadow-md">
-      {dataLive?.jam ? `${dataLive.jam} WIB` : (toto.time || "00:00:00")}
-      </p>
+     {/* Paparan JAM BUKA | JAM TUTUP */}
+  <div className="flex flex-col border-t border-white/20 pt-1 mt-1">
+    <div className="flex justify-between text-[9px] text-gray-300 font-black uppercase tracking-tighter">
+      <span>Jam Buka</span>
+      <span>Jam Tutup</span>
+    </div>
+    <div className="flex justify-between text-white text-[11px] font-black drop-shadow-md">
+      {/* Ambil dari database, kalau tak ada pakai default */}
+      <span>{dataLive?.jam_buka || "00:00"}</span>
+      <span className="text-gray-400">|</span>
+      <span>{dataLive?.jam_tutup || "00:00"}</span>
     </div>
   </div>
+</div>
 
   <div className="flex flex-col p-2 gap-1.5 bg-black/90">
   <div className="bg-[#5D3FD3] py-1.5 rounded-lg border border-white/20 shadow-inner text-center min-w-[120px]">
