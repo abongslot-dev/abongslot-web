@@ -65,48 +65,57 @@ const [halamanAktif, setHalamanAktif] = useState('utama');
   const audioRef = useRef(null);
 
 const fetchData = async () => {
-    setLoadingData(true);
-    try {
-      // 1. Ambil data langsung dari API Supabase kita
-      const response = await fetch("/api/get-results");
-      const json = await response.json();
+  setLoadingData(true);
+  try {
+    // 1. Ambil data Result DAN data Pasaran secara bersamaan
+    const [resResult, resPasaran] = await Promise.all([
+      fetch("/api/get-results"),
+      supabase.from("togel_pasaran").select("nama, jam_buka, status") // Pastikan supabase sudah di-import
+    ]);
 
-      if (json.success && json.data) {
-        const resultsMap = {};
-        
-        // 2. Mapping data agar pasaran jadi KEY (biar kotak di depan update)
-        json.data.forEach((item) => {
-          let key = item.pasaran.trim().toUpperCase();
-          
-          // Standarisasi Nama (Sama dengan logika Bos sebelumnya)
-          if (!key.includes("POOLS") && !key.includes("LOTTO") && !key.includes("MACAU")) {
-            key += " POOLS";
-          }
+    const jsonResult = await resResult.json();
+    const dataPasaran = resPasaran.data || [];
 
-          // Hanya ambil yang paling baru untuk setiap pasaran
-          if (!resultsMap[key]) {
-            resultsMap[key] = {
-              tanggal: item.tanggal,
-              angka: item.result,
-              periode: item.periode
-            };
-          }
-        });
+    if (jsonResult.success && jsonResult.data) {
+      const resultsMap = {};
+      
+      // 2. Mapping data Pasaran (Biar kita tahu Jam Buka setiap pasaran)
+      const jamMap = {};
+      dataPasaran.forEach(p => {
+        jamMap[p.nama.trim().toUpperCase()] = p.jam_buka;
+      });
 
-        console.log("✅ DATA SUPABASE SIAP:", resultsMap);
+      // 3. Mapping data Result
+      jsonResult.data.forEach((item) => {
+        let keyOriginal = item.pasaran.trim().toUpperCase();
+        let keyDisplay = keyOriginal;
         
-        // 3. Update tampilan muka
-        setDataRiwayat(resultsMap);
-        
-        // Simpan cache ringan buat performa
-        localStorage.setItem("cache_riwayat", JSON.stringify(resultsMap));
-      }
-    } catch (error) {
-      console.error("Gagal ambil data Supabase:", error);
-    } finally {
-      setLoadingData(false);
+        // Standarisasi Nama untuk Key Display
+        if (!keyDisplay.includes("POOLS") && !keyDisplay.includes("LOTTO") && !keyDisplay.includes("MACAU")) {
+          keyDisplay += " POOLS";
+        }
+
+        if (!resultsMap[keyDisplay]) {
+          resultsMap[keyDisplay] = {
+            tanggal: item.tanggal,
+            angka: item.result,
+            periode: item.periode,
+            // AMBIL JAM DARI TABEL PASARAN, jika tidak ada pakai default 00:00
+            jam: jamMap[keyOriginal] || "00:00" 
+          };
+        }
+      });
+
+      console.log("✅ DATA DENGAN JAM PASARAN:", resultsMap);
+      setDataRiwayat(resultsMap);
+      localStorage.setItem("cache_riwayat", JSON.stringify(resultsMap));
     }
-  };
+  } catch (error) {
+    console.error("Gagal ambil data:", error);
+  } finally {
+    setLoadingData(false);
+  }
+};
   
   // --- 4. EFFECTS ---
   useEffect(() => {
@@ -764,7 +773,7 @@ const handleSetujuLogin = () => {
         {dataLive?.tanggal || toto.date}
       </p>
       <p className="text-white text-[11px] font-bold drop-shadow-md">
-        {toto.time || "00:00:00"}
+      {dataLive?.jam ? `${dataLive.jam} WIB` : (toto.time || "00:00:00")}
       </p>
     </div>
   </div>
