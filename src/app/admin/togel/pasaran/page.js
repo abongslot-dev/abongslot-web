@@ -120,6 +120,13 @@ export default function TogelPasaranPage() {
          
         </div>
 
+        <div className="bg-white rounded shadow-sm border border-gray-200 overflow-hidden">
+ <button 
+            onClick={() => setShowModal(true)}
+            className="bg-[#00a65a] text-white px-3 py-1.5 rounded text-[11px] flex items-center gap-1 hover:bg-[#008d4c] transition uppercase font-bold"
+          >
+            <Plus size={14} /> Tambah Pasaran
+          </button>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-[12px]">
             <thead>
@@ -175,7 +182,7 @@ export default function TogelPasaranPage() {
           </table>
         </div>
       </div>
-
+</div>
       {/* --- MODAL INPUT/EDIT --- */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
