@@ -44,6 +44,7 @@ const FilterBox = () => (
 
 export default function DepositBaruPage({ onUserClick }) {
 
+      const router = useRouter();
 
     const [deposits, setDeposits] = useState([]);
       const [loading, setLoading] = useState(true);
@@ -121,10 +122,11 @@ const onAction = async (id, status, amount, user) => {
         }
       };
 
-      const handleUserClick = (username) => {
-    // Pindah ke halaman edit member berdasarkan username
-    router.push(`/admin/member/${username}`);
-  };
+const handleUserClick = (username) => {
+        if (username) {
+            router.push(`/admin/member/${username}`);
+        }
+    };
     
       const handleSelectOne = (id) => {
         setSelectedIds((prev) =>
