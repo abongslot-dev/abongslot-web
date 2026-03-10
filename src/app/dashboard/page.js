@@ -1,6 +1,14 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { createClient } from "@supabase/supabase-js"; // <--- 1. Import ini wajib
+
+// 2. Inisialisasi variabel supabase di sini
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
 
 export default function Home() {
   const router = useRouter();
@@ -36,48 +44,61 @@ const [loadingData, setLoadingData] = useState(false);
 
 
 const fetchData = async () => {
-    setLoadingData(true);
-    try {
-      // 1. Ambil data langsung dari API Supabase kita
-      const response = await fetch("/api/get-results");
-      const json = await response.json();
+  setLoadingData(true);
+  try {
+    // 1. Ambil data Result dan data Pasaran (Tambahkan jam_tutup di sini)
+    const [resResult, resPasaran] = await Promise.all([
+      fetch("/api/get-results"),
+      supabase.from("togel_pasaran").select("nama, jam_buka, jam_tutup, status")
+    ]);
 
-      if (json.success && json.data) {
-        const resultsMap = {};
-        
-        // 2. Mapping data agar pasaran jadi KEY (biar kotak di depan update)
-        json.data.forEach((item) => {
-          let key = item.pasaran.trim().toUpperCase();
-          
-          // Standarisasi Nama (Sama dengan logika Bos sebelumnya)
-          if (!key.includes("POOLS") && !key.includes("LOTTO") && !key.includes("MACAU")) {
-            key += " POOLS";
-          }
+    const jsonResult = await resResult.json();
+    const dataPasaran = resPasaran.data || [];
 
-          // Hanya ambil yang paling baru untuk setiap pasaran
-          if (!resultsMap[key]) {
-            resultsMap[key] = {
-              tanggal: item.tanggal,
-              angka: item.result,
-              periode: item.periode
-            };
-          }
-        });
+    if (jsonResult.success && jsonResult.data) {
+      const resultsMap = {};
+      
+      // 2. Mapping data Pasaran (Simpan Buka & Tutup)
+      const jamMap = {};
+      dataPasaran.forEach(p => {
+        jamMap[p.nama.trim().toUpperCase()] = {
+          buka: p.jam_buka,
+          tutup: p.jam_tutup
+        };
+      });
 
-        console.log("✅ DATA SUPABASE SIAP:", resultsMap);
+      // 3. Mapping data Result
+      jsonResult.data.forEach((item) => {
+        let keyOriginal = item.pasaran.trim().toUpperCase();
+        let keyDisplay = keyOriginal;
         
-        // 3. Update tampilan muka
-        setDataRiwayat(resultsMap);
-        
-        // Simpan cache ringan buat performa
-        localStorage.setItem("cache_riwayat", JSON.stringify(resultsMap));
-      }
-    } catch (error) {
-      console.error("Gagal ambil data Supabase:", error);
-    } finally {
-      setLoadingData(false);
+        // Standarisasi Nama
+        if (!keyDisplay.includes("POOLS") && !keyDisplay.includes("LOTTO") && !keyDisplay.includes("MACAU")) {
+          keyDisplay += " POOLS";
+        }
+
+        if (!resultsMap[keyDisplay]) {
+          resultsMap[keyDisplay] = {
+            tanggal: item.tanggal,
+            angka: item.result,
+            periode: item.periode,
+            // PASTIKAN NAMA VARIABLE SAMA DENGAN YANG DI PANGGIL DI TAMPILAN
+            jam_buka: jamMap[keyOriginal]?.buka || "00:00",
+            jam_tutup: jamMap[keyOriginal]?.tutup || "00:00" 
+          };
+        }
+      });
+
+      console.log("✅ DATA SIAP TAMPIL:", resultsMap);
+      setDataRiwayat(resultsMap);
+      localStorage.setItem("cache_riwayat", JSON.stringify(resultsMap));
     }
-  };
+  } catch (error) {
+    console.error("Gagal ambil data:", error);
+  } finally {
+    setLoadingData(false);
+  }
+};
 useEffect(() => {
   fetchData();
   // Opsional: Refresh otomatis setiap 5 menit
@@ -447,20 +468,32 @@ const handleLogout = () => {
       return (
         <div key={i} className="relative group rounded-xl border border-white/10 overflow-hidden flex flex-col bg-black shadow-2xl transition-all hover:scale-[1.02]">
           
-          <div 
-            className="h-32 relative flex flex-col items-start p-3 bg-cover bg-center transition-all duration-10 group-hover:brightness-250 group-hover:contrast-110"
-            style={{ backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8)), url('${toto.bg}')` }}
-          >
-            <h3 className="text-white font-black text-[15px] tracking-tight drop-shadow-md">{toto.name}</h3>
-            <div className="mt-auto">
-              <p className="text-white text-[11px] font-bold drop-shadow-md">
-                {dataLive?.tanggal || toto.date}
-              </p>
-              <p className="text-white text-[11px] font-bold drop-shadow-md">
-                {toto.time || "00:00:00"}
-              </p>
-            </div>
-          </div>
+         <div 
+    className="h-48 relative flex flex-col items-start p-3 bg-cover bg-center transition-all duration-10 group-hover:brightness-240 group-hover:contrast-110"
+    style={{ 
+      backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8)), url('${toto.bg}')` 
+    }}
+  >
+    <h3 className="text-white font-black text-[15px] tracking-tight drop-shadow-md">{toto.name}</h3>
+    <div className="mt-auto">
+      <p className="text-white text-[11px] font-bold drop-shadow-md">
+        {dataLive?.tanggal || toto.date}
+      </p>
+     {/* Paparan JAM BUKA | JAM TUTUP */}
+  <div className="flex flex-col border-t border-white/20 pt-1 mt-1">
+    <div className="flex justify-between text-[12px] text-gray-300 font-black uppercase tracking-tighter">
+      <span>Jam Buka</span>
+      <span>Jam Tutup</span>
+    </div>
+    <div className="flex justify-between text-white text-[13px] font-black drop-shadow-md">
+      {/* Ambil dari database, kalau tak ada pakai default */}
+      <span>{dataLive?.jam_buka || "00:00"}</span>
+      <span className="text-gray-400">|</span>
+      <span>{dataLive?.jam_tutup || "00:00"}</span>
+    </div>
+  </div>
+</div>
+</div>
 
           <div className="flex flex-col p-2 gap-1.5 bg-black/90">
             <div className="bg-[#5D3FD3] py-1.5 rounded-lg border border-white/20 shadow-inner text-center min-w-[120px]">
