@@ -773,7 +773,7 @@ const handleSetujuLogin = () => {
 >
   {/* BAGIAN YANG DIUBAH: Tambahkan transition dan group-hover:brightness */}
   <div 
-    className="h-24 relative flex flex-col items-start p-3 bg-cover bg-center transition-all duration-10 group-hover:brightness-240 group-hover:contrast-110"
+    className="h-40 relative flex flex-col items-start p-3 bg-cover bg-center transition-all duration-10 group-hover:brightness-240 group-hover:contrast-110"
     style={{ 
       backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.8)), url('${toto.bg}')` 
     }}
