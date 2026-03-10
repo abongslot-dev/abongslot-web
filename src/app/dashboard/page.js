@@ -482,8 +482,8 @@ const handleLogout = () => {
      {/* Paparan JAM BUKA | JAM TUTUP */}
   <div className="flex flex-col border-t border-white/20 pt-1 mt-1">
     <div className="flex justify-between text-[12px] text-gray-300 font-black uppercase tracking-tighter">
-      <span>Jam Buka</span>
-      <span>Jam Tutup</span>
+      <span>Jam Buka|</span>
+      <span>|Jam Tutup</span>
     </div>
     <div className="flex justify-between text-white text-[13px] font-black drop-shadow-md">
       {/* Ambil dari database, kalau tak ada pakai default */}
