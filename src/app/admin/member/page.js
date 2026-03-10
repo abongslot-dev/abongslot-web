@@ -135,9 +135,13 @@ export default function MemberPage() {
                     >
                       <Key size={14} />
                     </button>
-                    <button className="bg-[#28a745] text-white p-1.5 rounded shadow-sm hover:bg-green-600">
-                      <Landmark size={14}/>
-                    </button>
+                    <button 
+  onClick={() => router.push(`/admin/member/${m.username}`)} // Navigasi ke halaman edit
+  className="bg-[#28a745] text-white p-1.5 rounded shadow-sm hover:bg-green-600"
+  title="Edit Member"
+>
+  <Landmark size={14}/>
+</button>
                   </td>
                 </tr>
               ))}
