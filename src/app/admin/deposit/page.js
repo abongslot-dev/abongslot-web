@@ -214,7 +214,7 @@ const onAction = async (id, status, amount, user) => {
       promo={item.promo}
       waktu={item.created_at}
       onAction={onAction}
-      onUserClick={() => handleUserClick(item.username)} // <--- Arahkan ke router
+      onUserClick={handleUserClick} // Masukkan fungsinya ke sini
       
       
     />
