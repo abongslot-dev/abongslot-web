@@ -146,6 +146,12 @@ return (
             </div>
           )}
 
+
+
+
+
+
+
           {/* 2. TAB DEPOSIT / WITHDRAWAL (Contoh Tabel) */}
           {(tabAktif === "Deposit" ) && (
             <div className="overflow-x-auto border rounded border-gray-200">
@@ -173,6 +179,10 @@ return (
             </div>
           )}
 
+
+
+
+
           {/* 2. TAB DEPOSIT / WITHDRAWAL (Contoh Tabel) */}
           {(tabAktif === "Withdrawal") && (
             <div className="overflow-x-auto border rounded border-gray-200">
@@ -197,6 +207,10 @@ return (
               </table>
             </div>
           )}
+
+
+
+
 
          {tabAktif === "Penyesuaian Saldo" && (
   <div className="space-y-6">
@@ -295,6 +309,8 @@ return (
 
 
 
+
+
 {tabAktif === "Laporan Transaksi" && (
   <div className="space-y-4">
     {/* FILTER JUMLAH DATA */}
@@ -366,15 +382,206 @@ return (
     </div>
   </div>
 )}
+
+
+
+{tabAktif === "Laporan Permainan" && (
+  <div className="space-y-6">
+    {/* BARIS 1: FILTER TANGGAL & DROPDOWN */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div>
+        <label className="text-[11px] text-gray-600 block mb-1">Dari Tanggal</label>
+        <div className="relative">
+          <input type="date" className="w-full border border-gray-300 rounded p-2 text-[12px] outline-none" defaultValue="2026-03-11" />
+        </div>
+      </div>
+      <div>
+        <label className="text-[11px] text-gray-600 block mb-1">Sampai Tanggal</label>
+        <div className="relative">
+          <input type="date" className="w-full border border-gray-300 rounded p-2 text-[12px] outline-none" defaultValue="2026-03-11" />
+        </div>
+      </div>
+      <div>
+        <label className="text-[11px] text-gray-600 block mb-1">Permainan</label>
+        <select className="w-full border border-gray-300 rounded p-2 text-[12px] bg-white outline-none">
+          <option>Pilih</option>
+          <option>Togel</option>
+          <option>Slot</option>
+          <option>Live Casino</option>
+        </select>
+      </div>
+      <div>
+        <label className="text-[11px] text-gray-600 block mb-1">Provider</label>
+        <select className="w-full border border-gray-300 rounded p-2 text-[12px] bg-white outline-none">
+          <option>Pilih</option>
+          <option>Pragmatic Play</option>
+          <option>PG Soft</option>
+          <option>Habanero</option>
+        </select>
+      </div>
+    </div>
+
+    {/* BARIS 2: INPUT ID & LIMIT */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div>
+        <label className="text-[11px] text-gray-600 block mb-1">Transaksi ID</label>
+        <input type="text" className="w-full border border-gray-300 rounded p-2 text-[12px] outline-none" placeholder="" />
+      </div>
+      <div>
+        <label className="text-[11px] text-gray-600 block mb-1">Round ID</label>
+        <input type="text" className="w-full border border-gray-300 rounded p-2 text-[12px] outline-none" placeholder="" />
+      </div>
+      <div>
+        <label className="text-[11px] text-gray-600 block mb-1">Munculkan</label>
+        <select className="w-full border border-gray-300 rounded p-2 text-[12px] bg-white outline-none">
+          <option>15 Data</option>
+          <option>50 Data</option>
+          <option>100 Data</option>
+        </select>
+      </div>
+    </div>
+
+    {/* TOMBOL AKSI */}
+    <div className="flex gap-2">
+      <button className="bg-[#00c0ef] hover:bg-[#00a7d0] text-white px-4 py-1.5 rounded text-[12px] font-bold flex items-center gap-1 transition-all shadow-sm">
+        <span className="rotate-180">↻</span> Reset
+      </button>
+      <button className="bg-[#007bff] hover:bg-[#0069d9] text-white px-4 py-1.5 rounded text-[12px] font-bold flex items-center gap-1 transition-all shadow-sm">
+        <span>🔍</span> Cari
+      </button>
+    </div>
+
+    {/* TABEL LAPORAN PERMAINAN */}
+    <div className="border border-gray-200 rounded overflow-hidden shadow-sm bg-white mt-4">
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-[11px] border-collapse min-w-[1000px]">
+          <thead>
+            <tr className="bg-white border-b text-gray-800 font-bold uppercase">
+              <th className="p-2.5 border-r">Info</th>
+              <th className="p-2.5 border-r">Tipe</th>
+              <th className="p-2.5 border-r">Debit</th>
+              <th className="p-2.5 border-r">Credit</th>
+              <th className="p-2.5 border-r">Saldo</th>
+              <th className="p-2.5 border-r">Tanggal</th>
+              <th className="p-2.5 border-r">Transaksi ID</th>
+              <th className="p-2.5 border-r">Round ID</th>
+              <th className="p-2 text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-b bg-white text-center">
+              <td colSpan="9" className="p-6 text-gray-500 italic">Tidak ada data</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {/* TOMBOL KEMBALI */}
+    <div className="pt-2">
+      <button 
+        onClick={() => router.back()}
+        className="bg-[#f39c12] hover:bg-[#e67e22] text-white px-4 py-1.5 rounded text-[12px] font-bold shadow-sm transition-all"
+      >
+        Kembali
+      </button>
+    </div>
+  </div>
+)}
+
+
+
+
+
+{tabAktif === "Referral" && (
+  <div className="space-y-6">
+    {/* BARIS 1: FILTER TANGGAL */}
+    <div className="flex gap-4">
+      <div className="w-[180px]">
+        <label className="text-[11px] text-gray-600 block mb-1">Dari Tanggal</label>
+        <div className="relative border rounded border-gray-300 p-2 flex justify-between items-center bg-white">
+          <input type="date" className="text-[12px] outline-none w-full" defaultValue="2026-03-11" />
+        </div>
+      </div>
+      <div className="w-[180px]">
+        <label className="text-[11px] text-gray-600 block mb-1">Sampai Tanggal</label>
+        <div className="relative border rounded border-gray-300 p-2 flex justify-between items-center bg-white">
+          <input type="date" className="text-[12px] outline-none w-full" defaultValue="2026-03-11" />
+        </div>
+      </div>
+    </div>
+
+    {/* TOMBOL CARI & RESET */}
+    <div className="flex gap-2">
+      <button className="bg-[#00c0ef] text-white px-3 py-1.5 rounded text-[11px] font-bold flex items-center gap-1">
+        <span className="rotate-180 text-sm">↻</span> Reset
+      </button>
+      <button className="bg-[#007bff] text-white px-3 py-1.5 rounded text-[11px] font-bold flex items-center gap-1">
+        <span>🔍</span> Cari
+      </button>
+    </div>
+
+    {/* BARIS 2: STATISTIK RINGKASAN (BOX ABU-ABU) */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-[#eceff1] border border-gray-300 rounded p-3">
+        <label className="text-[11px] text-gray-500 block mb-1">Referral Upline</label>
+        <span className="text-[13px] font-bold text-gray-800 uppercase italic">
+          {selectedUser?.upline || "dewadanaa"}
+        </span>
+      </div>
+      <div className="bg-[#eceff1] border border-gray-300 rounded p-3">
+        <label className="text-[11px] text-gray-500 block mb-1">Total Deposit - Withdraw</label>
+        <span className="text-[13px] font-bold text-gray-800">Rp. 0,00</span>
+      </div>
+      <div className="bg-[#eceff1] border border-gray-300 rounded p-3">
+        <label className="text-[11px] text-gray-500 block mb-1">Total TO Bet - Pembayaran</label>
+        <span className="text-[13px] font-bold text-gray-800">Rp. 0,00</span>
+      </div>
+    </div>
+
+    {/* BARIS 3: TABEL DETAIL REFERRAL */}
+    <div className="border border-gray-200 rounded overflow-hidden shadow-sm bg-white">
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-[11px] border-collapse">
+          <thead>
+            <tr className="bg-white border-b text-gray-800 font-bold">
+              <th className="p-2.5 border-r w-12">No.</th>
+              <th className="p-2.5 border-r">Username</th>
+              <th className="p-2.5 border-r text-center">Total Deposit</th>
+              <th className="p-2.5 border-r text-center">Total Withdraw</th>
+              <th className="p-2.5 border-r text-center">Total TO Bet</th>
+              <th className="p-2.5 text-center">Total TO Pembayaran</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-b bg-white">
+              <td colSpan="6" className="p-6 text-center text-gray-500 italic">
+                Tidak ada data
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      {/* FOOTER TABEL */}
+      <div className="bg-white p-2.5 text-right text-[11px] text-gray-600 border-t font-medium">
+        Menampilkan sampai dari total 0 baris
+      </div>
+    </div>
+
+    {/* TOMBOL KEMBALI */}
+    <div className="pt-2">
+      <button 
+        onClick={() => router.back()}
+        className="bg-[#f39c12] hover:bg-[#e67e22] text-white px-4 py-1.5 rounded text-[12px] font-bold shadow-sm transition-all"
+      >
+        Kembali
+      </button>
+    </div>
+  </div>
+)}
+
           {/* 4. TAB LAINNYA (Placeholder) */}
-          {!["Member Data", "Deposit", "Withdrawal", "Penyesuaian Saldo"].includes(tabAktif) && (
-            <div className="py-20 text-center bg-gray-50 rounded border border-dashed border-gray-300">
-              <div className="text-3xl mb-2 opacity-30">📂</div>
-              <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">
-                Modul {tabAktif} Sedang Disiapkan
-              </p>
-            </div>
-          )}
+          
 
         </div>
       </div>
