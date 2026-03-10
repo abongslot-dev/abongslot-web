@@ -117,12 +117,7 @@ export default function TogelPasaranPage() {
           <div className="flex items-center gap-2 text-sm uppercase italic">
             <span>▦</span> Togel Pasaran
           </div>
-          <button 
-            onClick={() => setShowModal(true)}
-            className="bg-[#00a65a] text-white px-3 py-1.5 rounded text-[11px] flex items-center gap-1 hover:bg-[#008d4c] transition uppercase font-bold"
-          >
-            <Plus size={14} /> Tambah Pasaran
-          </button>
+         
         </div>
 
         <div className="overflow-x-auto">
