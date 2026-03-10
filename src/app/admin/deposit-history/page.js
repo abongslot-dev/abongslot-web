@@ -1,8 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; // 1. IMPORT router
 import { RotateCcw, Search, FileBarChart } from "lucide-react";
 
 export default function RangkumanDepositPage() {
+  const router = useRouter(); // 2. INISIALISASI router di dalam function
   const [data, setData] = useState([]);
   const [totals, setTotals] = useState({ totalNominal: 0, totalBonus: 0, grandTotal: 0 });
   const [loading, setLoading] = useState(true);
@@ -18,39 +20,32 @@ export default function RangkumanDepositPage() {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  // 3. FUNGSI NAVIGASI
+  const handleUserClick = (username) => {
+    if (username) {
+      router.push(`/admin/member/${username}`);
+    }
+  };
+
   const fetchRangkuman = async () => {
     try {
       setLoading(true);
-      // Gunakan timestamp agar data selalu fresh dari database
       const res = await fetch(`/api/update-depo?t=${Date.now()}`); 
       if (!res.ok) throw new Error("Gagal mengambil data");
-
       const result = await res.json();
-      
-      // Ambil data dari result.data atau langsung result jika array
       const dataAsli = result.data ? result.data : (Array.isArray(result) ? result : []);
-      
       setData(dataAsli);
       
-      // Hitung Total Otomatis
       let totalNom = 0;
       let totalBns = 0;
-
       dataAsli.forEach(curr => {
         let s = curr.status ? String(curr.status).toUpperCase().trim() : "";
-        // Hanya hitung yang statusnya sukses/approve
         if (['SUCCESS', 'APPROVED', 'SUKSES', 'APPROVE'].includes(s)) {
           totalNom += Number(curr.nominal || 0);
           totalBns += Number(curr.bonus || 0);
         }
       });
-
-      setTotals({
-        totalNominal: totalNom,
-        totalBonus: totalBns,
-        grandTotal: totalNom + totalBns
-      });
-
+      setTotals({ totalNominal: totalNom, totalBonus: totalBns, grandTotal: totalNom + totalBns });
     } catch (err) {
       console.error("ERROR RANGKUMAN:", err.message);
       setData([]);
@@ -115,7 +110,6 @@ export default function RangkumanDepositPage() {
         </div>
         
         <div className="p-4">
-          {/* BOX TOTAL TRANSAKSI */}
           <div className="flex flex-wrap gap-4 mb-6">
             <div className="bg-emerald-50 p-4 rounded border border-emerald-100 min-w-[200px]">
               <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">Total Deposit</p>
@@ -156,7 +150,15 @@ export default function RangkumanDepositPage() {
                     return (
                       <tr key={item.id} className="hover:bg-gray-50/80 transition-colors">
                         <td className="p-3 border-r text-center text-gray-400 font-medium">{indexOfFirstItem + i + 1}.</td>
-                        <td className="p-3 border-r font-bold text-blue-600 uppercase italic underline cursor-pointer">{item.username}</td>
+                        
+                        {/* 4. UPDATE BAGIAN USERNAME INI */}
+                        <td 
+                          className="p-3 border-r font-bold text-blue-600 uppercase italic underline cursor-pointer hover:text-blue-800 transition-all"
+                          onClick={() => handleUserClick(item.username)}
+                        >
+                          {item.username}
+                        </td>
+
                         <td className="p-3 border-r text-right font-bold text-gray-700">
                           {Number(item.nominal || 0).toLocaleString('id-ID')}
                         </td>
@@ -193,7 +195,6 @@ export default function RangkumanDepositPage() {
               </tbody>
             </table>
 
-            {/* --- PAGINATION CONTROLS --- */}
             <div className="bg-gray-50 px-4 py-3 border-t flex items-center justify-between">
               <div className="text-[11px] text-gray-500">
                 Data <span className="font-bold">{indexOfFirstItem + 1}</span> - <span className="font-bold">{Math.min(indexOfLastItem, data.length)}</span> dari <span className="font-bold">{data.length}</span>
