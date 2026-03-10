@@ -292,6 +292,80 @@ return (
     </button>
   </div>
 )}
+
+
+
+{tabAktif === "Laporan Transaksi" && (
+  <div className="space-y-4">
+    {/* FILTER JUMLAH DATA */}
+    <div className="max-w-[150px]">
+      <label className="text-[10px] text-gray-500 block mb-1">Munculkan</label>
+      <select className="w-full border border-gray-300 rounded p-1.5 text-[12px] bg-white outline-none focus:border-blue-500 shadow-sm">
+        <option>15 Data</option>
+        <option>25 Data</option>
+        <option>50 Data</option>
+        <option>Semua</option>
+      </select>
+    </div>
+
+    {/* TABEL LAPORAN TRANSAKSI */}
+    <div className="border border-gray-200 rounded overflow-hidden shadow-sm bg-white">
+      <table className="w-full text-left text-[11px] border-collapse">
+        <thead>
+          <tr className="bg-gray-50 border-b text-gray-800 font-bold uppercase tracking-tight">
+            <th className="p-2.5 border-r w-[40%]">Info</th>
+            <th className="p-2.5 border-r text-right w-[15%]">Debit</th>
+            <th className="p-2.5 border-r text-right w-[15%]">Credit</th>
+            <th className="p-2.5 border-r text-right w-[15%]">Saldo</th>
+            <th className="p-2.5 text-left w-[15%]">Tanggal</th>
+          </tr>
+        </thead>
+        <tbody className="text-gray-700">
+          {/* Contoh Baris 1: Deposit Berhasil */}
+          <tr className="border-b hover:bg-gray-50 transition-colors">
+            <td className="p-2.5 border-r font-medium">Deposit Berhasil</td>
+            <td className="p-2.5 border-r text-right text-emerald-600 font-bold">50.000</td>
+            <td className="p-2.5 border-r text-right text-gray-400">0</td>
+            <td className="p-2.5 border-r text-right font-bold text-blue-600">50.000</td>
+            <td className="p-2.5 text-[10px] text-gray-500 italic">11 March 2026, 06:05:51</td>
+          </tr>
+          
+          {/* Contoh Baris 2: Permintaan Deposit */}
+          <tr className="border-b hover:bg-gray-50 transition-colors bg-gray-50/30">
+            <td className="p-2.5 border-r font-medium text-gray-500">Permintaan Deposit</td>
+            <td className="p-2.5 border-r text-right text-emerald-600 font-bold">50.000</td>
+            <td className="p-2.5 border-r text-right text-gray-400">0</td>
+            <td className="p-2.5 border-r text-right font-bold text-gray-400">0</td>
+            <td className="p-2.5 text-[10px] text-gray-500 italic">11 March 2026, 06:05:01</td>
+          </tr>
+
+          {/* Jika data kosong, aktifkan ini:
+          <tr>
+            <td colSpan="5" className="p-10 text-center text-gray-400 italic bg-white">
+              Tidak ada data transaksi ditemukan dalam periode ini.
+            </td>
+          </tr> 
+          */}
+        </tbody>
+      </table>
+
+      {/* FOOTER TABEL (Pagination Info) */}
+      <div className="bg-white p-2.5 text-right text-[11px] text-gray-600 border-t font-medium">
+        Menampilkan 1 sampai 2 dari total 2 baris
+      </div>
+    </div>
+
+    {/* TOMBOL KEMBALI */}
+    <div className="pt-2">
+      <button 
+        onClick={() => router.back()}
+        className="bg-[#f39c12] hover:bg-[#e67e22] text-white px-4 py-1.5 rounded text-[12px] font-bold shadow-sm transition-all"
+      >
+        Kembali
+      </button>
+    </div>
+  </div>
+)}
           {/* 4. TAB LAINNYA (Placeholder) */}
           {!["Member Data", "Deposit", "Withdrawal", "Penyesuaian Saldo"].includes(tabAktif) && (
             <div className="py-20 text-center bg-gray-50 rounded border border-dashed border-gray-300">
