@@ -115,7 +115,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         </SidebarItem>
 
         <SidebarItem icon={<Gamepad2 size={16}/>} label="Togel" hasChild menuKey="togel">
-            <SubMenuItem label="Input Result" href="/admin/togel/input" />
+            <SubMenuItem label="Input Result" href="/admin/togel/result" />
             <SubMenuItem label="Pasaran Togel" href="/admin/togel/pasaran" />
         </SidebarItem>
 
