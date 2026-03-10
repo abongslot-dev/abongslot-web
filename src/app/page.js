@@ -3,6 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { User, Key, Eye, EyeOff, LayoutDashboard } from 'lucide-react';
+import { createClient } from "@supabase/supabase-js"; // <--- 1. Import ini wajib
+
+// 2. Inisialisasi variabel supabase di sini
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 // Taruh komponen ini di atas (atau di file terpisah)
 const LoadingOverlay = () => (
