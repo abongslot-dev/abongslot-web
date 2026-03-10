@@ -304,7 +304,8 @@ function DepositRow({ item, no, onAction, onUserClick }) {
       {/* Kolom User */}
       <td 
         className="p-2 border-r text-blue-600 font-bold cursor-pointer hover:underline hover:text-blue-800"
-        onClick={() => onUserClick({ id: user_id, username: username })} 
+        // Kita panggil onUserClick dengan mengirimkan username saja sesuai rute [username]
+        onClick={() => onUserClick(username)} 
       >
         {username}
       </td>
