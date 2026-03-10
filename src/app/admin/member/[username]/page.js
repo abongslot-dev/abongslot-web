@@ -198,33 +198,100 @@ return (
             </div>
           )}
 
-          {/* 3. TAB PENYESUAIAN SALDO */}
-          {tabAktif === "Penyesuaian Saldo" && (
-            <div className="max-w-md bg-[#f8f9fa] border p-6 rounded-lg shadow-inner">
-              <h3 className="text-sm font-bold mb-5 border-b pb-2 text-blue-600">MODIFIKASI SALDO MANUAL</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-[10px] font-bold text-gray-500 uppercase block mb-1">Jumlah Nominal</label>
-                  <input type="number" className="w-full border border-gray-300 rounded p-2 text-[14px] font-bold font-mono" placeholder="0" />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-gray-500 uppercase block mb-1">Jenis Penyesuaian</label>
-                  <select className="w-full border border-gray-300 rounded p-2 text-[12px] bg-white">
-                    <option>Tambah Saldo (+)</option>
-                    <option>Kurangi Saldo (-)</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-gray-500 uppercase block mb-1">Keterangan</label>
-                  <textarea className="w-full border border-gray-300 rounded p-2 text-[12px] h-20" placeholder="Contoh: Bonus Referral, Koreksi Saldo, dll"></textarea>
-                </div>
-                <button className="w-full bg-emerald-600 text-white py-2.5 rounded text-[12px] font-black uppercase hover:bg-emerald-700 shadow-md">
-                  Proses Saldo Sekarang
-                </button>
-              </div>
-            </div>
-          )}
+         {tabAktif === "Penyesuaian Saldo" && (
+  <div className="space-y-6">
+    {/* BAGIAN ATAS: INPUT FORM HORIZONTAL */}
+    <div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-end bg-white">
+      {/* Saldo Saat Ini (Read Only) */}
+      <div className="md:col-span-1">
+        <label className="text-[11px] text-gray-600 block mb-1">Saldo</label>
+        <div className="p-2 bg-[#eceff1] border border-gray-300 rounded text-[13px] font-bold">
+          Rp. {new Intl.NumberFormat('id-ID').format(selectedUser?.saldo || 0)}
+        </div>
+      </div>
 
+      {/* Username (Read Only) */}
+      <div className="md:col-span-1">
+        <label className="text-[11px] text-gray-600 block mb-1">Username</label>
+        <div className="p-2 bg-[#eceff1] border border-gray-300 rounded text-[13px]">
+          {selectedUser?.username}
+        </div>
+      </div>
+
+      {/* Dropdown Tipe */}
+      <div className="md:col-span-1">
+        <label className="text-[11px] text-gray-600 block mb-1">Tipe</label>
+        <select className="w-full border border-gray-300 rounded p-2 text-[12px] bg-white outline-none focus:border-blue-500">
+          <option>Pilih Tipe</option>
+          <option>Tambah Saldo (+)</option>
+          <option>Kurangi Saldo (-)</option>
+        </select>
+      </div>
+
+      {/* Dropdown Kategori */}
+      <div className="md:col-span-1">
+        <label className="text-[11px] text-gray-600 block mb-1">Kategori</label>
+        <select className="w-full border border-gray-300 rounded p-2 text-[12px] bg-white outline-none focus:border-blue-500">
+          <option>Penyesuaian Saldo</option>
+          <option>Bonus</option>
+          <option>Koreksi Sistem</option>
+        </select>
+      </div>
+
+      {/* Input Jumlah */}
+      <div className="md:col-span-1">
+        <label className="text-[11px] text-gray-600 block mb-1">Jumlah</label>
+        <input type="number" className="w-full border border-gray-300 rounded p-2 text-[12px] outline-none focus:border-blue-500" defaultValue="0" />
+      </div>
+
+      {/* Input Keterangan */}
+      <div className="md:col-span-1">
+        <label className="text-[11px] text-gray-600 block mb-1">Keterangan</label>
+        <input type="text" className="w-full border border-gray-300 rounded p-2 text-[12px] outline-none focus:border-blue-500" placeholder="..." />
+      </div>
+    </div>
+
+    {/* Tombol Tambah */}
+    <div className="mt-2">
+      <button className="bg-[#00a65a] hover:bg-[#008d4c] text-white px-4 py-1.5 rounded text-[12px] font-bold flex items-center gap-1 transition-all shadow-sm">
+        <span className="text-lg">+</span> Tambah
+      </button>
+    </div>
+
+    {/* BAGIAN BAWAH: TABEL RIWAYAT ADJUSTMENT */}
+    <div className="mt-6 border border-gray-200 rounded overflow-hidden">
+      <table className="w-full text-left text-[11px] border-collapse">
+        <thead>
+          <tr className="bg-white border-b text-gray-800 font-bold">
+            <th className="p-2 border-r w-10">No.</th>
+            <th className="p-2 border-r">Tipe</th>
+            <th className="p-2 border-r">Info</th>
+            <th className="p-2 border-r">Total</th>
+            <th className="p-2 border-r">Admin</th>
+            <th className="p-2">Waktu Adjustment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="border-b bg-white text-center">
+            <td colSpan="6" className="p-4 text-gray-500 italic">Tidak ada data</td>
+          </tr>
+        </tbody>
+      </table>
+      {/* Footer Info Tabel */}
+      <div className="bg-white p-2 text-right text-[11px] text-gray-600 border-t">
+        Menampilkan sampai dari total 0 baris
+      </div>
+    </div>
+
+    {/* Tombol Kembali (Kuning) */}
+    <button 
+      onClick={() => router.back()}
+      className="bg-[#f39c12] hover:bg-[#e67e22] text-white px-4 py-1.5 rounded text-[12px] font-bold shadow-sm transition-all mt-4"
+    >
+      Kembali
+    </button>
+  </div>
+)}
           {/* 4. TAB LAINNYA (Placeholder) */}
           {!["Member Data", "Deposit", "Withdrawal", "Penyesuaian Saldo"].includes(tabAktif) && (
             <div className="py-20 text-center bg-gray-50 rounded border border-dashed border-gray-300">
