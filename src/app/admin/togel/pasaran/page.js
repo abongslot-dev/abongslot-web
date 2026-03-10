@@ -127,6 +127,7 @@ export default function TogelPasaranPage() {
           >
             <Plus size={14} /> Tambah Pasaran
           </button>
+          </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-[12px]">
             <thead>
@@ -182,7 +183,7 @@ export default function TogelPasaranPage() {
           </table>
         </div>
       </div>
-</div>
+
       {/* --- MODAL INPUT/EDIT --- */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
