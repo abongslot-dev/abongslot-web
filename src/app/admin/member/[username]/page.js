@@ -147,15 +147,44 @@ return (
           )}
 
           {/* 2. TAB DEPOSIT / WITHDRAWAL (Contoh Tabel) */}
-          {(tabAktif === "Deposit" || tabAktif === "Withdrawal") && (
+          {(tabAktif === "Deposit" ) && (
             <div className="overflow-x-auto border rounded border-gray-200">
               <table className="w-full text-left text-[11px]">
                 <thead className="bg-gray-50 border-b">
                   <tr>
-                    <th className="p-3 border-r">Waktu</th>
-                    <th className="p-3 border-r text-right">Jumlah</th>
-                    <th className="p-3 border-r text-center">Metode</th>
-                    <th className="p-3 text-center">Status</th>
+                    <th className="p-2 border-r text-center w-10">No.</th>
+                    <th className="p-3 border-r text-right">Total</th>
+                    <th className="p-3 border-r text-center">Dari Rekening</th>
+                    <th className="p-3 border-r text-center">Ke Rekening</th>
+                    <th className="p-2 border-r text-center">Bukti</th>
+                    <th className="p-3 border-r text-center">Waktu Deposit</th>
+                    <th className="p-2 border-r text-center">Status</th>
+                    <th className="p-3 border-r text-center">Admin Respon</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colSpan="4" className="p-10 text-center text-gray-400 italic font-mono uppercase">
+                      Belum ada data transaksi {tabAktif} ditemukan.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* 2. TAB DEPOSIT / WITHDRAWAL (Contoh Tabel) */}
+          {(tabAktif === "Withdrawal") && (
+            <div className="overflow-x-auto border rounded border-gray-200">
+              <table className="w-full text-left text-[11px]">
+                <thead className="bg-gray-50 border-b">
+                  <tr>
+                    <th className="p-2 border-r text-center w-10">No.</th>
+                    <th className="p-3 border-r text-right">Total</th>
+                    <th className="p-3 border-r text-center">Ke Rekening</th>
+                    <th className="p-3 border-r text-center">Waktu Withdrawal</th>
+                    <th className="p-2 border-r text-center">Status</th>
+                    <th className="p-3 border-r text-center">Admin Respon</th>
                   </tr>
                 </thead>
                 <tbody>
