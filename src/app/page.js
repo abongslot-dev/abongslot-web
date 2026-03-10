@@ -74,10 +74,10 @@ const [halamanAktif, setHalamanAktif] = useState('utama');
 const fetchData = async () => {
   setLoadingData(true);
   try {
-    // 1. Ambil data Result dan data Pasaran (untuk ambil jam)
+    // 1. Ambil data Result dan data Pasaran (Tambahkan jam_tutup di sini)
     const [resResult, resPasaran] = await Promise.all([
       fetch("/api/get-results"),
-      supabase.from("togel_pasaran").select("nama, jam_buka, jam_tutup")
+      supabase.from("togel_pasaran").select("nama, jam_buka, jam_tutup, status")
     ]);
 
     const jsonResult = await resResult.json();
@@ -86,7 +86,7 @@ const fetchData = async () => {
     if (jsonResult.success && jsonResult.data) {
       const resultsMap = {};
       
-      // 2. Buat mapping jam berdasarkan nama pasaran
+      // 2. Mapping data Pasaran (Simpan Buka & Tutup)
       const jamMap = {};
       dataPasaran.forEach(p => {
         jamMap[p.nama.trim().toUpperCase()] = {
@@ -95,11 +95,12 @@ const fetchData = async () => {
         };
       });
 
-      // 3. Gabungkan ke dalam resultsMap
+      // 3. Mapping data Result
       jsonResult.data.forEach((item) => {
         let keyOriginal = item.pasaran.trim().toUpperCase();
         let keyDisplay = keyOriginal;
         
+        // Standarisasi Nama
         if (!keyDisplay.includes("POOLS") && !keyDisplay.includes("LOTTO") && !keyDisplay.includes("MACAU")) {
           keyDisplay += " POOLS";
         }
@@ -109,17 +110,19 @@ const fetchData = async () => {
             tanggal: item.tanggal,
             angka: item.result,
             periode: item.periode,
-            // INI BAGIAN PENTING:
+            // PASTIKAN NAMA VARIABLE SAMA DENGAN YANG DI PANGGIL DI TAMPILAN
             jam_buka: jamMap[keyOriginal]?.buka || "00:00",
-            jam_tutup: jamMap[keyOriginal]?.tutup || "00:00"
+            jam_tutup: jamMap[keyOriginal]?.tutup || "00:00" 
           };
         }
       });
 
+      console.log("✅ DATA SIAP TAMPIL:", resultsMap);
       setDataRiwayat(resultsMap);
+      localStorage.setItem("cache_riwayat", JSON.stringify(resultsMap));
     }
   } catch (error) {
-    console.error("Gagal sinkronisasi jam:", error);
+    console.error("Gagal ambil data:", error);
   } finally {
     setLoadingData(false);
   }
@@ -793,6 +796,7 @@ const handleSetujuLogin = () => {
       <span>{dataLive?.jam_tutup || "00:00"}</span>
     </div>
   </div>
+</div>
 </div>
 
   <div className="flex flex-col p-2 gap-1.5 bg-black/90">
