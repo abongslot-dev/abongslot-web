@@ -45,7 +45,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
     // Pantau jika user logout
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || !session) {
-        router.push("/adm/login");
+        router.push("/login");
       }
     });
 
