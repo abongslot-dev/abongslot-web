@@ -1,7 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // Tambahkan useEffect
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation"; // Tambahkan useRouter
+import { supabase } from "@/lib/supabase"; // Import supabase config Bos
 import { 
   LayoutDashboard, Users, ArrowRightLeft, Gift, 
   Gamepad2, FileBarChart, Landmark, Mail, ChevronDown 
@@ -9,10 +10,41 @@ import {
 
 export default function Sidebar({ isOpen, setIsOpen }) {
   const pathname = usePathname();
-  // State untuk kontrol menu mana yang sedang terbuka dropdown-nya
+  const router = useRouter();
   const [openMenu, setOpenMenu] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // Komponen Kecil: Item Menu Utama
+  // --- PENGECEKAN LOGIN SUPABASE ---
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        // Jika tidak ada session, tendang ke login
+        router.push("/adm/login");
+      } else {
+        setLoading(false);
+      }
+    };
+
+    checkUser();
+
+    // Opsional: Pantau jika user logout tiba-tiba
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        router.push("/adm/login");
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [router]);
+
+  // Jika sedang ngecek login, sidebar jangan nampil dulu biar gak kedip (flicker)
+  if (loading) return <div className="w-64 bg-[#1a0033]"></div>;
+
+  // --- KOMPONEN SIDEBAR ITEM ---
   const SidebarItem = ({ icon, label, hasChild, menuKey, href, children }) => {
     const isSubOpen = openMenu === menuKey;
     const isActive = pathname === href;
@@ -20,7 +52,6 @@ export default function Sidebar({ isOpen, setIsOpen }) {
     return (
       <div className="flex flex-col">
         {hasChild ? (
-          // Jika punya anak, klik untuk toggle buka/tutup
           <div 
             onClick={() => setOpenMenu(isSubOpen ? "" : menuKey)}
             className={`flex items-center justify-between px-4 py-3 cursor-pointer transition-all hover:bg-white/10 text-[#c2c7d0]`}
@@ -32,7 +63,6 @@ export default function Sidebar({ isOpen, setIsOpen }) {
             {isOpen && <ChevronDown size={14} className={`transition-transform ${isSubOpen ? "rotate-180" : ""}`} />}
           </div>
         ) : (
-          // Jika tidak punya anak, langsung Link ke halaman
           <Link href={href || "#"}>
             <div className={`flex items-center gap-3 px-4 py-3 transition-all hover:bg-white/10 ${isActive ? 'bg-blue-600 text-white' : 'text-[#c2c7d0]'}`}>
               {icon}
@@ -41,7 +71,6 @@ export default function Sidebar({ isOpen, setIsOpen }) {
           </Link>
         )}
         
-        {/* Render SubMenu jika dropdown terbuka dan sidebar sedang lebar */}
         {hasChild && isSubOpen && isOpen && (
           <div className="bg-black/20 pb-2">
             {children}
@@ -51,7 +80,6 @@ export default function Sidebar({ isOpen, setIsOpen }) {
     );
   };
 
-  // Komponen Kecil: Item Sub Menu
   const SubMenuItem = ({ label, href }) => {
     const isActive = pathname === href;
     return (
