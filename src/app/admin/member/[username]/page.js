@@ -214,13 +214,14 @@ export default function EditMemberPage() {
                 {/* Kolom Dari Rekening (Pengirim) */}
                 <td className="p-3 border-r text-center">
                   <div className="font-bold uppercase text-blue-600">{depo.bank_pengirim}</div>
-                  <div className="text-[10px] text-gray-500">{depo.rek_pengirim}</div>
-                  <div className="text-[9px] text-gray-400 italic">a.n {depo.nama_pengirim}</div>
+                  <div className="text-[13px] text-gray-500">{depo.rek_pengirim}</div>
+                  <div className="text-[13px] text-gray-400 italic">a.n {depo.nama_pengirim}</div>
                 </td>
                 {/* Kolom Ke Rekening (Tujuan) */}
                 <td className="p-3 border-r text-center">
                   <div className="font-bold">{depo.bank_tujuan}</div>
-                  <div className="text-[10px] text-gray-500">{depo.rek_tujuan}</div>
+                  <div className="text-[13px] text-orange-600 font-bold italic uppercase">a.n {depo.nama_tujuan}</div>
+                  <div className="text-[13px] text-gray-500">{depo.rek_tujuan}</div>
                 </td>
                 {/* Kolom Bukti */}
                 <td className="p-2 border-r text-center">
@@ -231,11 +232,22 @@ export default function EditMemberPage() {
                   {new Date(depo.created_at).toLocaleString('id-ID')}
                 </td>
                 {/* Kolom Status */}
-                <td className="p-2 border-r text-center font-black">
-                  {depo.status === 'pending' && <span className="text-orange-500">PENDING</span>}
-                  {depo.status === 'terima' && <span className="text-emerald-500 font-bold uppercase">Selesai</span>}
-                  {depo.status === 'tolak' && <span className="text-red-500 font-bold uppercase">Ditolak</span>}
-                </td>
+<td className="p-2 border-r text-center font-black">
+  {/* Kondisi PENDING */}
+  {depo.status?.toLowerCase() === 'pending' && (
+    <span className="text-orange-500 bg-orange-50 px-2 py-1 rounded border border-orange-200">PENDING</span>
+  )}
+
+  {/* Kondisi SUKSES (Sesuaikan dengan 'approve' dari database Bos) */}
+  {(depo.status?.toLowerCase() === 'terima' || depo.status?.toLowerCase() === 'approve') && (
+    <span className="text-emerald-500 bg-emerald-50 px-2 py-1 rounded border border-emerald-200 uppercase font-bold">Selesai</span>
+  )}
+
+  {/* Kondisi TOLAK */}
+  {(depo.status?.toLowerCase() === 'tolak' || depo.status?.toLowerCase() === 'reject') && (
+    <span className="text-red-500 bg-red-50 px-2 py-1 rounded border border-red-200 uppercase font-bold">Ditolak</span>
+  )}
+</td>
                 {/* Kolom Admin Respon */}
                 <td className="p-3 text-center text-[10px] text-gray-400 italic font-medium uppercase">
                   {depo.status === 'pending' ? '-' : 'System / Admin'}
