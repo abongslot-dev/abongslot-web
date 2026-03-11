@@ -11,14 +11,12 @@ export default function AdminLayout({ children }) {
 
   // --- TAMBAHKAN FUNGSI INI AGAR TIDAK ERROR ---
 const handleLogout = () => {
-  const confirm = window.confirm("Yakin ingin keluar?");
-  if (confirm) {
-    // Hapus cookie dengan cara set expire ke masa lalu
-    document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-    
-    router.push("/login");
-    router.refresh(); 
-  }
+  // Hapus semua kemungkinan cookie
+  document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+  document.cookie = "isLoggedIn=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+  
+  // Pindah ke /login
+  window.location.href = "/login";
 };
   // --------------------------------------------
 
