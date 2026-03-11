@@ -2,20 +2,42 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, User, ShieldCheck } from "lucide-react";
+import { supabase } from "@/lib/supabase"; // <--- Pastikan path config supabase ini benar
 
 export default function AdmLogin() {
   const router = useRouter();
   const [formData, setFormData] = useState({ username: "", password: "" });
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Logic login sederhana
-    if (formData.username === "admin" && formData.password === "admin123") {
-      // Set session/cookie disini
+    setLoading(true);
+
+    try {
+      // AMBIL DATA DARI SUPABASE
+      // Kita cari di tabel 'admins' yang username & passwordnya cocok
+      const { data: admin, error } = await supabase
+        .from("admins") // <--- Sesuaikan dengan nama tabel Bos di Supabase
+        .select("*")
+        .eq("username", formData.username)
+        .eq("password", formData.password)
+        .single();
+
+      if (error || !admin) {
+        alert("Username atau Password Salah, Bos!");
+        setLoading(false);
+        return;
+      }
+
+      // Jika Berhasil: Set cookie/session
       document.cookie = "isLoggedIn=true; path=/";
       router.push("/dashboard");
-    } else {
-      alert("Salah Bos!");
+      
+    } catch (err) {
+      console.error(err);
+      alert("Terjadi kesalahan koneksi ke database");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -34,6 +56,7 @@ export default function AdmLogin() {
               <input 
                 type="text" 
                 placeholder="Username"
+                required
                 className="w-full bg-black/20 border border-white/10 rounded-lg py-2.5 pl-10 pr-4 text-white focus:outline-none focus:border-purple-500"
                 onChange={(e) => setFormData({...formData, username: e.target.value})}
               />
@@ -43,12 +66,16 @@ export default function AdmLogin() {
               <input 
                 type="password" 
                 placeholder="Password"
+                required
                 className="w-full bg-black/20 border border-white/10 rounded-lg py-2.5 pl-10 pr-4 text-white focus:outline-none focus:border-purple-500"
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
               />
             </div>
-            <button className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-lg mt-4 transition-all">
-              LOGIN SEKARANG
+            <button 
+              disabled={loading}
+              className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-lg mt-4 transition-all disabled:opacity-50"
+            >
+              {loading ? "MENGECEK DATA..." : "LOGIN SEKARANG"}
             </button>
           </form>
         </div>
