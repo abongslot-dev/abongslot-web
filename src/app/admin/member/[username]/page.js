@@ -67,6 +67,23 @@ export default function EditMemberPage() {
     }
   };
 
+
+
+
+ // Menghitung otomatis total deposit yang sukses
+const totalDepositOtomatis = dataDeposit
+  ? dataDeposit
+      .filter(d => d.status?.toLowerCase() === 'approve' || d.status?.toLowerCase() === 'terima')
+      .reduce((sum, item) => sum + Number(item.nominal || 0), 0)
+  : 0;
+
+// Menghitung otomatis total withdrawal yang sukses (jika ada dataWD)
+const totalWDOtomatis = dataWD
+  ? dataWD
+      .filter(w => w.status?.toLowerCase() === 'approve' || w.status?.toLowerCase() === 'terima')
+      .reduce((sum, item) => sum + Number(item.nominal || 0), 0)
+  : 0; 
+
   return (
     <div className="p-6 text-gray-800 bg-[#f4f6f9] min-h-screen font-sans">
       {/* Breadcrumb & Judul */}
@@ -143,25 +160,50 @@ export default function EditMemberPage() {
                     <option className="text-red-500">Suspended</option>
                   </select>
                 </div>
-
-                <div className="space-y-4">
-                  {[
-                    { label: "Waktu Register", value: "21 February 2026, 08:24:45" },
-                    { label: "Saldo", value: `Rp. ${new Intl.NumberFormat('id-ID').format(selectedUser?.saldo || 0)}` },
-                    { label: "Total Deposit", value: "Rp. 0" },
-                    { label: "Total Withdrawal", value: "Rp. 0" },
-                    { label: "Total TO Sekarang", value: "Rp. 0" },
-                    { label: "IP", value: "2400:9800:680:2a7e:1" },
-                  ].map((item, idx) => (
-                    <div key={idx}>
-                      <label className="text-[10px] font-bold text-gray-500 uppercase block mb-1">{item.label}</label>
-                      <div className="p-2 bg-[#eceff1] border border-gray-300 rounded text-[12px] font-bold text-gray-800">
-                        {item.value}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
+<div className="space-y-4">
+  {[
+    { 
+      label: "Waktu Register", 
+      value: selectedUser?.created_at 
+        ? new Date(selectedUser.created_at).toLocaleString('id-ID', { 
+            day: 'numeric', month: 'long', year: 'numeric', 
+            hour: '2-digit', minute: '2-digit', second: '2-digit' 
+          }) 
+        : "-" 
+    },
+    { 
+      label: "Saldo", 
+      value: `Rp. ${new Intl.NumberFormat('id-ID').format(selectedUser?.saldo || 0)}` 
+    },
+    { 
+      label: "Total Deposit", 
+      // PAKAI VARIABEL HASIL HITUNG OTOMATIS
+      value: `Rp. ${new Intl.NumberFormat('id-ID').format(totalDepositBerhasil)}` 
+    },
+    { 
+      label: "Total Withdrawal", 
+      // PAKAI VARIABEL HASIL HITUNG OTOMATIS
+      value: `Rp. ${new Intl.NumberFormat('id-ID').format(totalWDBerhasil)}` 
+    },
+    { 
+      label: "Total TO Sekarang", 
+      value: `Rp. ${new Intl.NumberFormat('id-ID').format(selectedUser?.total_to || 0)}` 
+    },
+    { 
+      label: "IP", 
+      value: selectedUser?.last_ip || "0.0.0.0" 
+    },
+  ].map((item, idx) => (
+    <div key={idx}>
+      <label className="text-[10px] font-bold text-gray-500 uppercase block mb-1">
+        {item.label}
+      </label>
+      <div className="p-2 bg-[#eceff1] border border-gray-300 rounded text-[12px] font-bold text-gray-800 shadow-sm">
+        {item.value}
+      </div>
+    </div>
+  ))}
+</div>
                 <div className="flex gap-2 pt-2">
                   <button className="bg-[#007bff] text-white px-4 py-2 rounded text-[12px] font-bold uppercase hover:bg-blue-700 transition-all shadow-sm">Simpan</button>
                   <button onClick={() => router.back()} className="bg-[#ffc107] text-black px-4 py-2 rounded text-[12px] font-bold uppercase hover:bg-yellow-500 transition-all shadow-sm">Kembali</button>
