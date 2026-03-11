@@ -21,6 +21,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
   const router = useRouter();
   const [openMenu, setOpenMenu] = useState("");
   const [loading, setLoading] = useState(true);
+  const [adminName, setAdminName] = useState("Loading...");
 
   // --- PENGECEKAN LOGIN SUPABASE ---
   useEffect(() => {
@@ -36,6 +37,21 @@ export default function Sidebar({ isOpen, setIsOpen }) {
     };
 
     checkUser();
+
+
+useEffect(() => {
+  const fetchUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      // Ambil nama dari metadata, jika kosong pakai email, jika kosong lagi pakai 'Admin'
+      const name = user.user_metadata?.full_name || user.email?.split('@')[0] || "Admin";
+      setAdminName(name);
+    }
+  };
+  fetchUser();
+}, []);
+
+
 
     // Opsional: Pantau jika user logout tiba-tiba
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
@@ -163,16 +179,19 @@ export default function Sidebar({ isOpen, setIsOpen }) {
       </nav>
 
       {/* FOOTER SECTION */}
-      <div className="p-4 bg-[#1e2225] text-[11px] border-t border-zinc-800">
-        {isOpen ? (
-          <>
-            <p className="opacity-40 uppercase mb-1">Login sebagai:</p>
-            <p className="text-white font-semibold italic uppercase">Admin Abongslot</p>
-          </>
-        ) : (
-          <div className="text-center">👤</div>
-        )}
-      </div>
+<div className="p-4 bg-[#1e2225] text-[11px] border-t border-zinc-800">
+  {isOpen ? (
+    <>
+      <p className="opacity-40 uppercase mb-1">Login sebagai:</p>
+      {/* Sekarang ini otomatis terupdate dari database */}
+      <p className="text-white font-semibold italic uppercase truncate">
+        {adminName}
+      </p>
+    </>
+  ) : (
+    <div className="text-center" title={adminName}>👤</div>
+  )}
+</div>
 
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar { width: 3px; }
