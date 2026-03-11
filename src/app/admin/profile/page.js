@@ -1,9 +1,11 @@
 "use client";
-import React, { useState, useEffect } from "react"; // Tambahkan useEffect di sini
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { LayoutGrid, Key, ArrowLeft, Save } from "lucide-react";
+import { LayoutGrid, Key, Save } from "lucide-react";
 import { createClient } from '@supabase/supabase-js';
 
+// PINDAHKAN INI KE LUAR FUNGSI (Paling Atas)
+// Supaya tidak dibuat ulang setiap kali komponen render (Penyebab utama Error #321)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL, 
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -11,26 +13,37 @@ const supabase = createClient(
 
 export default function ProfilPage() {
   const router = useRouter();
+  
+  // 1. Definisikan semua State di paling atas
   const [userEmail, setUserEmail] = useState("Memuat...");
   const [userStatus, setUserStatus] = useState("Mengecek...");
-  const [fullName, setFullName] = useState(""); // Untuk Nama
+  const [fullName, setFullName] = useState(""); 
   const [loading, setLoading] = useState(false);
 
+  // 2. Gunakan useEffect untuk tarik data saat pertama kali buka
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserEmail(user.email);
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        
+        if (error || !user) {
+          // Sesuaikan path login Bos, misal /adm/login atau /login
+          router.push("/login"); 
+          return;
+        }
+
+        setUserEmail(user.email || "");
         setFullName(user.user_metadata?.full_name || "Admin");
         setUserStatus(user.aud === "authenticated" ? "Aktif" : "Tidak Aktif");
-      } else {
-        router.push("/login"); // Tendang jika tidak ada user
+      } catch (err) {
+        console.error("Gagal mengambil data user:", err);
       }
     };
+
     fetchUser();
   }, [router]);
 
-  // --- FUNGSI UPDATE DATA (SIMPAN) ---
+  // 3. Fungsi Simpan Nama
   const handleSave = async () => {
     setLoading(true);
     const { error } = await supabase.auth.updateUser({
@@ -45,7 +58,7 @@ export default function ProfilPage() {
     setLoading(false);
   };
 
-  // --- FUNGSI UBAH PASSWORD ---
+  // 4. Fungsi Ubah Password
   const handleUpdatePassword = async () => {
     const newPass = prompt("Masukkan Password Baru (Min 6 Karakter):");
     if (!newPass) return;
@@ -63,14 +76,13 @@ export default function ProfilPage() {
 
   return (
     <div className="p-6 bg-[#f8f9fa] min-h-screen">
-      {/* Header Profile */}
       <div className="flex items-center gap-2 text-gray-500 mb-6">
         <LayoutGrid size={18} />
         <span className="text-sm font-semibold">Profil</span>
       </div>
 
       <div className="max-w-4xl bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+        <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
           <h3 className="text-sm font-bold text-gray-700">Informasi Akun</h3>
         </div>
 
@@ -82,7 +94,7 @@ export default function ProfilPage() {
               type="text" 
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full p-2.5 bg-white border border-gray-300 rounded text-sm focus:border-blue-500 focus:outline-none"
+              className="w-full p-2.5 bg-white border border-gray-300 rounded text-sm focus:border-blue-500 focus:outline-none text-zinc-800"
             />
           </div>
 
@@ -93,7 +105,7 @@ export default function ProfilPage() {
               type="email" 
               value={userEmail} 
               disabled 
-              className="w-full p-2.5 bg-[#eceff1] border border-gray-300 rounded text-sm text-gray-600 cursor-not-allowed"
+              className="w-full p-2.5 bg-[#eceff1] border border-gray-300 rounded text-sm text-gray-600 cursor-not-allowed font-medium"
             />
           </div>
 
@@ -104,11 +116,10 @@ export default function ProfilPage() {
               type="text" 
               value={userStatus} 
               disabled 
-              className="w-full p-2.5 bg-[#eceff1] border border-gray-300 rounded text-sm font-bold text-green-600 uppercase"
+              className={`w-full p-2.5 bg-[#eceff1] border border-gray-300 rounded text-sm font-bold uppercase ${userStatus === 'Aktif' ? 'text-green-600' : 'text-red-600'}`}
             />
           </div>
 
-          {/* Tombol Aksi */}
           <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-100">
             <button 
               onClick={handleSave}
