@@ -77,7 +77,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         <SidebarItem 
           icon={<LayoutDashboard size={16}/>} 
           label="Dashboard" 
-          href="/admin/dashboard" 
+          href="/admin" 
         />
 
         <SidebarItem 
