@@ -2,8 +2,10 @@
 import React, { useState } from "react";
 import Sidebar from "./Sidebar"; 
 import { User, ChevronDown, LogOut, UserCircle } from "lucide-react"; // Import icon pendukung
+import { useRouter } from "next/navigation"; // Gunakan next/navigation untuk App Router
 
 export default function AdminLayout({ children }) {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
   const [showProfile, setShowProfile] = useState(false); // State untuk dropdown profil
 
@@ -32,7 +34,7 @@ export default function AdminLayout({ children }) {
               </span>
             </div>
 
-            {/* User Dropdown */}
+{/* USER DROPDOWN SECTION */}
             <div className="relative">
               <button 
                 onClick={() => setShowProfile(!showProfile)}
@@ -41,33 +43,54 @@ export default function AdminLayout({ children }) {
                 <div className="bg-white/10 p-1 rounded-full border border-white/10">
                   <User size={18} className="text-gray-200" />
                 </div>
-                <ChevronDown size={14} className={`text-gray-500 transition-transform duration-300 ${showProfile ? 'rotate-180' : ''}`} />
+                <ChevronDown 
+                  size={14} 
+                  className={`text-gray-500 transition-transform duration-300 ${showProfile ? 'rotate-180' : ''}`} 
+                />
               </button>
 
               {/* Box Dropdown (Muncul saat diklik) */}
               {showProfile && (
                 <>
-                  {/* Overlay transparan untuk menutup menu saat klik di mana saja */}
-                  <div className="fixed inset-0 z-40" onClick={() => setShowProfile(false)}></div>
+                  {/* Overlay untuk nutup menu kalau klik di luar area menu */}
+                  <div 
+                    className="fixed inset-0 z-40 cursor-default" 
+                    onClick={() => setShowProfile(false)}
+                  ></div>
                   
                   <div className="absolute right-0 mt-3 w-44 bg-white rounded shadow-2xl border border-gray-200 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                    <button className="w-full flex items-center gap-3 px-4 py-3 text-[13px] text-gray-700 hover:bg-gray-50 border-b border-gray-100 transition-colors">
+                    
+                    {/* TOMBOL KE PROFIL */}
+                    <button 
+                      onClick={() => {
+                        router.push('/profil'); // PINDAH KE HALAMAN PROFIL
+                        setShowProfile(false);  // TUTUP MENU
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-[13px] text-gray-700 hover:bg-gray-50 border-b border-gray-100 transition-colors text-left"
+                    >
                       <UserCircle size={17} className="text-gray-400" />
                       Profil
                     </button>
-                    <button className="w-full flex items-center gap-3 px-4 py-3 text-[13px] text-red-600 hover:bg-red-50 transition-colors font-medium">
+
+                    {/* TOMBOL KELUAR */}
+                    <button 
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-[13px] text-red-600 hover:bg-red-50 transition-colors font-medium text-left"
+                    >
                       <LogOut size={17} />
                       Keluar
                     </button>
+
                   </div>
                 </>
               )}
             </div>
-            
+            {/* END USER DROPDOWN */}
+
           </div>
         </header>
 
-        {/* Isi Konten Halaman */}
+        {/* AREA KONTEN UTAMA */}
         <main className="flex-1 overflow-y-auto bg-white text-black">
           {children}
         </main>
