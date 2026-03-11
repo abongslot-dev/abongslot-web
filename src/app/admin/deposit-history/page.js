@@ -205,9 +205,9 @@ export default function RangkumanDepositPage() {
                   {/* Cek data processed_by dari database, kalau kosong baru tulis Admin */}
                   {item.processed_by || 'ADMIN'}
                 </span>
-                <span className="text-[8px] text-blue-600 font-bold leading-none mt-1">
-                  OFFICER
-                </span>
+                <span className="text-[8px] text-gray-400 leading-none mt-1 uppercase">
+        ID: {item.admin_id || '01'}
+      </span>
               </div>
             )}
           </td>
