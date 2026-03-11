@@ -263,18 +263,37 @@ const totalWD = dataWD?.length > 0
                 <td className="p-3 border-r text-right font-bold text-emerald-600">
                   {new Intl.NumberFormat('id-ID').format(depo.nominal)}
                 </td>
-                {/* Kolom Dari Rekening (Pengirim) */}
-                <td className="p-3 border-r text-center">
-                  <div className="font-bold uppercase text-blue-600">{depo.bank_pengirim}</div>
-                  <div className="text-[13px] text-gray-500">{depo.rek_pengirim}</div>
-                  <div className="text-[13px] text-gray-400 italic">a.n {depo.nama_pengirim}</div>
-                </td>
-                {/* Kolom Ke Rekening (Tujuan) */}
-                <td className="p-3 border-r text-center">
-                  <div className="font-bold">{depo.bank_tujuan}</div>
-                  <div className="text-[13px] text-orange-600 font-bold italic uppercase">a.n {depo.nama_tujuan}</div>
-                  <div className="text-[13px] text-gray-500">{depo.rek_tujuan}</div>
-                </td>
+ {/* Kolom Dari Rekening (Pengirim) */}
+<td className="p-3 border-r text-center whitespace-nowrap">
+  <div className="flex flex-col items-center justify-center">
+    {/* Baris 1: BANK - NOMOR */}
+    <div className="flex items-center gap-2 font-bold">
+      <span className="uppercase text-blue-600">{depo.bank_pengirim}</span>
+      <span className="text-gray-400">-</span>
+      <span className="text-gray-800 text-[13px] tracking-wide">{depo.rek_pengirim}</span>
+    </div>
+    {/* Baris 2: Atas Nama */}
+    <div className="text-[11px] text-gray-400 italic font-medium uppercase mt-0.5">
+      a.n {depo.nama_pengirim}
+    </div>
+  </div>
+</td>
+
+{/* Kolom Ke Rekening (Tujuan) */}
+<td className="p-3 border-r text-center whitespace-nowrap">
+  <div className="flex flex-col items-center justify-center">
+    {/* Baris 1: BANK - NOMOR */}
+    <div className="flex items-center gap-2 font-bold">
+      <span className="uppercase text-orange-600">{depo.bank_tujuan}</span>
+      <span className="text-gray-400">-</span>
+      <span className="text-gray-800 text-[13px] tracking-wide">{depo.rek_tujuan}</span>
+    </div>
+    {/* Baris 2: Atas Nama */}
+    <div className="text-[11px] text-gray-500 italic font-bold uppercase mt-0.5">
+      a.n {depo.nama_tujuan}
+    </div>
+  </div>
+</td>
                 {/* Kolom Bukti */}
                 <td className="p-2 border-r text-center">
                   <button className="text-blue-500 hover:text-blue-700 underline text-[10px]">Lihat</button>
