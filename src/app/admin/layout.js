@@ -64,7 +64,7 @@ export default function AdminLayout({ children }) {
                     
                     <button 
                       onClick={() => {
-                        router.push('/profil'); 
+                        router.push('/profile'); 
                         setShowProfile(false);
                       }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-[13px] text-gray-700 hover:bg-gray-50 border-b border-gray-100 transition-colors text-left"
