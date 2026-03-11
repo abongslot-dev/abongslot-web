@@ -2,7 +2,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Save, Database, History, Wallet, User as UserIcon } from "lucide-react";
-import { supabase } from "../../../../lib/supabase"; // 1. Senjatanya di-import dulu
+import { createClient } from '@supabase/supabase-js';
+
+// Inisialisasi langsung di sini agar proses Build tidak bingung mencari file
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL, 
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 export default function EditMemberPage() {
   const params = useParams();
