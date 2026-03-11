@@ -112,7 +112,8 @@ export default function DepositBaruPage({ onUserClick }) {
           status: actionStatus,
           username: user,
           nominal: amount,
-          processed_by: currentAdminName // 3. KIRIM NAMA ADMIN KE API
+          processed_by: currentAdminName ,// 3. KIRIM NAMA ADMIN KE API
+          admin_id: currentAdminName.slice(0, 3).toUpperCase() // ID Otomatis (BUD)
         }),
       });
 
