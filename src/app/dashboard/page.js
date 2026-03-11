@@ -276,7 +276,10 @@ const handleLogout = () => {
 {/* Kotak Saldo */}
 <div className="bg-[#2d0055] border border-[#D4AF37]/40 rounded-2xl p-5 shadow-inner">
   <p className="text-[10px] text-gray-400 uppercase font-black tracking-wider mb-1">
-  Selamat Datang, <span className="text-white  font-bold">{username || "Guest"}</span>
+  Selamat Datang, <span className="text-white font-bold">
+    {/* Panggil dari data objek user, bukan dari params/url */}
+    {selectedUser?.username || username || "Guest"}
+  </span>
 </p>
   
   <div className="flex items-center gap-3 mb-5">
