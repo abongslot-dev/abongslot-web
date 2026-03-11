@@ -2,7 +2,14 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, User, ShieldCheck } from "lucide-react";
-import { supabase } from "@/lib/supabase"; // <--- Pastikan path config supabase ini benar
+import { createClient } from '@supabase/supabase-js';
+
+// Inisialisasi langsung di sini agar proses Build tidak bingung mencari file
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL, 
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
 
 export default function AdmLogin() {
   const router = useRouter();
