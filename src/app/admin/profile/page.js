@@ -24,7 +24,7 @@ export default function ProfilPage() {
         setFullName(user.user_metadata?.full_name || "Admin");
         setUserStatus(user.aud === "authenticated" ? "Aktif" : "Tidak Aktif");
       } else {
-        router.push("/adm/login"); // Tendang jika tidak ada user
+        router.push("/login"); // Tendang jika tidak ada user
       }
     };
     fetchUser();
