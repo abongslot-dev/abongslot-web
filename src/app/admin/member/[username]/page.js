@@ -363,12 +363,25 @@ const totalWD = dataWD?.length > 0
                 </td>
 
                 {/* Kolom Tujuan (Rekening Member) */}
-                <td className="p-3 border-r text-center">
-                  <div className="font-bold uppercase text-blue-600">{wd.nama_bank || selectedUser?.nama_bank}</div>
-                  <div className="text-[13px] text-gray-800 font-bold">{wd.nomor_rekening || selectedUser?.nomor_rekening}</div>
-                  <div className="text-[13px] text-gray-400 italic font-medium uppercase">a.n {wd.nama_rekening || selectedUser?.nama_rekening}</div>
-                </td>
+                <td className="p-3 border-r text-center whitespace-nowrap">
+  <div className="flex flex-col items-center justify-center">
+    {/* Baris 1: BANK - NOMOR REKENING */}
+    <div className="flex items-center gap-2 font-bold">
+      <span className="uppercase text-blue-600">
+        {wd.nama_bank || selectedUser?.nama_bank}
+      </span>
+      <span className="text-gray-400">-</span>
+      <span className="text-gray-800 tracking-wide text-[13px]">
+        {wd.nomor_rekening || selectedUser?.nomor_rekening}
+      </span>
+    </div>
 
+    {/* Baris 2: Atas Nama */}
+    <div className="text-[11px] text-gray-400 italic font-medium mt-0.5 uppercase">
+      a.n {wd.nama_rekening || selectedUser?.nama_rekening}
+    </div>
+  </div>
+</td>
                 {/* Kolom Waktu */}
                 <td className="p-3 border-r text-center text-gray-500 italic">
                   {new Date(wd.created_at).toLocaleString('id-ID')}
