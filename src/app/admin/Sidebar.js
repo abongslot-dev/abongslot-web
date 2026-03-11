@@ -2,11 +2,19 @@
 import React, { useState, useEffect } from "react"; // Tambahkan useEffect
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation"; // Tambahkan useRouter
-import { supabase } from "@/lib/supabase"; // Import supabase config Bos
+import { createClient } from '@supabase/supabase-js';
 import { 
   LayoutDashboard, Users, ArrowRightLeft, Gift, 
   Gamepad2, FileBarChart, Landmark, Mail, ChevronDown 
 } from "lucide-react";
+
+
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL, 
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
 
 export default function Sidebar({ isOpen, setIsOpen }) {
   const pathname = usePathname();
