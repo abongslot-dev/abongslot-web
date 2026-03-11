@@ -8,6 +8,7 @@ export default function RangkumanDepositPage() {
   const [data, setData] = useState([]);
   const [totals, setTotals] = useState({ totalNominal: 0, totalBonus: 0, grandTotal: 0 });
   const [loading, setLoading] = useState(true);
+  const [currentAdminName, setCurrentAdminName] = useState("");
 
   // --- LOGIKA PAGINATION ---
   const [currentPage, setCurrentPage] = useState(1);
@@ -137,21 +138,20 @@ export default function RangkumanDepositPage() {
                   <th className="p-3 text-center">Admin Respon</th>
                 </tr>
               </thead>
-             <tbody className="divide-y divide-gray-100">
+<tbody className="divide-y divide-gray-100">
   {loading ? (
-    /* 1. UPDATE COLSPAN JADI 10 */
-    <tr><td colSpan="10" className="p-10 text-center italic">Memuat data histori...</td></tr>
+    <tr><td colSpan="10" className="p-10 text-center italic text-gray-400">Memuat data histori...</td></tr>
   ) : data.length === 0 ? (
-    /* 2. UPDATE COLSPAN JADI 10 */
     <tr><td colSpan="10" className="p-10 text-center text-gray-400 italic">Riwayat deposit tidak ditemukan.</td></tr>
   ) : (
     currentItems.map((item, i) => {
       const statusText = item.status ? String(item.status).toUpperCase().trim() : "PENDING";
       const isTerima = ['SUCCESS', 'APPROVED', 'SUKSES', 'APPROVE'].includes(statusText);
       const isTolak = ['REJECT', 'REJECTED', 'TOLAK'].includes(statusText);
+      const isPending = !isTerima && !isTolak;
 
       return (
-        <tr key={item.id} className="hover:bg-gray-50/80 transition-colors">
+        <tr key={item.id} className="hover:bg-gray-50/80 transition-colors border-b border-gray-100">
           <td className="p-3 border-r text-center text-gray-400 font-medium">{indexOfFirstItem + i + 1}.</td>
           
           <td 
@@ -170,19 +170,23 @@ export default function RangkumanDepositPage() {
           <td className="p-3 border-r text-right font-black text-blue-800">
             {Number(item.total_deposit || (Number(item.nominal || 0) + Number(item.bonus || 0))).toLocaleString('id-ID')}
           </td>
+          
           <td className="p-3 border-r text-[10px] leading-tight text-gray-600 uppercase">
             <span className="font-bold">{item.bank_pengirim || item.bank || "-"}</span><br/>
             {item.rek_pengirim || item.nomor_rekening || "-"} <br/>
             <span className="italic font-normal normal-case text-gray-400 text-[9px]">a.n {item.nama_pengirim || item.nama_rekening || "-"}</span>
           </td>
+          
           <td className="p-3 border-r text-[10px] leading-tight text-blue-900 uppercase">
             <span className="font-bold">{item.bank_tujuan || "BCA"}</span><br/>
             {item.rek_tujuan || "123456789"} <br/>
             <span className="italic font-normal normal-case text-gray-500 text-[9px]">a.n {item.nama_tujuan || "ADMIN"}</span>
           </td>
+
           <td className="p-3 border-r text-center text-gray-500 text-[10px]">
             {item.processed_at ? new Date(item.processed_at).toLocaleString('id-ID') : (item.created_at ? new Date(item.created_at).toLocaleString('id-ID') : "-")}
           </td>
+
           <td className="p-3 border-r text-center">
              <span className={`px-2 py-0.5 rounded-[3px] text-[9px] font-bold text-white uppercase shadow-sm inline-block min-w-[65px] ${
                isTerima ? 'bg-[#28a745]' : isTolak ? 'bg-[#dc3545]' : 'bg-[#ffc107] text-black'
@@ -191,17 +195,18 @@ export default function RangkumanDepositPage() {
              </span>
           </td>
 
-          {/* 3. TAMBAHKAN KOLOM ADMIN RESPON DI SINI */}
-          <td className="p-3 text-center">
-            {item.status === 'pending' || !item.status ? (
+          {/* KOLOM ADMIN RESPON - LOGIKA CEK NAMA */}
+          <td className="p-3 text-center bg-gray-50/30">
+            {isPending ? (
               <span className="text-gray-300 italic text-[10px]">Menunggu...</span>
             ) : (
-              <div className="flex flex-col items-center">
-                <span className="text-zinc-800 font-bold text-[10px] uppercase italic">
-                  {item.processed_by || 'Admin'}
+              <div className="flex flex-col items-center justify-center">
+                <span className="text-zinc-800 font-black text-[10px] uppercase italic leading-tight">
+                  {/* Cek data processed_by dari database, kalau kosong baru tulis Admin */}
+                  {item.processed_by || 'ADMIN'}
                 </span>
-                <span className="text-[8px] text-gray-400 leading-none">
-                  ID: {item.admin_id || '01'}
+                <span className="text-[8px] text-blue-600 font-bold leading-none mt-1">
+                  OFFICER
                 </span>
               </div>
             )}
