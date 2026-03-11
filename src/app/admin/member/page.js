@@ -94,58 +94,86 @@ export default function MemberPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-[11px] border-collapse">
             <thead>
-              <tr className="border-b bg-gray-50 text-gray-800 font-bold uppercase tracking-tighter">
-                <th className="p-2 border-r text-center w-10">No.</th>
-                <th className="p-2 border-r">Username</th>
-                <th className="p-2 border-r text-center">Rekening</th>
-                <th className="p-2 border-r text-right">Saldo</th>
-                <th className="p-2 border-r text-center">Status</th>
-                <th className="p-2 text-center">Action</th>
-              </tr>
-            </thead>
+  <tr className="border-b bg-gray-50 text-gray-800 font-bold uppercase tracking-tighter text-[11px]">
+    <th className="p-2 border-r text-center w-10">No.</th>
+    <th className="p-2 border-r text-left">Username</th>
+    {/* Judul Kolom Baru */}
+    <th className="p-2 border-r text-center">Rekening</th>
+     <th className="p-2 border-r text-center">Upline</th>
+    <th className="p-2 border-r text-center">Kode Reff</th>
+    <th className="p-2 border-r text-center">Status</th>
+    <th className="p-2 border-r text-right">Saldo</th>
+    <th className="p-2 text-center">Action</th>
+  </tr>
+</thead>
             <tbody>
-              {loading ? (
-                <tr><td colSpan="6" className="p-4 text-center">Loading Data...</td></tr>
-              ) : members.map((m, index) => (
-                <tr key={m.id} className="border-b hover:bg-gray-50 text-black">
-                  <td className="p-2 border-r text-center">{index + 1}.</td>
-                  <td 
-                    className="p-2 border-r text-blue-600 font-bold cursor-pointer hover:underline"
-                    // NAVIGASI KE HALAMAN EDIT TERPISAH
-                    onClick={() => router.push(`/admin/member/${m.username}`)}
-                  >
-                    {m.username}
-                  </td>
-                  <td className="p-2 border-r text-[10px] font-bold uppercase text-center italic">
-                    {m.nama_bank} - {m.nomor_rekening}
-                  </td>
-                  <td className="p-2 border-r text-right font-mono font-bold text-emerald-600">
-                    {new Intl.NumberFormat('id-ID').format(m.saldo)}
-                  </td>
-                  <td className="p-2 border-r text-center">
-                    <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold border border-emerald-200">
-                      Aktif
-                    </span>
-                  </td>
-                  <td className="p-2 flex gap-1 justify-center">
-                    <button 
-                      onClick={() => { setSelectedUser(m); setIsModalOpen(true); }}
-                      className="bg-[#ffc107] p-1.5 rounded shadow-sm hover:bg-yellow-500"
-                      title="Ganti Password"
-                    >
-                      <Key size={14} />
-                    </button>
-                    <button 
-  onClick={() => router.push(`/admin/member/${m.username}`)} // Navigasi ke halaman edit
-  className="bg-[#28a745] text-white p-1.5 rounded shadow-sm hover:bg-green-600"
-  title="Edit Member"
->
-  <Landmark size={14}/>
-</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+  {loading ? (
+    <tr><td colSpan="8" className="p-4 text-center">Loading Data...</td></tr>
+  ) : members.map((m, index) => (
+    <tr key={m.id} className="border-b hover:bg-gray-50 text-black text-[12px]">
+      <td className="p-2 border-r text-center">{index + 1}.</td>
+      
+      {/* Kolom Username */}
+      <td 
+        className="p-2 border-r text-blue-600 font-bold cursor-pointer hover:underline"
+        onClick={() => router.push(`/admin/member/${m.username}`)}
+      >
+        {m.username}
+      </td>
+
+      {/* KOLOM BARU: UPLINE */}
+      <td className="p-2 border-r text-center text-gray-500 uppercase">
+        {m.upline || <span className="text-gray-300 italic">-</span>}
+      </td>
+
+      {/* KOLOM BARU: KODE REFERRAL */}
+      <td className="p-2 border-r text-center font-mono font-bold text-purple-600">
+        {m.kode_referral || <span className="text-gray-300 font-normal">-</span>}
+      </td>
+
+      {/* Kolom Rekening */}
+      <td className="p-2 border-r text-[10px] font-bold uppercase text-center italic leading-tight">
+        <div className="text-blue-700">{m.nama_bank}</div>
+        <div>{m.nomor_rekening}</div>
+        <div className="text-gray-400 font-normal">a.n {m.nama_rekening}</div>
+      </td>
+
+      {/* Kolom Saldo */}
+      <td className="p-2 border-r text-right font-mono font-bold text-emerald-600">
+        {new Intl.NumberFormat('id-ID').format(m.saldo)}
+      </td>
+
+      {/* Kolom Status */}
+      <td className="p-2 border-r text-center">
+        <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
+          m.status === 'AKTIF' 
+          ? "bg-emerald-100 text-emerald-700 border-emerald-200" 
+          : "bg-red-100 text-red-700 border-red-200"
+        }`}>
+          {m.status || 'AKTIF'}
+        </span>
+      </td>
+
+      {/* Kolom Action */}
+      <td className="p-2 flex gap-1 justify-center">
+        <button 
+          onClick={() => { setSelectedUser(m); setIsModalOpen(true); }}
+          className="bg-[#ffc107] p-1.5 rounded shadow-sm hover:bg-yellow-500"
+          title="Ganti Password"
+        >
+          <Key size={14} />
+        </button>
+        <button 
+          onClick={() => router.push(`/admin/member/${m.username}`)}
+          className="bg-[#28a745] text-white p-1.5 rounded shadow-sm hover:bg-green-600"
+          title="Edit Member"
+        >
+          <Landmark size={14}/>
+        </button>
+      </td>
+    </tr>
+  ))}
+</tbody>
           </table>
         </div>
       </div>
