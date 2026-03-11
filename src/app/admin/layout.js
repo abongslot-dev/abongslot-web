@@ -80,7 +80,7 @@ export default function AdminLayout({ children }) {
                   <div className="absolute right-0 mt-3 w-44 bg-white rounded shadow-2xl border border-gray-200 z-50 overflow-hidden">
                     <button 
                       onClick={() => {
-                        router.push('/admin/profil'); // Sesuaikan dengan route profil Bos
+                        router.push('/admin/profile'); // Sesuaikan dengan route profil Bos
                         setShowProfile(false);
                       }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-[13px] text-gray-700 hover:bg-gray-50 border-b border-gray-100 text-left"
