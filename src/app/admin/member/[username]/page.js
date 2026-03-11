@@ -71,18 +71,18 @@ export default function EditMemberPage() {
 
 
  // Menghitung otomatis total deposit yang sukses
-const totalDepositOtomatis = dataDeposit
+const totalDepo = dataDeposit
   ? dataDeposit
       .filter(d => d.status?.toLowerCase() === 'approve' || d.status?.toLowerCase() === 'terima')
       .reduce((sum, item) => sum + Number(item.nominal || 0), 0)
   : 0;
 
-// Menghitung otomatis total withdrawal yang sukses (jika ada dataWD)
-const totalWDOtomatis = dataWD
+// Menghitung otomatis total withdrawal yang sukses
+const totalWD = dataWD
   ? dataWD
       .filter(w => w.status?.toLowerCase() === 'approve' || w.status?.toLowerCase() === 'terima')
       .reduce((sum, item) => sum + Number(item.nominal || 0), 0)
-  : 0; 
+  : 0;
 
   return (
     <div className="p-6 text-gray-800 bg-[#f4f6f9] min-h-screen font-sans">
@@ -160,7 +160,7 @@ const totalWDOtomatis = dataWD
                     <option className="text-red-500">Suspended</option>
                   </select>
                 </div>
-<div className="space-y-4">
+<div className="space-y-4 mt-4">
   {[
     { 
       label: "Waktu Register", 
@@ -177,13 +177,13 @@ const totalWDOtomatis = dataWD
     },
     { 
       label: "Total Deposit", 
-      // PAKAI VARIABEL HASIL HITUNG OTOMATIS
-      value: `Rp. ${new Intl.NumberFormat('id-ID').format(totalDepositBerhasil)}` 
+      // SEKARANG SUDAH SINKRON DENGAN VARIABEL DI ATAS
+      value: `Rp. ${new Intl.NumberFormat('id-ID').format(totalDepo)}` 
     },
     { 
       label: "Total Withdrawal", 
-      // PAKAI VARIABEL HASIL HITUNG OTOMATIS
-      value: `Rp. ${new Intl.NumberFormat('id-ID').format(totalWDBerhasil)}` 
+      // SEKARANG SUDAH SINKRON DENGAN VARIABEL DI ATAS
+      value: `Rp. ${new Intl.NumberFormat('id-ID').format(totalWD)}` 
     },
     { 
       label: "Total TO Sekarang", 
