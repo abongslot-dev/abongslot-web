@@ -15,7 +15,13 @@ import {
   XCircle 
 } from "lucide-react";
 
+import { createClient } from '@supabase/supabase-js'; // <--- 1. WAJIB ADA INI
 
+// --- 2. DEFINISIKAN SUPABASE DI LUAR COMPONENT ---
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL, 
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 // --- Komponen Pembantu Filter untuk Deposit ---
 const FilterBox = () => (
@@ -58,6 +64,7 @@ export default function DepositBaruPage({ onUserClick }) {
       const indexOfFirstItem = indexOfLastItem - itemsPerPage;
       const currentItems = deposits.slice(indexOfFirstItem, indexOfLastItem);
       const totalPages = Math.ceil(deposits.length / itemsPerPage);
+      const [currentAdminName, setCurrentAdminName] = useState("Admin");
     
       const paginate = (pageNumber) => setCurrentPage(pageNumber);
     
