@@ -93,68 +93,70 @@ export default function MemberPage() {
       <div className="bg-white border rounded shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-[11px] border-collapse">
-            <thead>
+    <thead>
   <tr className="border-b bg-gray-50 text-gray-800 font-bold uppercase tracking-tighter text-[11px]">
     <th className="p-2 border-r text-center w-10">No.</th>
     <th className="p-2 border-r text-left">Username</th>
-    {/* Judul Kolom Baru */}
     <th className="p-2 border-r text-center">Rekening</th>
-     <th className="p-2 border-r text-center">Upline</th>
-    <th className="p-2 border-r text-center">Kode Reff</th>
+    <th className="p-2 border-r text-center">Upline</th>
+    <th className="p-2 border-r text-center">Kode Referral</th>
     <th className="p-2 border-r text-center">Status</th>
     <th className="p-2 border-r text-right">Saldo</th>
+    <th className="p-2 border-r text-right">Total Deposit</th>
     <th className="p-2 text-center">Action</th>
   </tr>
 </thead>
             <tbody>
   {loading ? (
-    <tr><td colSpan="8" className="p-4 text-center">Loading Data...</td></tr>
+    <tr>
+      {/* Colspan disesuaikan dengan jumlah kolom (9) agar loadingnya full ke kanan */}
+      <td colSpan="9" className="p-4 text-center">Loading Data...</td>
+    </tr>
   ) : members.map((m, index) => (
-    <tr key={m.id} className="border-b hover:bg-gray-50 text-black text-[12px]">
+    <tr key={m.id} className="border-b hover:bg-gray-50 text-black">
       <td className="p-2 border-r text-center">{index + 1}.</td>
       
-      {/* Kolom Username */}
       <td 
         className="p-2 border-r text-blue-600 font-bold cursor-pointer hover:underline"
+        // NAVIGASI KE HALAMAN EDIT TERPISAH
         onClick={() => router.push(`/admin/member/${m.username}`)}
       >
         {m.username}
       </td>
 
-      {/* KOLOM BARU: UPLINE */}
-      <td className="p-2 border-r text-center text-gray-500 uppercase">
-        {m.upline || <span className="text-gray-300 italic">-</span>}
+      {/* 1. Kolom Rekening (Sesuai Gambar) */}
+      <td className="p-2 border-r text-[10px] font-bold uppercase text-center italic">
+        {m.nama_bank} - {m.nomor_rekening} - {m.nama_rekening}
       </td>
 
-      {/* KOLOM BARU: KODE REFERRAL */}
-      <td className="p-2 border-r text-center font-mono font-bold text-purple-600">
-        {m.kode_referral || <span className="text-gray-300 font-normal">-</span>}
+      {/* 2. Kolom Upline (Data Baru) */}
+      <td className="p-2 border-r text-center text-[11px]">
+        {m.upline || <span className="text-gray-300">-</span>}
       </td>
 
-      {/* Kolom Rekening */}
-      <td className="p-2 border-r text-[10px] font-bold uppercase text-center italic leading-tight">
-        <div className="text-blue-700">{m.nama_bank}</div>
-        <div>{m.nomor_rekening}</div>
-        <div className="text-gray-400 font-normal">a.n {m.nama_rekening}</div>
+      {/* 3. Kolom Kode Referral (Data Baru) */}
+      <td className="p-2 border-r text-center text-[11px] font-mono text-gray-600">
+        {m.kode_referral || <span className="text-gray-300">-</span>}
       </td>
 
-      {/* Kolom Saldo */}
-      <td className="p-2 border-r text-right font-mono font-bold text-emerald-600">
-        {new Intl.NumberFormat('id-ID').format(m.saldo)}
-      </td>
-
-      {/* Kolom Status */}
+      {/* 4. Kolom Status (Aktif) */}
       <td className="p-2 border-r text-center">
-        <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
-          m.status === 'AKTIF' 
-          ? "bg-emerald-100 text-emerald-700 border-emerald-200" 
-          : "bg-red-100 text-red-700 border-red-200"
-        }`}>
-          {m.status || 'AKTIF'}
+        <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold border border-emerald-200 inline-flex items-center gap-1">
+          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div> Aktif
         </span>
       </td>
 
-      {/* Kolom Action */}
+      {/* 5. Kolom Saldo */}
+      <td className="p-2 border-r text-right font-mono font-bold text-gray-700">
+        {new Intl.NumberFormat('id-ID').format(m.saldo)}
+      </td>
+
+      {/* 6. Kolom Total Deposit (Data Baru - Menyesuaikan Gambar) */}
+      <td className="p-2 border-r text-right font-mono font-bold text-blue-600">
+        {new Intl.NumberFormat('id-ID').format(m.total_deposit || 0)}
+      </td>
+
+      {/* 7. Kolom Action */}
       <td className="p-2 flex gap-1 justify-center">
         <button 
           onClick={() => { setSelectedUser(m); setIsModalOpen(true); }}
@@ -164,7 +166,7 @@ export default function MemberPage() {
           <Key size={14} />
         </button>
         <button 
-          onClick={() => router.push(`/admin/member/${m.username}`)}
+          onClick={() => router.push(`/admin/member/${m.username}`)} // Navigasi ke halaman edit
           className="bg-[#28a745] text-white p-1.5 rounded shadow-sm hover:bg-green-600"
           title="Edit Member"
         >
