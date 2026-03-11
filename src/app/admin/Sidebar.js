@@ -1,20 +1,17 @@
 "use client";
-import React, { useState, useEffect } from "react"; // Tambahkan useEffect
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation"; // Tambahkan useRouter
+import { usePathname, useRouter } from "next/navigation";
 import { createClient } from '@supabase/supabase-js';
 import { 
   LayoutDashboard, Users, ArrowRightLeft, Gift, 
   Gamepad2, FileBarChart, Landmark, Mail, ChevronDown 
 } from "lucide-react";
 
-
-
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL, 
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
-
 
 export default function Sidebar({ isOpen, setIsOpen }) {
   const pathname = usePathname();
@@ -22,38 +19,30 @@ export default function Sidebar({ isOpen, setIsOpen }) {
   const [openMenu, setOpenMenu] = useState("");
   const [loading, setLoading] = useState(true);
   const [adminName, setAdminName] = useState("Loading...");
+  const [mounted, setMounted] = useState(false); // Tambahan untuk anti-error
 
-  // --- PENGECEKAN LOGIN SUPABASE ---
   useEffect(() => {
+    setMounted(true); // Tandai kalau sudah di browser
+
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        // Jika tidak ada session, tendang ke login
         router.push("/adm/login");
       } else {
+        // Ambil data user jika session ada
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const name = user.user_metadata?.full_name || user.email?.split('@')[0] || "Admin";
+          setAdminName(name);
+        }
         setLoading(false);
       }
     };
 
     checkUser();
 
-
-useEffect(() => {
-  const fetchUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      // Ambil nama dari metadata, jika kosong pakai email, jika kosong lagi pakai 'Admin'
-      const name = user.user_metadata?.full_name || user.email?.split('@')[0] || "Admin";
-      setAdminName(name);
-    }
-  };
-  fetchUser();
-}, []);
-
-
-
-    // Opsional: Pantau jika user logout tiba-tiba
+    // Pantau jika user logout
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || !session) {
         router.push("/adm/login");
@@ -65,8 +54,10 @@ useEffect(() => {
     };
   }, [router]);
 
-  // Jika sedang ngecek login, sidebar jangan nampil dulu biar gak kedip (flicker)
-  if (loading) return <div className="w-64 bg-[#1a0033]"></div>;
+  // JIKA BELUM MOUNTED ATAU MASIH LOADING, TAMPILKAN PLACEHOLDER
+  if (!mounted || loading) {
+    return <aside className={`bg-[#1a0033] h-screen border-r border-white/5 ${isOpen ? 'w-64' : 'w-20'}`}></aside>;
+  }
 
   // --- KOMPONEN SIDEBAR ITEM ---
   const SidebarItem = ({ icon, label, hasChild, menuKey, href, children }) => {
@@ -125,43 +116,21 @@ useEffect(() => {
       
       {/* NAVIGATION SECTION */}
       <nav className="mt-2 flex-1 overflow-y-auto custom-scrollbar">
+        <SidebarItem icon={<LayoutDashboard size={16}/>} label="Dashboard" href="/admin" />
         
-        <SidebarItem 
-          icon={<LayoutDashboard size={16}/>} 
-          label="Dashboard" 
-          href="/admin" 
-        />
-
-        <SidebarItem 
-          icon={<ArrowRightLeft size={16}/>} 
-          label="Transaksi" 
-          hasChild 
-          menuKey="transaksi"
-        >
+        <SidebarItem icon={<ArrowRightLeft size={16}/>} label="Transaksi" hasChild menuKey="transaksi">
           <SubMenuItem label="Deposit Baru" href="/admin/deposit" />
           <SubMenuItem label="Withdrawal Baru" href="/admin/withdrawal" />
           <SubMenuItem label="Rangkuman Deposit" href="/admin/deposit-history" />
           <SubMenuItem label="Rangkuman Withdrawal" href="/admin/withdrawal-history" />
-          <SubMenuItem label="Penyesuaian Saldo" href="/admin/penyesuaian-saldo" />
         </SidebarItem>
 
-        <SidebarItem 
-          icon={<Users size={16}/>} 
-          label="Member" 
-          hasChild 
-          menuKey="member"
-        >
+        <SidebarItem icon={<Users size={16}/>} label="Member" hasChild menuKey="member">
           <SubMenuItem label="Daftar Member" href="/admin/member" />
           <SubMenuItem label="Member Online" href="/admin/member/online" />
-          <SubMenuItem label="Lihat Ip" href="/admin/member/ip" />
         </SidebarItem>
 
-        <SidebarItem 
-          icon={<Gift size={16}/>} 
-          label="Promosi" 
-          hasChild 
-          menuKey="promo"
-        >
+        <SidebarItem icon={<Gift size={16}/>} label="Promosi" hasChild menuKey="promo">
           <SubMenuItem label="Promosi Deposit" href="/admin/promosi-deposit" />
           <SubMenuItem label="Promosi Cashback" href="/admin/promosi-cashback" />
         </SidebarItem>
@@ -175,23 +144,21 @@ useEffect(() => {
             <SubMenuItem label="Laporan Game Member" href="/admin/laporan/game-member" />
             <SubMenuItem label="Laporan Jurnal" href="/admin/laporan/jurnal" />
         </SidebarItem>
-
       </nav>
 
       {/* FOOTER SECTION */}
-<div className="p-4 bg-[#1e2225] text-[11px] border-t border-zinc-800">
-  {isOpen ? (
-    <>
-      <p className="opacity-40 uppercase mb-1">Login sebagai:</p>
-      {/* Sekarang ini otomatis terupdate dari database */}
-      <p className="text-white font-semibold italic uppercase truncate">
-        {adminName}
-      </p>
-    </>
-  ) : (
-    <div className="text-center" title={adminName}>👤</div>
-  )}
-</div>
+      <div className="p-4 bg-[#1e2225] text-[11px] border-t border-zinc-800">
+        {isOpen ? (
+          <>
+            <p className="opacity-40 uppercase mb-1 text-[9px]">Login sebagai:</p>
+            <p className="text-white font-semibold italic uppercase truncate">
+              {adminName}
+            </p>
+          </>
+        ) : (
+          <div className="text-center" title={adminName}>👤</div>
+        )}
+      </div>
 
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar { width: 3px; }
