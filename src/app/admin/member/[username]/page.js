@@ -51,6 +51,11 @@ useEffect(() => {
         .eq("username", selectedUser.username);
       if (depoData) setDataDeposit(depoData);
 
+
+      // Ambil Depo Auto (QRIS)
+      const { data: autoData } = await supabase.from("deposits_auto").select("*").eq("username", selectedUser.username);
+      if (autoData) setDataDepositAuto(autoData); // <--- ISI STATE-NYA DI SINI
+      
       // Tarik Data Withdrawal
       const { data: wdData } = await supabase
         .from("withdrawals")
