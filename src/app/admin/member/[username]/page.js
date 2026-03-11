@@ -355,6 +355,115 @@ const totalWD = dataWD?.length > 0
 
 
 
+
+
+
+
+{(tabAktif === "Deposit Auto") && (
+  <div className="space-y-4">
+    <div className="overflow-x-auto border rounded border-gray-200 shadow-sm bg-white">
+      <table className="w-full text-left text-[11px] border-collapse">
+        <thead className="bg-gray-50 border-b text-gray-700 font-bold uppercase">
+          <tr>
+            <th className="p-2 border-r text-center w-10">No.</th>
+            <th className="p-3 border-r text-right">Total</th>
+            <th className="p-3 border-r">Tujuan</th>
+            <th className="p-3 border-r">Ref ID</th>
+            <th className="p-3 border-r text-center">Waktu Deposit</th>
+            <th className="p-3 border-r text-center">Waktu Respon</th>
+            <th className="p-3 text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {dataDepositAuto && dataDepositAuto.length > 0 ? (
+            dataDepositAuto.map((item, index) => (
+              <tr key={item.id || index} className="border-b hover:bg-gray-50 transition-colors">
+                <td className="p-2 border-r text-center text-gray-400">{index + 1}.</td>
+                
+                {/* Total Nominal */}
+                <td className="p-3 border-r text-right font-bold text-gray-800">
+                  {new Intl.NumberFormat('id-ID').format(item.nominal)}
+                </td>
+
+                {/* Tujuan (Misal: QRIS) */}
+                <td className="p-3 border-r font-medium text-gray-700 uppercase">
+                  {item.tujuan || "QRIS"}
+                </td>
+
+                {/* Ref ID (Penting untuk lacak mutasi otomatis) */}
+                <td className="p-3 border-r text-gray-500 font-mono text-[10px] break-all">
+                  {item.ref_id || "-"}
+                </td>
+
+                {/* Waktu Deposit */}
+                <td className="p-3 border-r text-center text-gray-600">
+                  {item.created_at ? new Date(item.created_at).toLocaleString('en-GB', { 
+                    day: 'numeric', month: 'long', year: 'numeric', 
+                    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false 
+                  }).replace(',', '') : "-"}
+                </td>
+
+                {/* Waktu Respon (Kapan system auto-approve) */}
+                <td className="p-3 border-r text-center text-gray-600">
+                  {item.respon_at ? new Date(item.respon_at).toLocaleString('en-GB', { 
+                    day: 'numeric', month: 'long', year: 'numeric', 
+                    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false 
+                  }).replace(',', '') : "-"}
+                </td>
+
+                {/* Status Badge (Hijau sesuai gambar) */}
+                <td className="p-3 text-center">
+                  <div className="flex justify-center items-center">
+                    <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#e8f5e9] text-[#2e7d32] border border-[#c8e6c9] text-[10px] font-bold">
+                      <span className="w-3 h-3 bg-[#2e7d32] rounded-full flex items-center justify-center text-[8px] text-white">
+                        ✓
+                      </span>
+                      Terima
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="7" className="p-10 text-center text-gray-400 italic font-mono uppercase">
+                Belum ada data transaksi {tabAktif} ditemukan.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+
+    {/* Info Jumlah Baris (Sesuai Gambar) */}
+    <div className="flex justify-end px-1">
+      <p className="text-[12px] text-gray-600">
+        Menampilkan 1 sampai {dataDepositAuto?.length || 0} dari total {dataDepositAuto?.length || 0} baris
+      </p>
+    </div>
+
+    {/* Tombol Kembali (Warna Kuning Sesuai Gambar) */}
+    <button 
+      onClick={() => router.back()}
+      className="bg-[#ffc107] hover:bg-[#ffb300] text-black px-4 py-2 rounded text-[12px] font-bold shadow-sm transition-all mt-2"
+    >
+      Kembali
+    </button>
+  </div>
+)}
+
+
+
+
+
+
+
+
+
+
+
+
+
           {/* 2. TAB DEPOSIT / WITHDRAWAL (Contoh Tabel) */}
           {(tabAktif === "Withdrawal") && (
   <div className="space-y-4">
