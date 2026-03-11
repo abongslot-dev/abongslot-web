@@ -39,40 +39,44 @@ export default function EditMemberPage() {
   }, [username]);
 
   // 2. Ambil Data Deposit Khusus User Ini
-  useEffect(() => {
-    if (tabAktif === "Deposit" && selectedUser) {
-      const getDeposits = async () => {
-        // Asumsi Bos menggunakan Supabase Client yang sudah di-import
-        // Jika pakai API, ganti bagian ini dengan fetch ke API deposits Bos
-        const { data, error } = await supabase
-          .from("deposits")
-          .select("*")
-          .eq("username", selectedUser.username)
-          .order("created_at", { ascending: false });
+// 2. Ambil Data Deposit & WD Khusus User Ini (Auto Fetch)
+useEffect(() => {
+  if (selectedUser?.username) {
+    const fetchHistory = async () => {
+      // Tarik Data Deposit
+      const { data: depoData } = await supabase
+        .from("deposits")
+        .select("*")
+        .eq("username", selectedUser.username);
+      if (depoData) setDataDeposit(depoData);
 
-        if (data) setDataDeposit(data);
-      };
-      getDeposits();
-    }
-  }, [tabAktif, selectedUser]);
+      // Tarik Data Withdrawal
+      const { data: wdData } = await supabase
+        .from("withdrawals")
+        .select("*")
+        .eq("username", selectedUser.username);
+      if (wdData) setDataWD(wdData);
+    };
+    
+    fetchHistory();
+  }
+}, [selectedUser]); // Berjalan otomatis saat selectedUser terisi
 
-
-// Menghitung otomatis total deposit yang sukses
-const totalDepo = dataDeposit
+const totalDepo = dataDeposit?.length > 0
   ? dataDeposit
-      .filter(d => d.status?.toLowerCase() === 'approve' || d.status?.toLowerCase() === 'terima')
+      .filter(d => ['approve', 'terima', 'success'].includes(d.status?.toLowerCase()))
       .reduce((sum, item) => sum + Number(item.nominal || 0), 0)
   : 0;
 
-// Menghitung otomatis total withdrawal yang sukses
-const totalWD = dataWD
+// Hitung Total WD (Hanya yang Approve/Terima)
+const totalWD = dataWD?.length > 0
   ? dataWD
-      .filter(w => w.status?.toLowerCase() === 'approve' || w.status?.toLowerCase() === 'terima')
+      .filter(w => ['approve', 'terima', 'success'].includes(w.status?.toLowerCase()))
       .reduce((sum, item) => sum + Number(item.nominal || 0), 0)
   : 0;
 
 
-
+  
 
   if (loading) return <div className="p-10 text-center text-[12px] font-bold">LOADING DATA...</div>;
   if (!selectedUser) return <div className="p-10 text-center">User tidak ditemukan!</div>;
