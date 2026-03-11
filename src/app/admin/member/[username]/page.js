@@ -20,6 +20,7 @@ export default function EditMemberPage() {
   const [tabAktif, setTabAktif] = useState("Member Data");
   const [dataDeposit, setDataDeposit] = useState([]);
   const [dataWD, setDataWD] = useState([]);
+  const [dataDepositAuto, setDataDepositAuto] = useState([]); // <--- TAMBAHKAN INI BOS!
 
   // 1. Ambil Detail User
   useEffect(() => {
