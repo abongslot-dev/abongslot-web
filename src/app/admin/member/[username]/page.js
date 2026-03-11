@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Save, Database, History, Wallet, User as UserIcon } from "lucide-react";
-import { supabase } from "../../../lib/supabase"; // 1. Senjatanya di-import dulu
+import { supabase } from "../../../../lib/supabase"; // 1. Senjatanya di-import dulu
 
 export default function EditMemberPage() {
   const params = useParams();
