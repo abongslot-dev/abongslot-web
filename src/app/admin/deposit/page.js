@@ -61,55 +61,65 @@ export default function DepositBaruPage({ onUserClick }) {
     
       const paginate = (pageNumber) => setCurrentPage(pageNumber);
     
-      const fetchDepo = async () => {
-        try {
-          const res = await fetch("/api/admin?target=deposits-pending");
-          const data = await res.json();
-          // Pastikan format data sesuai API kamu
-          setDeposits(Array.isArray(data) ? data : []);
-        } catch (error) {
-          console.error("Gagal ambil data Depo:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
-    
-      useEffect(() => {
-        fetchDepo();
-      }, []);
-    
-// Di dalam file Dashboard Admin Bos
-const onAction = async (id, status, amount, user) => {
-  // Samakan dengan standar API Bos: 'approve' atau 'reject'
-  const actionStatus = status === 'SUCCESS' ? 'approve' : 'reject';
-  const label = actionStatus === 'approve' ? 'MENERIMA' : 'MENOLAK';
+ useEffect(() => {
+    const getAdmin = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        // Ambil nama dari metadata atau email
+        const name = user.user_metadata?.full_name || user.email.split('@')[0];
+        setCurrentAdminName(name);
+      }
+    };
+    getAdmin();
+  }, []);
 
-  if (!confirm(`Yakin ingin ${label} Deposit dari ${user}?`)) return;
-
-  try {
-    const res = await fetch('/api/update-depo', { 
-      method: 'POST', 
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        id: id,            
-        status: actionStatus, // Sekarang mengirim 'approve' atau 'reject'
-        username: user,
-        nominal: amount
-      }),
-    });
-
-    const result = await res.json();
-
-    if (result.success) {
-      alert(`✅ Berhasil di-${actionStatus}!`);
-      setDeposits((prev) => prev.filter((item) => item.id !== id));
-    } else {
-      alert("❌ Gagal: " + result.message);
+  const fetchDepo = async () => {
+    try {
+      const res = await fetch("/api/admin?target=deposits-pending");
+      const data = await res.json();
+      setDeposits(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Gagal ambil data Depo:", error);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    alert("❌ Error Server: " + err.message);
-  }
-};
+  };
+
+  useEffect(() => {
+    fetchDepo();
+  }, []);
+    
+// --- FUNGSI ACTION (APPROVE / REJECT) ---
+  const onAction = async (id, status, amount, user) => {
+    const actionStatus = status === 'SUCCESS' ? 'approve' : 'reject';
+    const label = actionStatus === 'approve' ? 'MENERIMA' : 'MENOLAK';
+
+    if (!confirm(`Yakin ingin ${label} Deposit dari ${user}?`)) return;
+
+    try {
+      const res = await fetch('/api/update-depo', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          id: id,            
+          status: actionStatus,
+          username: user,
+          nominal: amount,
+          processed_by: currentAdminName // 3. KIRIM NAMA ADMIN KE API
+        }),
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        alert(`✅ Berhasil oleh ${currentAdminName}!`);
+        setDeposits((prev) => prev.filter((item) => item.id !== id));
+      } else {
+        alert("❌ Gagal: " + result.message);
+      }
+    } catch (err) {
+      alert("❌ Error Server: " + err.message);
+    }
+  };
     
     
     // --- 2. LOGIKA CHECKBOX ---
@@ -135,36 +145,34 @@ const handleUserClick = (username) => {
       };
     
       // --- 3. FUNGSI TERIMA/TOLAK SEMUA ---
-      const handleBulkAction = async (status) => {
-        const label = status === 'SUCCESS' ? 'TERIMA' : 'TOLAK';
-        if (!confirm(`Yakin ingin ${label} ${selectedIds.length} deposit sekaligus?`)) return;
-    
-        try {
-          // Loop untuk eksekusi API satu per satu atau buat API Bulk di backend
-          const promises = selectedIds.map(async (id) => {
-            const item = deposits.find(d => d.id === id);
-            return fetch('/api/update-depo', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                id: id,
-                status: status,
-                username: item.username,
-                nominal: item.nominal
-              }),
-            });
-          });
-    
-          await Promise.all(promises);
-          alert(`✅ Berhasil ${label} massal!`);
-          
-          // Update tampilan: hapus data yang sudah diproses
-          setDeposits((prev) => prev.filter((item) => !selectedIds.includes(item.id)));
-          setSelectedIds([]); // Kosongkan centang kembali
-        } catch (err) {
-          alert("❌ Gagal Bulk Action: " + err.message);
-        }
-      };
+  const handleBulkAction = async (status) => {
+    const actionStatus = status === 'SUCCESS' ? 'approve' : 'reject';
+    if (!confirm(`Yakin ingin proses ${selectedIds.length} data sekaligus?`)) return;
+
+    try {
+      const promises = selectedIds.map(async (id) => {
+        const item = deposits.find(d => d.id === id);
+        return fetch('/api/update-depo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: id,
+            status: actionStatus,
+            username: item.username,
+            nominal: item.nominal,
+            processed_by: currentAdminName // 4. KIRIM NAMA ADMIN KE API (MASSAL)
+          }),
+        });
+      });
+
+      await Promise.all(promises);
+      alert(`✅ Massal Berhasil oleh ${currentAdminName}!`);
+      setDeposits((prev) => prev.filter((item) => !selectedIds.includes(item.id)));
+      setSelectedIds([]);
+    } catch (err) {
+      alert("❌ Gagal Bulk: " + err.message);
+    }
+  };
     
       
   // Masukkan logic fetch deposit & fungsi Approve/Reject di sini
