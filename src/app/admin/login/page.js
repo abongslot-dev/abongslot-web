@@ -37,7 +37,7 @@ const handleLogin = async (e) => {
       // Kita tambahkan cookie untuk Middleware kita tadi
       document.cookie = "isLoggedIn=true; path=/";
       
-      router.push("/admin/dashboard");
+      router.push("/admin/locall");
       router.refresh(); // Penting agar layout berubah
       
     } catch (err) {
