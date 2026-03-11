@@ -16,33 +16,32 @@ export default function AdmLogin() {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e) => {
+const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // AMBIL DATA DARI SUPABASE
-      // Kita cari di tabel 'admins' yang username & passwordnya cocok
-      const { data: admin, error } = await supabase
-        .from("admins") // <--- Sesuaikan dengan nama tabel Bos di Supabase
-        .select("*")
-        .eq("username", formData.username)
-        .eq("password", formData.password)
-        .single();
+      // PAKAI INI UNTUK SUPABASE AUTHENTICATION
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.username, // Supabase Auth biasanya pakai Email
+        password: formData.password,
+      });
 
-      if (error || !admin) {
-        alert("Username atau Password Salah, Bos!");
+      if (error) {
+        alert("Login Gagal: " + error.message);
         setLoading(false);
         return;
       }
 
-      // Jika Berhasil: Set cookie/session
+      // Jika berhasil, Supabase otomatis simpan session di LocalStorage
+      // Kita tambahkan cookie untuk Middleware kita tadi
       document.cookie = "isLoggedIn=true; path=/";
+      
       router.push("/dashboard");
+      router.refresh(); // Penting agar layout berubah
       
     } catch (err) {
-      console.error(err);
-      alert("Terjadi kesalahan koneksi ke database");
+      alert("Terjadi kesalahan sistem.");
     } finally {
       setLoading(false);
     }
