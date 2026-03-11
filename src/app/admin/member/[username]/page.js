@@ -19,6 +19,7 @@ export default function EditMemberPage() {
   const [loading, setLoading] = useState(true);
   const [tabAktif, setTabAktif] = useState("Member Data");
   const [dataDeposit, setDataDeposit] = useState([]);
+  const [dataWD, setDataWD] = useState([]);
 
   // 1. Ambil Detail User
   useEffect(() => {
@@ -55,6 +56,24 @@ export default function EditMemberPage() {
     }
   }, [tabAktif, selectedUser]);
 
+
+// Menghitung otomatis total deposit yang sukses
+const totalDepo = dataDeposit
+  ? dataDeposit
+      .filter(d => d.status?.toLowerCase() === 'approve' || d.status?.toLowerCase() === 'terima')
+      .reduce((sum, item) => sum + Number(item.nominal || 0), 0)
+  : 0;
+
+// Menghitung otomatis total withdrawal yang sukses
+const totalWD = dataWD
+  ? dataWD
+      .filter(w => w.status?.toLowerCase() === 'approve' || w.status?.toLowerCase() === 'terima')
+      .reduce((sum, item) => sum + Number(item.nominal || 0), 0)
+  : 0;
+
+
+
+
   if (loading) return <div className="p-10 text-center text-[12px] font-bold">LOADING DATA...</div>;
   if (!selectedUser) return <div className="p-10 text-center">User tidak ditemukan!</div>;
 
@@ -70,20 +89,7 @@ export default function EditMemberPage() {
 
 
 
- // Menghitung otomatis total deposit yang sukses
-const totalDepo = dataDeposit
-  ? dataDeposit
-      .filter(d => d.status?.toLowerCase() === 'approve' || d.status?.toLowerCase() === 'terima')
-      .reduce((sum, item) => sum + Number(item.nominal || 0), 0)
-  : 0;
-
-// Menghitung otomatis total withdrawal yang sukses
-const totalWD = dataWD
-  ? dataWD
-      .filter(w => w.status?.toLowerCase() === 'approve' || w.status?.toLowerCase() === 'terima')
-      .reduce((sum, item) => sum + Number(item.nominal || 0), 0)
-  : 0;
-
+ 
   return (
     <div className="p-6 text-gray-800 bg-[#f4f6f9] min-h-screen font-sans">
       {/* Breadcrumb & Judul */}
