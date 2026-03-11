@@ -269,7 +269,17 @@ export default function EditMemberPage() {
     <div className="bg-white p-2 text-right text-[10px] text-gray-400 border border-t-0 rounded-b italic">
       Menampilkan riwayat deposit terakhir untuk member: <span className="font-bold">{selectedUser.username}</span>
     </div>
-  </div>
+  
+
+   <button 
+               
+      onClick={() => router.back()}
+      className="bg-[#f39c12] hover:bg-[#e67e22] text-white px-4 py-1.5 rounded text-[12px] font-bold shadow-sm transition-all mt-4"
+    >
+      Kembali
+    </button>
+    </div>
+  
 )}
 
 
@@ -296,13 +306,6 @@ export default function EditMemberPage() {
                   </tr>
                 </tbody>
               </table>
-               <button 
-      onClick={() => router.back()}
-      className="bg-[#f39c12] hover:bg-[#e67e22] text-white px-4 py-1.5 rounded text-[12px] font-bold shadow-sm transition-all mt-4"
-    >
-      Kembali
-    </button>
-  
             </div>
             
           )}
