@@ -10,13 +10,16 @@ export default function AdminLayout({ children }) {
   const [showProfile, setShowProfile] = useState(false);
 
   // --- TAMBAHKAN FUNGSI INI AGAR TIDAK ERROR ---
-  const handleLogout = () => {
-    const confirm = window.confirm("Apakah Anda yakin ingin keluar?");
-    if (confirm) {
-      // Logic hapus session bisa di sini
-      router.push("/login"); 
-    }
-  };
+const handleLogout = () => {
+  const confirm = window.confirm("Yakin ingin keluar?");
+  if (confirm) {
+    // Hapus cookie dengan cara set expire ke masa lalu
+    document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    
+    router.push("/admin/login");
+    router.refresh(); 
+  }
+};
   // --------------------------------------------
 
   return (
