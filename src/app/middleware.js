@@ -1,19 +1,24 @@
 import { NextResponse } from 'next/server';
 
 export function middleware(request) {
-  // Ambil token/session dari cookies
-  const token = request.cookies.get('auth_token')?.value;
+  // Ambil token (Cek semua kemungkinan nama cookie yang Bos pakai)
+  const token = request.cookies.get('auth_token')?.value || request.cookies.get('isLoggedIn')?.value;
 
-  const isLoginPage = request.nextUrl.pathname === '/login';
-  const isAdminPage = request.nextUrl.pathname.startsWith('/dashboard') || 
-                      request.nextUrl.pathname.startsWith('/profil');
+  const { pathname } = request.nextUrl;
 
-  // Jika mencoba akses admin tapi belum login
-  if (isAdminPage && !token) {
+  // Tentukan rute login dan halaman yang diproteksi
+  const isLoginPage = pathname === '/login';
+  const isProtectedPage = pathname.startsWith('/dashboard') || 
+                          pathname.startsWith('/profil') || 
+                          pathname.startsWith('/admin'); // Tambahkan jika ada folder admin
+
+  // 1. JIKA MAU KE HALAMAN PROTEKSI TAPI TIDAK ADA TOKEN
+  if (isProtectedPage && !token) {
+    // Pastikan diarahkan ke /login (bukan /admin/login)
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Jika sudah login tapi malah buka halaman login lagi
+  // 2. JIKA SUDAH LOGIN TAPI BUKA HALAMAN LOGIN LAGI
   if (isLoginPage && token) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
@@ -21,7 +26,12 @@ export function middleware(request) {
   return NextResponse.next();
 }
 
-// Tentukan halaman mana saja yang diproteksi
 export const config = {
-  matcher: ['/dashboard/:path*', '/profil/:path*', '/login'],
+  // Matcher harus mencakup semua folder yang ingin diproteksi
+  matcher: [
+    '/dashboard/:path*', 
+    '/profil/:path*', 
+    '/admin/:path*', 
+    '/login'
+  ],
 };
