@@ -338,29 +338,87 @@ const totalWD = dataWD?.length > 0
 
           {/* 2. TAB DEPOSIT / WITHDRAWAL (Contoh Tabel) */}
           {(tabAktif === "Withdrawal") && (
-            <div className="overflow-x-auto border rounded border-gray-200">
-              <table className="w-full text-left text-[11px]">
-                <thead className="bg-gray-50 border-b">
-                  <tr>
-                    <th className="p-2 border-r text-center w-10">No.</th>
-                    <th className="p-3 border-r text-right">Total</th>
-                    <th className="p-3 border-r text-center">Ke Rekening</th>
-                    <th className="p-3 border-r text-center">Waktu Withdrawal</th>
-                    <th className="p-2 border-r text-center">Status</th>
-                    <th className="p-3 border-r text-center">Admin Respon</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td colSpan="4" className="p-10 text-center text-gray-400 italic font-mono uppercase">
-                      Belum ada data transaksi {tabAktif} ditemukan.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            
+  <div className="space-y-4">
+    <div className="overflow-x-auto border rounded border-gray-200 shadow-sm bg-white">
+      <table className="w-full text-left text-[11px] border-collapse">
+        <thead className="bg-gray-50 border-b text-gray-700 font-bold uppercase">
+          <tr>
+            <th className="p-2 border-r text-center w-10">No.</th>
+            <th className="p-3 border-r text-right">Total</th>
+            <th className="p-3 border-r text-center">Ke Rekening (Member)</th>
+            <th className="p-3 border-r text-center">Waktu Withdrawal</th>
+            <th className="p-2 border-r text-center">Status</th>
+            <th className="p-3 text-center">Admin Respon</th>
+          </tr>
+        </thead>
+        <tbody>
+          {dataWD && dataWD.length > 0 ? (
+            dataWD.map((wd, index) => (
+              <tr key={wd.id} className="border-b hover:bg-gray-50 transition-colors">
+                <td className="p-2 border-r text-center text-gray-400">{index + 1}</td>
+                
+                {/* Kolom Total (Nominal) - Warna Merah/Orange untuk WD */}
+                <td className="p-3 border-r text-right font-bold text-red-600">
+                  {new Intl.NumberFormat('id-ID').format(wd.nominal)}
+                </td>
+
+                {/* Kolom Tujuan (Rekening Member) */}
+                <td className="p-3 border-r text-center">
+                  <div className="font-bold uppercase text-blue-600">{wd.nama_bank || selectedUser?.nama_bank}</div>
+                  <div className="text-[13px] text-gray-800 font-bold">{wd.nomor_rekening || selectedUser?.nomor_rekening}</div>
+                  <div className="text-[13px] text-gray-400 italic font-medium uppercase">a.n {wd.nama_rekening || selectedUser?.nama_rekening}</div>
+                </td>
+
+                {/* Kolom Waktu */}
+                <td className="p-3 border-r text-center text-gray-500 italic">
+                  {new Date(wd.created_at).toLocaleString('id-ID')}
+                </td>
+
+                {/* Kolom Status */}
+                <td className="p-2 border-r text-center font-black">
+                  {wd.status?.toLowerCase() === 'pending' && (
+                    <span className="text-orange-500 bg-orange-50 px-2 py-1 rounded border border-orange-200 uppercase">Proses</span>
+                  )}
+
+                  {(wd.status?.toLowerCase() === 'terima' || wd.status?.toLowerCase() === 'approve') && (
+                    <span className="text-emerald-500 bg-emerald-50 px-2 py-1 rounded border border-emerald-200 uppercase font-bold">Selesai</span>
+                  )}
+
+                  {(wd.status?.toLowerCase() === 'tolak' || wd.status?.toLowerCase() === 'reject') && (
+                    <span className="text-red-500 bg-red-50 px-2 py-1 rounded border border-red-200 uppercase font-bold">Ditolak</span>
+                  )}
+                </td>
+
+                {/* Kolom Admin Respon */}
+                <td className="p-3 text-center text-[10px] text-gray-400 italic font-medium uppercase">
+                  {wd.status === 'pending' ? '-' : (wd.admin_name || 'System / Admin')}
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="6" className="p-10 text-center text-gray-400 italic font-mono uppercase">
+                Belum ada data transaksi {tabAktif} ditemukan.
+              </td>
+            </tr>
           )}
+        </tbody>
+      </table>
+    </div>
+    
+    {/* Footer Info Tambahan */}
+    <div className="bg-white p-2 text-right text-[10px] text-gray-400 border border-t-0 rounded-b italic">
+      Menampilkan riwayat penarikan dana untuk member: <span className="font-bold">{selectedUser?.username}</span>
+    </div>
+
+    <button 
+      onClick={() => router.back()}
+      className="bg-[#f39c12] hover:bg-[#e67e22] text-white px-4 py-1.5 rounded text-[12px] font-bold shadow-sm transition-all mt-4"
+    >
+      Kembali
+    </button>
+  </div>
+)}
 
 
 
