@@ -57,11 +57,12 @@ export default function DepositPage() {
 
 
 const handleKirimDeposit = async () => {
-  // 1. Validasi Nominal & Bank
+  // 1. Validasi Nominal
   const nominalAngka = Number(nominal.replace(/[^0-9]/g, ""));
-  const detailBankAdmin = daftarBankAdmin[bankTujuan];
 
-  if (!bankTujuan || !detailBankAdmin) {
+  // 2. Cek apakah bankTujuan sudah dipilih dan bankAktif sudah terisi dari Supabase
+  // Kita pakai bankAktif.nomor karena itu data real dari database sekarang
+  if (!bankTujuan || bankAktif.nomor === "-") {
     return Swal.fire({
       icon: 'warning',
       title: 'PILIH TUJUAN',
