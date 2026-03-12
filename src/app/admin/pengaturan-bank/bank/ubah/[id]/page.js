@@ -101,11 +101,11 @@ const handleSimpan = async (e) => {
   e.preventDefault();
   setLoading(true);
 
-  try {
-    // KITA CEK APAKAH imgUrl SUDAH YANG TERBARU
-    console.log("Mengirim data ke DB:", { nama, imgUrl });
+  // Cek dulu datanya di console F12
+  console.log("Data dikirim:", { id, nama, imgUrl });
 
-    const { error } = await supabase
+  try {
+    const { data, error } = await supabase
       .from('banks')
       .update({
         nama: nama,
@@ -113,17 +113,23 @@ const handleSimpan = async (e) => {
         status: status,
         register: register === "Ya",
         deposit: deposit === "Ya",
-        img: imgUrl, // Ini harus berisi link baru dari handleUpload
+        img: imgUrl,
       })
-      .eq('id', id);
+      .eq('id', id)
+      .select(); // Mengambil data hasil update
 
-    if (error) throw error;
+    if (error) {
+      console.error("Error dari Supabase:", error);
+      throw error;
+    }
 
-    alert("✅ Data Berhasil Diperbarui!");
-    
-    // PAKSA PINDAH DAN REFRESH TOTAL
-    window.location.replace('/admin/pengaturan-bank/bank'); 
-    
+    if (data && data.length === 0) {
+      alert("⚠️ Data di database TIDAK berubah. Cek apakah ID sudah benar.");
+    } else {
+      alert("✅ DATABASE BERHASIL DIUPDATE!");
+      window.location.href = '/admin/pengaturan-bank/bank';
+    }
+
   } catch (error) {
     alert("❌ Gagal Simpan: " + error.message);
   } finally {
