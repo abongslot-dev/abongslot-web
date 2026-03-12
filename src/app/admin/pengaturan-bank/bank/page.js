@@ -39,7 +39,7 @@ export default function BankManagementPage() {
           {/* Action Button */}
           <div className="flex justify-end mb-4">
             <button 
-  onClick={() => router.push('/admin/bank/tambah')} 
+  onClick={() => router.push('/admin/pengaturan-bank/bank/tambah')} 
   className="..."
 >
   <Plus size={16} /> Tambah
