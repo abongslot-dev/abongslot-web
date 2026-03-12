@@ -144,6 +144,11 @@ export default function Sidebar({ isOpen, setIsOpen }) {
             <SubMenuItem label="Laporan Game Member" href="/admin/laporan/game-member" />
             <SubMenuItem label="Laporan Jurnal" href="/admin/laporan/jurnal" />
         </SidebarItem>
+
+        <SidebarItem icon={<FileBarChart size={16}/>} label="Pengaturan Bank" hasChild menuKey="bank">
+            <SubMenuItem label="Bank" href="/admin/pengaturan-bank/bank" />
+            <SubMenuItem label="Rekening Bank" href="/admin/pengaturan-bank/rekening" />
+        </SidebarItem>
       </nav>
 
       {/* FOOTER SECTION */}
