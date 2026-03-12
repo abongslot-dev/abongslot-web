@@ -26,20 +26,25 @@ export async function POST(req) {
     }
 
     // B. LOGIKA UPDATE STATUS (ADMIN)
-    const rawStatus = body.status?.toLowerCase();
-    // Kita samakan standarnya: 'approve' atau 'reject'
+const rawStatus = body.status?.toLowerCase();
     const finalStatus = (rawStatus === 'success' || rawStatus === 'approve' || rawStatus === 'approved') ? 'approve' : 'reject';
 
-    // 1. Update Status Deposit & Tanggal Proses
+    // 1. Update Status Deposit, Tanggal Proses, Nama Admin & ID Admin
     const { error: updErr } = await supabase
       .from('deposits')
       .update({ 
         status: finalStatus, 
-        processed_at: new Date().toISOString() 
+        processed_at: new Date().toISOString(),
+        processed_by: body.processed_by || 'ADMIN', // <--- TANGKAP DARI FRONTEND
+        admin_id: body.admin_id || '01'            // <--- TANGKAP DARI FRONTEND
       })
       .eq('id', body.id);
 
-    if (updErr) throw updErr;
+    if (updErr) {
+      // Jika muncul error "column processed_by does not exist", 
+      // berarti Bos belum jalankan perintah ALTER TABLE di Supabase.
+      throw new Error(`Gagal Update Tabel Deposits: ${updErr.message}`);
+    }
 
     // 2. Tambah Saldo Member (Jika Approve)
     if (finalStatus === 'approve') {
