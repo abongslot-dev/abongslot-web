@@ -97,12 +97,11 @@ const handleUpload = async (e) => {
 };
 
 // GANTI FUNGSI HANDLE SIMPAN
+// Di halaman Ubah Bank, bagian handleSimpan ganti jadi ini:
+
 const handleSimpan = async (e) => {
   e.preventDefault();
   setLoading(true);
-
-  // Cek dulu datanya di console F12
-  console.log("Data dikirim:", { id, nama, imgUrl });
 
   try {
     const { data, error } = await supabase
@@ -115,23 +114,21 @@ const handleSimpan = async (e) => {
         deposit: deposit === "Ya",
         img: imgUrl,
       })
-      .eq('id', id)
-      .select(); // Mengambil data hasil update
+      .eq('id', parseInt(id)) // <--- PAKSA JADI ANGKA DI SINI BOS
+      .select();
 
-    if (error) {
-      console.error("Error dari Supabase:", error);
-      throw error;
-    }
+    if (error) throw error;
 
-    if (data && data.length === 0) {
-      alert("⚠️ Data di database TIDAK berubah. Cek apakah ID sudah benar.");
-    } else {
+    if (data && data.length > 0) {
       alert("✅ DATABASE BERHASIL DIUPDATE!");
       window.location.href = '/admin/pengaturan-bank/bank';
+    } else {
+      // Jika masuk sini, berarti ID '2' memang tidak ada di tabel 'banks'
+      alert("⚠️ Gagal: ID " + id + " tidak ditemukan di database. Cek apakah datanya sudah dihapus?");
     }
 
   } catch (error) {
-    alert("❌ Gagal Simpan: " + error.message);
+    alert("❌ Error: " + error.message);
   } finally {
     setLoading(false);
   }
