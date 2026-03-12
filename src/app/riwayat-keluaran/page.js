@@ -94,10 +94,10 @@ const getShio = (nomor2D) => {
       }}
     >
       {/* Header Logo */}
-      <header className="w-full max-w-5xl bg-[#1a0033] shadow-2xl sticky top-0 z-[100] border-b border-[#D4AF37]/20">
+      <header className="w-full max-w-6xl bg-[#1a0033] shadow-2xl sticky top-0 z-[100] border-b border-[#D4AF37]/20">
         <div className="px-5 py-3 flex items-center justify-center min-h-[60px] md:min-h-[120px]"> 
           <img 
-            src="https://i.postimg.cc/BvTrMrkD/logo-abong.png" 
+            src="https://i.postimg.cc/XYgNTswc/download-(3).png" 
             alt="Logo" 
             className="h-12 md:h-20 w-auto cursor-pointer"
             onClick={() => router.push('/dashboard')}
@@ -110,7 +110,7 @@ const getShio = (nomor2D) => {
         </div>
       </header>
 
-      <div className="w-full max-w-5xl min-h-[calc(100vh-100px)] bg-white overflow-hidden shadow-2xl border-x border-gray-300 flex flex-col pb-24">
+      <div className="w-full max-w-6xl min-h-[calc(100vh-100px)] bg-white overflow-hidden shadow-2xl border-x border-gray-300 flex flex-col pb-24">
         <div className="bg-[#1a0033] px-4 py-2 border-b border-white/20 flex justify-between items-center">
           <h2 className="text-white text-[15px]  font-bold uppercase tracking-wider">Riwayat Keluaran Togel</h2>
           <span className="text-[15px] bg-green-600 px-2 py-0.5 rounded animate-pulse">LIVE</span>
