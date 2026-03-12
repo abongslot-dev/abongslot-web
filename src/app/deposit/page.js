@@ -17,6 +17,9 @@ export default function DepositPage() {
   const headerRef = useRef(null);
   const [metode, setMetode] = useState("TRANSFER");
   const [isModalPromoOpen, setIsModalPromoOpen] = useState(false);
+  const [listRekeningAdmin, setListRekeningAdmin] = useState([]); // Untuk menampung semua rekening dari database
+  const bankAktif = daftarBankAdmin[bankTujuan] || { nama: "-", nomor: "-" };
+
   
 
   // --- 2. LOGIC PROTEKSI ---
@@ -84,21 +87,22 @@ const handleKirimDeposit = async () => {
     // --- KUNCINYA DI SINI: KITA TAHAN SELAMA 5 DETIK (5000ms) ---
     await new Promise(resolve => setTimeout(resolve, 5000)); 
 
-    const response = await fetch("/api/deposit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: username,
-        nominal: nominalAngka,
-        promo: promo || "-",
-        bank_pengirim: userProfile.nama_bank || "-",
-        rek_pengirim: userProfile.nomor_rekening || "-",
-        nama_pengirim: userProfile.nama_rekening || "-",
-        bank_tujuan: bankTujuan,
-        rek_tujuan: detailBankAdmin.nomor,
-        nama_tujuan: detailBankAdmin.nama,
-      }),
-    });
+const response = await fetch("/api/deposit", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    username: username,
+    nominal: nominalAngka,
+    promo: promo || "-",
+    bank_pengirim: userProfile.nama_bank || "-",
+    rek_pengirim: userProfile.nomor_rekening || "-",
+    nama_pengirim: userProfile.nama_rekening || "-",
+    bank_tujuan: bankTujuan,
+    // GANTI DUA BARIS INI:
+    rek_tujuan: bankAktif.nomor, // Mengambil dari state bankAktif.nomor
+    nama_tujuan: bankAktif.nama,  // Mengambil dari state bankAktif.nama
+  }),
+});
 
     if (response.ok) {
       Swal.fire({ 
@@ -198,17 +202,53 @@ const formatRupiah = (value) => {
 
 
 // Gudang data rekening Admin
-const daftarBankAdmin = {
-  BNI: { nama: "WANDI", nomor: "1977502220" },
-  BCA: { nama: "BUDI SETIAWAN", nomor: "882736152" },
-  DANA: { nama: "NINA (DANA)", nomor: "08123456789" },
-  BRI: { nama: "ACEP SEHENDANG", nomor: "081801051135536" },
-  OVO: { nama: "RIKA", nomor: "087798805106" },
-  MANDIRI: { nama: "PT LESTARI JAYA", nomor: "123000998877" }
-};
+// --- 3. AMBIL DATA REKENING DARI SUPABASE ---
+useEffect(() => {
+  const fetchRekening = async () => {
+    try {
+      // Kita ambil data dan join dengan tabel 'banks' untuk dapat nama banknya
+      const { data, error } = await supabase
+        .from('rekening_banks')
+        .select(`
+          *,
+          banks ( nama )
+        `)
+        .eq('sembunyikan', 'Tidak') // Hanya ambil yang tidak disembunyikan
+        .order('urutan', { ascending: true });
+
+      if (error) throw error;
+      setListRekeningAdmin(data || []);
+      
+      // Set default bank aktif ke yang pertama jika ada data
+      if (data && data.length > 0) {
+        setBankTujuan(data[0].banks.nama);
+        setBankAktif({
+          nama: data[0].nama_rekening,
+          nomor: data[0].nomor_rekening
+        });
+      }
+    } catch (err) {
+      console.error("Gagal ambil rekening admin:", err.message);
+    }
+  };
+  fetchRekening();
+}, []);
+
+// --- 4. LOGIKA UPDATE BANK AKTIF SAAT MEMBER PILIH BANK ---
+useEffect(() => {
+  if (bankTujuan && listRekeningAdmin.length > 0) {
+    const cari = listRekeningAdmin.find(item => item.banks.nama === bankTujuan);
+    if (cari) {
+      setBankAktif({
+        nama: cari.nama_rekening,
+        nomor: cari.nomor_rekening
+      });
+    }
+  }
+}, [bankTujuan, listRekeningAdmin]);
 
 // Ambil data bank yang sedang dipilih
-const bankAktif = daftarBankAdmin[bankTujuan] || { nama: "-", nomor: "-" };
+
 
 
   return (
