@@ -207,16 +207,16 @@ const hasilFilter = json.data.filter(item => {
     >
       {loading && <LoadingOverlay />}
       {/* --- HEADER UTAMA --- */}
-      <header ref={headerRef} className="w-full max-w-5xl bg-[#1a0033] shadow-2xl sticky top-0 z-[100] border-b border-[#D4AF37]/20 mx-auto">
+      <header ref={headerRef} className="w-full max-w-6xl bg-[#1a0033] shadow-2xl sticky top-0 z-[100] border-b border-[#D4AF37]/20 mx-auto">
         <div className="px-5 py-3 md:py-0 flex items-center md:items-stretch justify-between min-h-[60px] md:min-h-[120px]"> 
           {!isLoggedIn ? (
             <>
               <div className="flex md:hidden w-full justify-center items-center">
-                <img src="https://i.postimg.cc/BvTrMrkD/logo-abong.png" alt="Logo" className="h-12 w-auto drop-shadow-[0_0_8px_rgba(212,175,55,0.4)] object-contain" />
+                <img src="https://i.postimg.cc/XYgNTswc/download-(3).png" alt="Logo" className="h-12 w-auto drop-shadow-[0_0_8px_rgba(212,175,55,0.4)] object-contain" />
               </div>
 
               <div className="hidden md:flex flex-1 items-center justify-start">
-                <img src="https://i.postimg.cc/BvTrMrkD/logo-abong.png" alt="Logo" className="h-28 md:h-32 w-auto drop-shadow-[0_0_15px_rgba(212,175,55,0.6)] object-contain" />
+                <img src="https://i.postimg.cc/XYgNTswc/download-(3).png" alt="Logo" className="h-28 md:h-32 w-auto drop-shadow-[0_0_15px_rgba(212,175,55,0.6)] object-contain" />
               </div>
 
         {/* --- PANEL LOGIN DESKTOP --- */}
@@ -307,7 +307,7 @@ const hasilFilter = json.data.filter(item => {
       </header>
 
       {/* --- MAIN CONTENT --- */}
-      <div className="w-full max-w-5xl mx-auto min-h-screen bg-white rounded-b-xl overflow-hidden shadow-2xl border-x border-b border-gray-300">
+      <div className="w-full max-w-6xl mx-auto min-h-screen bg-white rounded-b-xl overflow-hidden shadow-2xl border-x border-b border-gray-300">
         <div className="bg-[#1a0033] p-3">
           <h1 className="text-white font-black text-xs md:text-sm uppercase italic">
             Riwayat Angka {pasaranAktif}
@@ -354,6 +354,7 @@ const hasilFilter = json.data.filter(item => {
   </button>
 </div>
 
+<div className="px-4"> {/* Tambahkan pembungkus dengan padding ini */}
 <div className="overflow-x-auto">
   <table className="w-full text-center border-collapse">
     <thead>
@@ -390,6 +391,7 @@ const hasilFilter = json.data.filter(item => {
             ← Kembali
           </button>
         </div>
+      </div>
       </div>
 
 
