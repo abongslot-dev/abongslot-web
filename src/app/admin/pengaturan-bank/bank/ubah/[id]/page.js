@@ -57,28 +57,41 @@ export default function UbahBankPage() {
   }, [id]);
 
   // 2. Fungsi Upload Gambar Baru
-  const handleUpload = async (e) => {
-    try {
-      setUploading(true);
-      const file = e.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
+const handleUpload = async (e) => {
+  try {
+    setUploading(true);
+    const file = e.target.files[0];
+    if (!file) return;
 
-      let { error: uploadError } = await supabase.storage
-        .from('logos')
-        .upload(filePath, file);
+    // Gunakan Timestamp agar nama file SELALU BARU & UNIK
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}.${fileExt}`; 
+    const filePath = fileName;
 
-      if (uploadError) throw uploadError;
+    // Proses Upload
+    let { error: uploadError } = await supabase.storage
+      .from('logos')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true // Menimpa jika ada file sama
+      });
 
-      const { data } = supabase.storage.from('logos').getPublicUrl(filePath);
-      setImgUrl(data.publicUrl);
-    } catch (error) {
-      alert("Gagal upload gambar!");
-    } finally {
-      setUploading(false);
-    }
-  };
+    if (uploadError) throw uploadError;
+
+    // Ambil URL Publik yang baru
+    const { data } = supabase.storage.from('logos').getPublicUrl(filePath);
+    
+    console.log("URL Gambar Baru:", data.publicUrl); // Cek di console log!
+    setImgUrl(data.publicUrl); // Simpan URL baru ke state
+    alert("✅ Gambar berhasil diupload!");
+
+  } catch (error) {
+    console.error("Detail Error Upload:", error);
+    alert("❌ Gagal upload: " + error.message);
+  } finally {
+    setUploading(false);
+  }
+};
 
   // 3. Fungsi Simpan Perubahan (UPDATE)
 const handleSimpan = async (e) => {
