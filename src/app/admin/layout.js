@@ -17,10 +17,10 @@ export default function AdminLayout({ children }) {
   const [isMounted, setIsMounted] = useState(false);
 
   // --- LOGIKA TIMER MULAI DISINI ---
-  const DURASI_SESEI = 60; // 1 Jam (3600 detik)
-  const [timeLeft, setTimeLeft] = useState(DURASI_SESEI);
+  const DURASI_SESI = 60; // Sudah diperbaiki namanya dari SESEI ke SESI
+  const [timeLeft, setTimeLeft] = useState(DURASI_SESI);
 
-useEffect(() => {
+  useEffect(() => {
     setIsMounted(true);
 
     const autoLogout = async () => {
@@ -41,8 +41,8 @@ useEffect(() => {
       });
     }, 1000);
 
+    // Fungsi reset sekarang sudah kenal variabel DURASI_SESI
     const resetTimer = () => {
-      // Setiap kali ada aktivitas, balikkan ke 60 detik lagi
       setTimeLeft(DURASI_SESI);
     };
 
@@ -54,7 +54,7 @@ useEffect(() => {
       window.removeEventListener("mousemove", resetTimer);
       window.removeEventListener("keydown", resetTimer);
     };
-  }, []);
+  }, []); // DURASI_SESI di luar sini jadi aman
   // --- LOGIKA TIMER SELESAI ---
 
   const handleLogout = async () => {
