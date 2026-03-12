@@ -1,38 +1,39 @@
 export const dynamic = 'force-dynamic';
+export const revalidate = 0; // Memastikan data tidak di-cache oleh Next.js
 
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-// 1. Hubungkan ke Supabase (Cloud Database)
-const SUPABASE_URL = 'https://hqsahuywehlbwywyzlsz.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_PiwkCSc05QG4DjULYyUjTw_0R1uUux6';
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+// Gunakan environment variables agar aman dan tidak bocor di kodingan
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY // Pakai Service Role di Backend agar tembus RLS
+);
 
 export async function GET(req) {
   try {
-    // 2. Ambil username dari URL
     const { searchParams } = new URL(req.url);
     const username = searchParams.get("username");
 
     if (!username) {
-      return NextResponse.json({ success: false, message: "Username tidak ditemukan" }, { status: 400 });
+      return NextResponse.json({ success: false, message: "Username required" }, { status: 400 });
     }
 
-    // 3. Ambil riwayat deposit dari tabel 'deposits' di Supabase
+    // Ambil data riwayat deposit
     const { data, error } = await supabase
       .from('deposits')
-      .select('*')
+      .select('id, created_at, nominal, bank_tujuan, rek_tujuan, nama_tujuan, status, promo') // Sebutkan kolomnya dengan jelas
       .eq('username', username)
-      .order('created_at', { ascending: false })
-      .limit(50);
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
 
-    // 4. Kirim data ke tampilan Frontend
-    return NextResponse.json({ success: true, data: data || [] });
+    return NextResponse.json({ 
+      success: true, 
+      data: data || [] 
+    });
 
   } catch (error) {
-    console.error("Riwayat Depo Error:", error.message);
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
