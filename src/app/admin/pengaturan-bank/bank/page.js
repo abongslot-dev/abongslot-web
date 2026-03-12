@@ -2,8 +2,10 @@
 import React, { useState } from "react";
 import { Plus, Edit2, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function BankManagementPage() {
+    const router = useRouter();
   const [banks, setBanks] = useState([
     { id: 1, nama: "BCA", tipe: "Bank", status: "Bank", img: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia.svg", register: true, deposit: true }
   ]);
@@ -35,20 +37,21 @@ export default function BankManagementPage() {
           <span className="font-semibold text-gray-700 text-sm uppercase">Bank</span>
         </div>
 
-        <div className="p-4">
-          {/* Action Button */}
-          <div className="flex justify-end mb-4">
-           <button 
-  onClick={() => {
-    console.log("Navigasi ke halaman tambah...");
-    router.push('/admin/pengaturan-bank/bank/tambah'); 
-  }} 
-  className="bg-[#198754] hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm flex items-center gap-1 transition-colors shadow-sm relative z-10"
->
-  <Plus size={16} /> Tambah
-</button>
-          </div>
-
+<div className="p-4 relative"> {/* Tambah relative di sini */}
+  {/* Action Button */}
+  <div className="flex justify-end mb-4">
+    <button 
+      type="button" // Pastikan tipe button eksplisit
+      onClick={(e) => {
+        e.preventDefault(); // Mencegah reload halaman
+        console.log("Navigasi ke halaman tambah...");
+        router.push('/admin/pengaturan-bank/bank/tambah'); 
+      }} 
+      className="bg-[#198754] hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm flex items-center gap-1 transition-colors shadow-sm relative z-[999] cursor-pointer"
+    >
+      <Plus size={16} /> Tambah
+    </button>
+  </div>
           {/* Table */}
           <div className="overflow-x-auto">
             <table className="w-full border-collapse border border-gray-200">
