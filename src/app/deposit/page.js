@@ -3,6 +3,12 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2"; // Pastikan sudah install: npm install sweetalert2
 import { Users, Landmark, Home, ChevronRight,Plus,QrCode } from "lucide-react";
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL, 
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 export default function DepositPage() {
   const router = useRouter();
