@@ -81,7 +81,7 @@ export default function UbahBankPage() {
   };
 
   // 3. Fungsi Simpan Perubahan (UPDATE)
-  const handleSimpan = async (e) => {
+const handleSimpan = async (e) => {
     e.preventDefault();
     setLoading(true);
 
@@ -94,15 +94,17 @@ export default function UbahBankPage() {
           status: status,
           register: register === "Ya",
           deposit: deposit === "Ya",
-          img: imgUrl,
+          img: imgUrl, // Link gambar baru Bos
         })
         .eq('id', id);
 
       if (error) throw error;
 
       alert("✅ Data Bank Berhasil Diperbarui!");
-      router.push('/admin/pengaturan-bank/bank');
-      router.refresh();
+      
+      // GANTI DUA BARIS ROUTER TADI DENGAN INI:
+      window.location.href = '/admin/pengaturan-bank/bank';
+      
     } catch (error) {
       alert("❌ Gagal Simpan: " + error.message);
     } finally {
