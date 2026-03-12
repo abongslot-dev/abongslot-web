@@ -45,13 +45,16 @@ export default function RekeningBankPage() {
           <span className="font-semibold text-gray-700 text-sm">Rekening Bank</span>
         </div>
 
-        <div className="p-4">
-          {/* Tombol Tambah */}
-          <div className="flex justify-end mb-4">
-            <button className="bg-[#198754] hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm font-medium flex items-center gap-1 transition-all shadow-sm">
-              <Plus size={16} strokeWidth={3} /> Tambah
-            </button>
-          </div>
+     <div className="p-4">
+  {/* Tombol Tambah yang sudah aktif */}
+  <div className="flex justify-end mb-4">
+    <Link href="/admin/pengaturan-bank/rekening/tambah"> 
+      <button className="bg-[#198754] hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm font-medium flex items-center gap-1 transition-all shadow-sm">
+        <Plus size={16} strokeWidth={3} /> Tambah
+      </button>
+    </Link>
+  </div>
+</div>
 
           {/* Table Container */}
           <div className="overflow-x-auto">
