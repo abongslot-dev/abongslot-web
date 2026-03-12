@@ -145,43 +145,58 @@ const getShio = (nomor2D) => {
         {/* Tabel */}
         <div className="overflow-x-auto bg-white">
           <table className="w-full text-[15px] text-center border-collapse">
-            <thead>
-              <tr className="bg-gray-100 text-zinc-500 uppercase border-b border-gray-300">
-                <th className="py-3 px-1 border-r border-gray-300 font-bold">PASARAN</th>
-                <th className="py-3 px-1 border-r border-gray-300 font-bold">PERIODE</th>
-                <th className="py-3 px-1 border-r border-gray-300 font-bold text-red-700">RESULT</th>
-                <th className="py-3 px-1 font-bold text-black">TANGGAL</th>
-              </tr>
-            </thead>
- <tbody className="text-black">
+<thead>
+  <tr className="bg-gray-100 text-zinc-500 text-[11px] uppercase border-b border-gray-300">
+    {/* 1. PERIODE */}
+    <th className="py-3 px-2 border-r border-gray-300 font-bold tracking-tighter">PERIODE</th>
+    
+    {/* 2. PASARAN */}
+    <th className="py-3 px-2 border-r border-gray-300 font-bold tracking-tighter">PASARAN</th>
+    
+    {/* 3. RESULT (Warna Merah) */}
+    <th className="py-3 px-2 border-r border-gray-300 font-black text-red-700 tracking-widest">RESULT</th>
+    
+    {/* 4. TANGGAL (Warna Hitam) */}
+    <th className="py-3 px-2 font-bold text-black tracking-tighter">TANGGAL</th>
+  </tr>
+</thead>
+
+<tbody className="text-black bg-white">
   {loading ? (
     <tr><td colSpan="4" className="py-10 text-zinc-400 italic text-center">Memuat data riwayat...</td></tr>
   ) : dataTampil.length === 0 ? (
     <tr><td colSpan="4" className="py-10 text-zinc-400 italic text-sm text-center">Data tidak ditemukan</td></tr>
   ) : (
-    // 1. Ambil dataTampil, 2. Copy dulu [...], 3. Urutkan .sort(), 4. Baru .map()
     [...dataTampil]
       .sort((a, b) => {
         const dateA = new Date(a.created_at || a.tanggal || 0);
         const dateB = new Date(b.created_at || b.tanggal || 0);
-        return dateB - dateA; // Terbaru di paling ATAS
+        return dateB - dateA;
       })
       .map((item, i) => (
-        <tr key={i} className="border-b border-gray-200 hover:bg-gray-50">
-          <td className="py-3 border-r border-gray-200 font-black text-zinc-700 uppercase">
-            {item.pasaran}
-          </td>
-          <td className="py-3 border-r border-gray-200 font-bold text-zinc-500">
+        <tr key={i} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+          
+          {/* 1. KOLOM PERIODE (Sekarang di Depan) */}
+          <td className="py-3 border-r border-gray-200 font-bold text-zinc-500 text-[12px]">
             #{item.periode}
           </td>
-          <td className="p-3 border-r text-center">
+
+          {/* 2. KOLOM PASARAN */}
+          <td className="py-3 border-r border-gray-200 font-black text-zinc-700 uppercase text-[12px] tracking-tighter">
+            {item.pasaran}
+          </td>
+
+          {/* 3. KOLOM RESULT (Tombol Klik Detail) */}
+          <td className="p-3 border-r border-gray-200 text-center">
             <button onClick={() => bukaDetail(item)} className="hover:scale-105 transition active:scale-95">
-              <span className="bg-white text-black px-3 py-1 rounded-md font-black text-sm tracking-[3px] cursor-pointer shadow-md border border-gray-100">
+              <span className="bg-white text-red-700 px-3 py-1 rounded-md font-black text-base tracking-[3px] cursor-pointer shadow-sm border border-gray-200">
                 {item.result}
               </span>
             </button>
           </td>
-          <td className="py-3 font-bold text-zinc-600 uppercase">
+
+          {/* 4. KOLOM TANGGAL */}
+          <td className="py-3 font-bold text-zinc-600 uppercase text-[11px]">
             {item.created_at ? (
               new Date(item.created_at).toLocaleDateString('id-ID', { 
                 day: '2-digit', 
@@ -192,6 +207,7 @@ const getShio = (nomor2D) => {
               item.tanggal || "-"
             )}
           </td>
+          
         </tr>
       ))
   )}
