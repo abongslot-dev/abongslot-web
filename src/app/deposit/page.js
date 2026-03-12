@@ -478,23 +478,28 @@ useEffect(() => {
   {/* 2. SECTION INPUT & PROMO */}
   <div className="space-y-2">
     {/* Pilih Bank */}
-    <div className="flex items-center gap-4">
-      <span className="w-28 text-[11px] font-bold text-gray-700">Pilih Bank</span>
-      <div className="flex-1">
-        <select 
-  value={bankTujuan}
-  onChange={(e) => setBankTujuan(e.target.value)}
-  className="w-full h-9 px-3 border-2 border-black rounded text-[11px] font-bold outline-none bg-white focus:border-blue-500"
->
-  <option value="BCA">BCA</option>
-  <option value="BNI">BNI</option>
-  <option value="BRI">BRI</option>
-  <option value="MANDIRI">MANDIRI</option>
-  <option value="DANA">DANA</option>
-  <option value="OVO">OVO</option>
-</select>
-      </div>
-    </div>
+   <div className="flex items-center gap-4">
+  <span className="w-28 text-[11px] font-bold text-gray-700">Pilih Bank</span>
+  <div className="flex-1">
+    <select 
+      value={bankTujuan}
+      onChange={(e) => setBankTujuan(e.target.value)}
+      className="w-full h-9 px-3 border-2 border-black rounded text-[11px] font-bold outline-none bg-white focus:border-blue-500"
+    >
+      {/* Jika data sedang dimuat */}
+      {listRekeningAdmin.length === 0 && (
+        <option value="">Memuat data bank...</option>
+      )}
+
+      {/* Loop data dari Supabase */}
+      {listRekeningAdmin.map((rek) => (
+        <option key={rek.id} value={rek.banks?.nama}>
+          {rek.banks?.nama}
+        </option>
+      ))}
+    </select>
+  </div>
+</div>
 
     {/* Nominal */}
     <div className="flex items-center gap-4">
