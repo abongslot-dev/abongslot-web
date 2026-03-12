@@ -814,7 +814,7 @@ useEffect(() => {
 
 
 {/* --- BOTTOM NAVIGATION: MOBILE BLUR & DESKTOP SOLID --- */}
- <div className="fixed bottom-0 md:bottom-6 left-0 right-0 z-[999] flex justify-center pointer-events-none">
+ <div className="fixed bottom-0 md:bottom-0 left-0 right-0 z-[999] flex justify-center pointer-events-none">
         <div 
           className="flex items-center justify-around px-2 py-2 w-full max-w-5xl pointer-events-auto min-h-[75px] transition-all duration-300
                      bg-[#1a0033]/90 border-t-2 border-[#D4AF37] backdrop-blur-md
