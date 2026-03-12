@@ -28,9 +28,11 @@ export default function UbahBankPage() {
   const [uploading, setUploading] = useState(false);
 
   // 1. Ambil Data Bank yang Mau Diedit
+ // 1. Ambil Data Bank yang Mau Diedit
   useEffect(() => {
     const fetchBankData = async () => {
       try {
+        // Gunakan .select() tanpa cache
         const { data, error } = await supabase
           .from('banks')
           .select('*')
@@ -44,7 +46,11 @@ export default function UbahBankPage() {
           setStatus(data.status);
           setRegister(data.register ? "Ya" : "Tidak");
           setDeposit(data.deposit ? "Ya" : "Tidak");
-          setImgUrl(data.img);
+          
+          // Tambahkan timestamp di sini juga supaya preview gambar lama 
+          // tidak nyangkut di cache browser saat halaman dibuka
+          const freshImg = data.img ? `${data.img}?t=${Date.now()}` : "";
+          setImgUrl(freshImg);
         }
       } catch (error) {
         console.error("Error fetching bank:", error.message);
@@ -56,74 +62,74 @@ export default function UbahBankPage() {
     if (id) fetchBankData();
   }, [id]);
 
-  // 2. Fungsi Upload Gambar Baru
+// GANTI FUNGSI HANDLE UPLOAD
 const handleUpload = async (e) => {
   try {
     setUploading(true);
     const file = e.target.files[0];
     if (!file) return;
 
-    // Gunakan Timestamp agar nama file SELALU BARU & UNIK
+    // Pakai Date.now() supaya nama file selalu beda dan unik
     const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}.${fileExt}`; 
+    const fileName = `bank-${Date.now()}.${fileExt}`; 
     const filePath = fileName;
 
-    // Proses Upload
+    // 1. Upload ke Storage
     let { error: uploadError } = await supabase.storage
       .from('logos')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: true // Menimpa jika ada file sama
-      });
+      .upload(filePath, file);
 
     if (uploadError) throw uploadError;
 
-    // Ambil URL Publik yang baru
+    // 2. Ambil URL Publik
     const { data } = supabase.storage.from('logos').getPublicUrl(filePath);
     
-    console.log("URL Gambar Baru:", data.publicUrl); // Cek di console log!
-    setImgUrl(data.publicUrl); // Simpan URL baru ke state
-    alert("✅ Gambar berhasil diupload!");
-
+    // 3. Update State - Tambahkan Timestamp untuk mematikan Cache Browser
+    const finalUrl = `${data.publicUrl}?t=${Date.now()}`;
+    setImgUrl(finalUrl); 
+    
+    alert("✅ Gambar berhasil diupload ke sistem!");
   } catch (error) {
-    console.error("Detail Error Upload:", error);
     alert("❌ Gagal upload: " + error.message);
   } finally {
     setUploading(false);
   }
 };
 
-  // 3. Fungsi Simpan Perubahan (UPDATE)
+// GANTI FUNGSI HANDLE SIMPAN
 const handleSimpan = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      const { error } = await supabase
-        .from('banks')
-        .update({
-          nama: nama,
-          tipe: tipe,
-          status: status,
-          register: register === "Ya",
-          deposit: deposit === "Ya",
-          img: imgUrl, // Link gambar baru Bos
-        })
-        .eq('id', id);
+  try {
+    // KITA CEK APAKAH imgUrl SUDAH YANG TERBARU
+    console.log("Mengirim data ke DB:", { nama, imgUrl });
 
-      if (error) throw error;
+    const { error } = await supabase
+      .from('banks')
+      .update({
+        nama: nama,
+        tipe: tipe,
+        status: status,
+        register: register === "Ya",
+        deposit: deposit === "Ya",
+        img: imgUrl, // Ini harus berisi link baru dari handleUpload
+      })
+      .eq('id', id);
 
-      alert("✅ Data Bank Berhasil Diperbarui!");
-      
-      // GANTI DUA BARIS ROUTER TADI DENGAN INI:
-      window.location.href = '/admin/pengaturan-bank/bank';
-      
-    } catch (error) {
-      alert("❌ Gagal Simpan: " + error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    if (error) throw error;
+
+    alert("✅ Data Berhasil Diperbarui!");
+    
+    // PAKSA PINDAH DAN REFRESH TOTAL
+    window.location.replace('/admin/pengaturan-bank/bank'); 
+    
+  } catch (error) {
+    alert("❌ Gagal Simpan: " + error.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (fetching) return <div className="p-10 text-center">Memuat data...</div>;
 
@@ -191,11 +197,19 @@ const handleSimpan = async (e) => {
             <label className="block text-sm text-gray-600 mb-1">Gambar</label>
             <div className="border p-4 rounded-md flex flex-col gap-3">
               {imgUrl && (
-                <div className="flex items-center gap-4 border p-2 w-fit rounded">
-                  <img src={imgUrl} alt="Preview" className="h-12 object-contain" />
-                  <button type="button" onClick={() => setImgUrl("")} className="bg-red-600 text-white text-[10px] px-2 py-1 rounded">× Hapus Gambar</button>
-                </div>
-              )}
+  <div className="flex items-center gap-4 border p-2 w-fit rounded">
+    {/* Tambahkan key={imgUrl} supaya gambar dipaksa ganti di layar */}
+    <img 
+      key={imgUrl} 
+      src={imgUrl} 
+      alt="Preview" 
+      className="h-12 object-contain" 
+    />
+    <button type="button" onClick={() => setImgUrl("")} className="bg-red-600 text-white text-[10px] px-2 py-1 rounded">
+      × Hapus Gambar
+    </button>
+  </div>
+)}
               <input type="file" onChange={handleUpload} disabled={uploading} className="text-sm" />
               {uploading && <p className="text-xs text-blue-500 italic">Mengupload...</p>}
             </div>
