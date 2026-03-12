@@ -3,9 +3,8 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar"; 
 import { User, ChevronDown, LogOut, UserCircle } from "lucide-react"; 
 import { useRouter } from "next/navigation"; 
-import { createClient } from '@supabase/supabase-js'; // Tambahkan ini
+import { createClient } from '@supabase/supabase-js';
 
-// Inisialisasi Supabase di luar agar stabil
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL, 
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -15,31 +14,67 @@ export default function AdminLayout({ children }) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
   const [showProfile, setShowProfile] = useState(false);
-  const [isMounted, setIsMounted] = useState(false); // Penyelamat Hydration Error
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Pastikan komponen sudah nempel di browser sebelum render hal-hal aneh
+  // --- LOGIKA TIMER MULAI DISINI ---
+  const DURASI_SESEI = 3600; // 1 Jam (3600 detik)
+  const [timeLeft, setTimeLeft] = useState(DURASI_SESEI);
+
   useEffect(() => {
     setIsMounted(true);
+
+    // Fungsi Logout Otomatis
+    const autoLogout = async () => {
+      await supabase.auth.signOut();
+      document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+      alert("Sesi Anda berakhir karena tidak ada aktivitas.");
+      window.location.href = "/login";
+    };
+
+    // Timer mundur setiap detik
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          autoLogout();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    // Reset timer kalau mouse gerak atau ngetik (Bos dianggap masih kerja)
+    const resetTimer = () => setTimeLeft(DURASI_SESEI);
+    window.addEventListener("mousemove", resetTimer);
+    window.addEventListener("keydown", resetTimer);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener("mousemove", resetTimer);
+      window.removeEventListener("keydown", resetTimer);
+    };
   }, []);
+  // --- LOGIKA TIMER SELESAI ---
 
   const handleLogout = async () => {
     const confirm = window.confirm("Yakin ingin keluar?");
     if (confirm) {
-      // 1. Logout resmi dari Supabase (Ini paling penting!)
       await supabase.auth.signOut();
-      
-      // 2. Hapus cookie manual
       document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-      
-      // 3. Pindah halaman pake window.location biar bersih total (Anti-Mental)
       window.location.href = "/login"; 
     }
   };
 
-  // Jika belum 'mounted', jangan render dulu biar nggak Exception Error
   if (!isMounted) {
     return <div className="h-screen w-full bg-[#1a0033]"></div>;
   }
+
+  // Format ke Menit:Detik
+  const formatTime = (s) => {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+  };
 
   return (
     <div className="flex h-screen w-full bg-[#1a0033] overflow-hidden font-sans text-white">
