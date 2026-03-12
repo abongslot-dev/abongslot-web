@@ -5,9 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from '@supabase/supabase-js';
 
-// Menghindari cache agar data selalu segar setelah diubah
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 // 1. Inisialisasi Supabase
 const supabase = createClient(
