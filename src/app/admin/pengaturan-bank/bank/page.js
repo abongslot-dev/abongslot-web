@@ -97,12 +97,16 @@ export default function BankManagementPage() {
                       <td className="border p-3">{bank.tipe}</td>
                       <td className="border p-3 text-gray-400 font-light italic">{bank.status}</td>
                       <td className="border p-3">
-                        {bank.img ? (
-                           <img src={bank.img} alt={bank.nama} className="h-6 object-contain mx-auto" />
-                        ) : (
-                           <span className="text-gray-300">No Img</span>
-                        )}
-                      </td>
+  {bank.img ? (
+     <img 
+       src={`${bank.img}?t=${new Date().getTime()}`} // GANTI DI SINI BOS
+       alt={bank.nama} 
+       className="h-6 object-contain mx-auto" 
+     />
+  ) : (
+     <span className="text-gray-300">No Img</span>
+  )}
+</td>
                       <td className="border p-3 text-center">
                         <input type="checkbox" checked={bank.register} readOnly className="w-3.5 h-3.5 accent-blue-600" />
                       </td>
