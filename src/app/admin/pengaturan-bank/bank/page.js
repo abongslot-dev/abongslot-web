@@ -105,10 +105,13 @@ export default function BankManagementPage() {
                         <input type="checkbox" checked={bank.deposit} readOnly className="w-4 h-4" />
                       </td>
                       <td className="border p-3 text-center">
-                        <button className="bg-[#ffc107] p-1.5 rounded shadow-sm hover:bg-yellow-500 transition-colors">
-                          <Edit2 size={14} />
-                        </button>
-                      </td>
+  <button 
+    onClick={() => router.push(`/admin/pengaturan-bank/bank/ubah/${bank.id}`)}
+    className="bg-[#ffc107] p-1.5 rounded shadow-sm hover:bg-yellow-500 transition-colors"
+  >
+    <Edit2 size={14} />
+  </button>
+</td>
                     </tr>
                   ))
                 ) : (
