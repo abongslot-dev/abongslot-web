@@ -58,7 +58,7 @@ export default function TambahRekeningPage() {
 
       if (error) throw error;
       alert("✅ Berhasil menyimpan rekening!");
-      router.push("/admin/rekening-bank"); 
+      router.push("/admin/pengaturan-bank/rekening"); 
       router.refresh();
     } catch (err) {
       alert("❌ Gagal: " + err.message);
