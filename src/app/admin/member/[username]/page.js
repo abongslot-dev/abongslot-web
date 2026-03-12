@@ -55,7 +55,7 @@ useEffect(() => {
       // Ambil Depo Auto (QRIS)
       const { data: autoData } = await supabase.from("deposits_auto").select("*").eq("username", selectedUser.username);
       if (autoData) setDataDepositAuto(autoData); // <--- ISI STATE-NYA DI SINI
-      
+
       // Tarik Data Withdrawal
       const { data: wdData } = await supabase
         .from("withdrawals")
@@ -325,10 +325,23 @@ const totalWD = dataWD?.length > 0
     <span className="text-red-500 bg-red-50 px-2 py-1 rounded border border-red-200 uppercase font-bold">Ditolak</span>
   )}
 </td>
-                {/* Kolom Admin Respon */}
-                <td className="p-3 text-center text-[10px] text-gray-400 italic font-medium uppercase">
-                  {depo.status === 'pending' ? '-' : 'System / Admin'}
-                </td>
+<td className="p-3 text-center">
+  {depo.status === 'pending' ? (
+    <span className="text-gray-300 italic text-[10px]">-</span>
+  ) : (
+    <div className="flex flex-col items-center">
+      {/* 1. Tampilkan Nama Admin dari Database */}
+      <span className="text-zinc-800 font-bold text-[10px] uppercase italic">
+        {depo.processed_by || 'ADMIN'}
+      </span>
+      
+      {/* 2. Tampilkan ID Admin dari Database */}
+      <span className="text-[8px] text-gray-400 leading-none mt-0.5">
+        ID: {depo.admin_id || '01'}
+      </span>
+    </div>
+  )}
+</td>
               </tr>
             ))
           ) : (
