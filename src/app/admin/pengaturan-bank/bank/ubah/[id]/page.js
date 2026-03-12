@@ -103,11 +103,11 @@ const handleSimpan = async (e) => {
   e.preventDefault();
   setLoading(true);
 
-  // LOG UNTUK DEBUG - Buka F12 untuk lihat ini
-  console.log("ID yang akan diupdate:", id);
-  console.log("Link Gambar yang dikirim:", imgUrl);
-
   try {
+    // 1. Pastikan ID bersih (tanpa spasi)
+    const targetId = String(id).trim();
+
+    // 2. Langsung Update tanpa kompromi
     const { data, error } = await supabase
       .from('banks')
       .update({
@@ -116,22 +116,20 @@ const handleSimpan = async (e) => {
         status: status,
         register: register === "Ya",
         deposit: deposit === "Ya",
-        img: imgUrl, // <--- Pastikan ini link baru dari handleUpload
+        img: imgUrl, // Ini berisi link dari gambar-gambar yang sudah masuk di storage tadi
       })
-      .eq('id', id)
-      .select(); // Penting untuk melihat apakah ada baris yang terkena update
+      .filter('id', 'eq', targetId) // Pakai filter manual supaya lebih akurat
+      .select();
 
     if (error) throw error;
 
-    // Jika data ada isinya, berarti UPDATE BERHASIL
+    // 3. Cek apakah update berhasil kena ke barisnya
     if (data && data.length > 0) {
-      alert("✅ BERHASIL! Database sudah diperbarui.");
-      // Gunakan replace agar cache halaman lama hilang
-      window.location.replace('/admin/pengaturan-bank/bank');
+      alert("✅ BERHASIL! Gambar di halaman depan pasti berubah sekarang.");
+      window.location.href = '/admin/pengaturan-bank/bank';
     } else {
-      // Jika masuk ke sini, berarti ID cocok tapi Supabase tidak melakukan perubahan
-      // Biasanya karena RLS atau data yang dikirim dianggap sama oleh DB
-      alert("⚠️ Database tidak melakukan perubahan. Cek apakah Anda memiliki izin (RLS) untuk update?");
+      // Jika masih muncul ini, berarti ID di URL dan ID di Tabel Bos beda format
+      alert(`⚠️ Gagal Simpan. Database tidak menemukan ID "${targetId}".\n\nSaran: Coba buat Bank baru saja, lalu edit bank yang baru itu.`);
     }
 
   } catch (error) {
