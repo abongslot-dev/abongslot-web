@@ -103,8 +103,27 @@ const handleSimpan = async (e) => {
   e.preventDefault();
   setLoading(true);
 
+  // 1. Ambil ID dari URL dan bersihkan
+  const rawId = params.id; 
+  
   try {
-    // KITA PAKAI ID ASLI (STRING) SESUAI DATA SQL BOS
+    console.log("Memulai proses update untuk ID:", rawId);
+
+    // 2. Coba cari dulu datanya ada atau tidak (fleksibel angka/teks)
+    const { data: findData, error: findError } = await supabase
+      .from('banks')
+      .select('*');
+      
+    // Filter manual di sisi client untuk memastikan kecocokan
+    const targetBank = findData?.find(b => String(b.id) === String(rawId));
+
+    if (!targetBank) {
+      alert(`⚠️ DATABASE ERROR: ID "${rawId}" tidak ditemukan di tabel.\nID yang ada di database adalah: ${findData?.map(b => b.id).join(", ")}`);
+      setLoading(false);
+      return;
+    }
+
+    // 3. Eksekusi Update menggunakan ID asli yang ditemukan di database
     const { data, error } = await supabase
       .from('banks')
       .update({
@@ -115,19 +134,20 @@ const handleSimpan = async (e) => {
         deposit: deposit === "Ya",
         img: imgUrl,
       })
-      .eq('id', String(id)) // Paksa jadi String agar cocok dengan '2' di SQL
+      .eq('id', targetBank.id) // Pakai ID asli dari hasil temuan
       .select();
 
     if (error) throw error;
 
     if (data && data.length > 0) {
-      alert("✅ BERHASIL! Database sudah terupdate.");
+      alert("✅ BERHASIL! Data Bank di Database sudah berubah.");
       window.location.href = '/admin/pengaturan-bank/bank';
     } else {
-      alert(`⚠️ Gagal: ID "${id}" tidak ditemukan.\n\nCoba cek di daftar bank apakah baris dengan ID ini masih ada?`);
+      alert("⚠️ Update dikirim tapi tidak ada baris yang berubah.");
     }
 
   } catch (error) {
+    console.error("Detail Error:", error);
     alert("❌ Error: " + error.message);
   } finally {
     setLoading(false);
