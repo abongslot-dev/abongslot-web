@@ -268,13 +268,13 @@ useEffect(() => {
       }}
     >
       {/* --- HEADER --- */}
-     <header ref={headerRef} className="w-full max-w-5xl bg-[#1a0033] shadow-2xl sticky top-0 z-[100] border-b border-[#D4AF37]/20">
+     <header ref={headerRef} className="w-full max-w-6xl bg-[#1a0033] shadow-2xl sticky top-0 z-[100] border-b border-[#D4AF37]/20">
   <div className="px-5 py-3 flex items-center justify-center min-h-[60px] md:min-h-[120px]"> 
     
     {/* --- LOGO TETAP DI TENGAH (MOBILE & DESKTOP) --- */}
     <div className="flex justify-center items-center">
       <img 
-        src="https://i.postimg.cc/BvTrMrkD/logo-abong.png" 
+        src="https://i.postimg.cc/XYgNTswc/download-(3).png" 
         alt="Logo" 
         className="h-12 md:h-20 w-auto drop-shadow-[0_0_10px_rgba(212,175,55,0.4)] object-contain cursor-pointer"
         onClick={() => router.push('/dashboard')}
@@ -300,7 +300,7 @@ useEffect(() => {
 
 
 {/* --- KONTEN UTAMA --- */}
-<div className="w-full max-w-5xl bg-[#1a0033] flex flex-col items-center gap-3 p-4 shadow-2xl min-h-screen border-x border-white/5 pb-40">
+<div className="w-full max-w-6xl bg-[#1a0033] flex flex-col items-center gap-3 p-4 shadow-2xl min-h-screen border-x border-white/5 pb-40">
   
   {/* BOX DEPOSIT PUTIH */}
   <div className="w-full max-w-md bg-white rounded-lg shadow-2xl overflow-hidden mt-6 text-black border-t-4 border-red-600">
