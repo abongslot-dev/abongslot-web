@@ -17,7 +17,7 @@ export default function AdminLayout({ children }) {
   const [isMounted, setIsMounted] = useState(false);
 
   // --- LOGIKA TIMER MULAI DISINI ---
-  const DURASI_SESI = 60; // Sudah diperbaiki namanya dari SESEI ke SESI
+  const DURASI_SESI = 1800; // Sudah diperbaiki namanya dari SESEI ke SESI
   const [timeLeft, setTimeLeft] = useState(DURASI_SESI);
 
   useEffect(() => {
