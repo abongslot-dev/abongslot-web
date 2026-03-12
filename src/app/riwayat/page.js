@@ -307,7 +307,7 @@ const hasilFilter = json.data.filter(item => {
       </header>
 
       {/* --- MAIN CONTENT --- */}
-      <div className="w-full max-w-6xl mx-auto min-h-screen bg-white rounded-b-xl overflow-hidden shadow-2xl border-x border-b border-gray-300">
+      <div className="w-full max-w-6xl mx-auto h-auto bg-white rounded-b-xl overflow-hidden shadow-2xl border-x border-b border-gray-300 mb-10">
         <div className="bg-[#1a0033] p-3">
           <h1 className="text-white font-black text-xs md:text-sm uppercase italic">
             Riwayat Angka {pasaranAktif}
