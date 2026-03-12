@@ -76,7 +76,7 @@ export default function TambahBankPage() {
       if (insertError) throw insertError;
 
       alert("✅ Bank Berhasil Ditambahkan!");
-      router.push("/admin/bank");
+      router.push("/admin/pengaturan-bank/bank");
       router.refresh();
       
     } catch (err) {
