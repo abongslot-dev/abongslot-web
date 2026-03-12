@@ -145,9 +145,16 @@ export default function Sidebar({ isOpen, setIsOpen }) {
             <SubMenuItem label="Laporan Jurnal" href="/admin/laporan/jurnal" />
         </SidebarItem>
 
-        <SidebarItem icon={<FileBarChart size={16}/>} label="Pengaturan Bank" hasChild menuKey="bank">
+        <SidebarItem icon={<Landmark size={16}/>} label="Pengaturan Bank" hasChild menuKey="bank">
             <SubMenuItem label="Bank" href="/admin/pengaturan-bank/bank" />
             <SubMenuItem label="Rekening Bank" href="/admin/pengaturan-bank/rekening" />
+        </SidebarItem>
+
+
+        <SidebarItem icon={<Settings size={16}/>} label="Peratan & pengaturan" hasChild menuKey="bank">
+            <SubMenuItem label="Pengaturan Promo" href="/admin/peratan&pengaturan/setting-promo" />
+            <SubMenuItem label="Pengaturan Banner" href="/admin/peratan&pengaturan/setting-banner" />
+            <SubMenuItem label="Hubungi" href="/admin/peratan&pengaturan/hubungi" />
         </SidebarItem>
       </nav>
 
