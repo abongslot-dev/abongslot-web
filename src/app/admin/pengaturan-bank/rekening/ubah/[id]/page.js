@@ -90,7 +90,7 @@ export default function UbahRekeningPage() {
 
       if (error) throw error;
       alert("✅ Berhasil memperbarui rekening!");
-      router.push("/admin/rekening-bank"); 
+      router.push("/admin/pengaturan-bank/rekening"); 
       router.refresh();
     } catch (err) {
       alert("❌ Gagal Update: " + err.message);
