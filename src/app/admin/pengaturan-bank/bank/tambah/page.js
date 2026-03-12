@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from '@supabase/supabase-js';
 
-// Pastikan inisialisasi Supabase ada di sini
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL, 
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -23,7 +22,7 @@ export default function TambahBankPage() {
 
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("No file selected.");
-  const [loading, setLoading] = useState(false); // Tambahkan loading biar keren
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,7 +37,9 @@ export default function TambahBankPage() {
     }
   };
 
-  const handleSimpan = async () => {
+  const handleSimpan = async (e) => {
+    if (e) e.preventDefault(); // Mencegah reload halaman mendadak
+    
     if (!formData.nama || !file) {
       alert("Nama dan Gambar wajib diisi, Bos!");
       return;
@@ -46,9 +47,9 @@ export default function TambahBankPage() {
 
     setLoading(true);
     try {
-      // 1. Upload Gambar ke Supabase Storage (Bucket: logos)
+      // 1. Upload Gambar
       const fileExt = file.name.split('.').pop();
-      const fileNamePath = `${Date.now()}.${fileExt}`;
+      const fileNamePath = `bank-${Date.now()}.${fileExt}`;
       
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('logos') 
@@ -56,12 +57,12 @@ export default function TambahBankPage() {
 
       if (uploadError) throw uploadError;
 
-      // 2. Ambil Link URL Gambar
+      // 2. Ambil Link URL
       const { data: { publicUrl } } = supabase.storage
         .from('logos')
         .getPublicUrl(fileNamePath);
 
-      // 3. Simpan data ke Tabel 'banks'
+      // 3. Simpan ke Tabel 'banks'
       const { error: insertError } = await supabase
         .from('banks')
         .insert([{ 
@@ -76,8 +77,9 @@ export default function TambahBankPage() {
       if (insertError) throw insertError;
 
       alert("✅ Bank Berhasil Ditambahkan!");
-      router.push("/admin/pengaturan-bank/bank");
-      router.refresh();
+      
+      // Menggunakan replace agar history "tambah" hilang dan pindah ke daftar
+      window.location.href = "/admin/pengaturan-bank/bank";
       
     } catch (err) {
       alert("❌ Gagal Simpan: " + err.message);
@@ -211,12 +213,13 @@ export default function TambahBankPage() {
 
           {/* BUTTONS */}
           <div className="flex gap-2 pt-2">
-            <button 
-              onClick={handleSimpan}
-              className="bg-[#007bff] hover:bg-blue-700 text-white px-6 py-2 rounded text-sm transition-all shadow-md font-bold active:scale-95"
-            >
-              Simpan
-            </button>
+<button 
+       onClick={handleSimpan} 
+       disabled={loading}
+       className="bg-blue-600 text-white px-6 py-2 rounded shadow"
+    >
+       {loading ? "Menyimpan..." : "Simpan Bank"}
+    </button>
             <button 
               onClick={() => router.back()}
               className="bg-[#ffc107] hover:bg-yellow-500 text-black px-6 py-2 rounded text-sm transition-all shadow-md font-bold active:scale-95"
