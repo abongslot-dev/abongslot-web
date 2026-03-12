@@ -17,21 +17,19 @@ export default function AdminLayout({ children }) {
   const [isMounted, setIsMounted] = useState(false);
 
   // --- LOGIKA TIMER MULAI DISINI ---
-  const DURASI_SESEI = 3600; // 1 Jam (3600 detik)
+  const DURASI_SESEI = 60; // 1 Jam (3600 detik)
   const [timeLeft, setTimeLeft] = useState(DURASI_SESEI);
 
-  useEffect(() => {
+useEffect(() => {
     setIsMounted(true);
 
-    // Fungsi Logout Otomatis
     const autoLogout = async () => {
       await supabase.auth.signOut();
       document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-      alert("Sesi Anda berakhir karena tidak ada aktivitas.");
+      alert("Sesi Anda berakhir karena tidak ada aktivitas (Tes 1 Menit).");
       window.location.href = "/login";
     };
 
-    // Timer mundur setiap detik
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -43,8 +41,11 @@ export default function AdminLayout({ children }) {
       });
     }, 1000);
 
-    // Reset timer kalau mouse gerak atau ngetik (Bos dianggap masih kerja)
-    const resetTimer = () => setTimeLeft(DURASI_SESEI);
+    const resetTimer = () => {
+      // Setiap kali ada aktivitas, balikkan ke 60 detik lagi
+      setTimeLeft(DURASI_SESI);
+    };
+
     window.addEventListener("mousemove", resetTimer);
     window.addEventListener("keydown", resetTimer);
 
