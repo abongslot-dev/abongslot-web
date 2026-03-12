@@ -103,27 +103,11 @@ const handleSimpan = async (e) => {
   e.preventDefault();
   setLoading(true);
 
-  // 1. Ambil ID dari URL dan bersihkan
-  const rawId = params.id; 
-  
+  // LOG UNTUK DEBUG - Buka F12 untuk lihat ini
+  console.log("ID yang akan diupdate:", id);
+  console.log("Link Gambar yang dikirim:", imgUrl);
+
   try {
-    console.log("Memulai proses update untuk ID:", rawId);
-
-    // 2. Coba cari dulu datanya ada atau tidak (fleksibel angka/teks)
-    const { data: findData, error: findError } = await supabase
-      .from('banks')
-      .select('*');
-      
-    // Filter manual di sisi client untuk memastikan kecocokan
-    const targetBank = findData?.find(b => String(b.id) === String(rawId));
-
-    if (!targetBank) {
-      alert(`⚠️ DATABASE ERROR: ID "${rawId}" tidak ditemukan di tabel.\nID yang ada di database adalah: ${findData?.map(b => b.id).join(", ")}`);
-      setLoading(false);
-      return;
-    }
-
-    // 3. Eksekusi Update menggunakan ID asli yang ditemukan di database
     const { data, error } = await supabase
       .from('banks')
       .update({
@@ -132,27 +116,32 @@ const handleSimpan = async (e) => {
         status: status,
         register: register === "Ya",
         deposit: deposit === "Ya",
-        img: imgUrl,
+        img: imgUrl, // <--- Pastikan ini link baru dari handleUpload
       })
-      .eq('id', targetBank.id) // Pakai ID asli dari hasil temuan
-      .select();
+      .eq('id', id)
+      .select(); // Penting untuk melihat apakah ada baris yang terkena update
 
     if (error) throw error;
 
+    // Jika data ada isinya, berarti UPDATE BERHASIL
     if (data && data.length > 0) {
-      alert("✅ BERHASIL! Data Bank di Database sudah berubah.");
-      window.location.href = '/admin/pengaturan-bank/bank';
+      alert("✅ BERHASIL! Database sudah diperbarui.");
+      // Gunakan replace agar cache halaman lama hilang
+      window.location.replace('/admin/pengaturan-bank/bank');
     } else {
-      alert("⚠️ Update dikirim tapi tidak ada baris yang berubah.");
+      // Jika masuk ke sini, berarti ID cocok tapi Supabase tidak melakukan perubahan
+      // Biasanya karena RLS atau data yang dikirim dianggap sama oleh DB
+      alert("⚠️ Database tidak melakukan perubahan. Cek apakah Anda memiliki izin (RLS) untuk update?");
     }
 
   } catch (error) {
-    console.error("Detail Error:", error);
     alert("❌ Error: " + error.message);
   } finally {
     setLoading(false);
   }
 };
+
+
   if (fetching) return <div className="p-10 text-center">Memuat data...</div>;
 
   return (
