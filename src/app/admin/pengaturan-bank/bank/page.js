@@ -5,7 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from '@supabase/supabase-js';
 
-// 1. Inisialisasi Supabase (Pastikan ENV Bos sudah benar)
+// Menghindari cache agar data selalu segar setelah diubah
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// 1. Inisialisasi Supabase
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL, 
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -13,7 +17,7 @@ const supabase = createClient(
 
 export default function BankManagementPage() {
   const router = useRouter();
-  const [banks, setBanks] = useState([]); // Mulai dengan array kosong
+  const [banks, setBanks] = useState([]); 
   const [loading, setLoading] = useState(true);
 
   // 2. Fungsi Ambil Data dari Database
@@ -60,12 +64,12 @@ export default function BankManagementPage() {
           Bank
         </div>
 
-        <div className="p-4">
+        <div className="p-4 relative">
           {/* Tombol Tambah */}
           <div className="flex justify-end mb-4">
             <button 
               onClick={() => router.push('/admin/pengaturan-bank/bank/tambah')} 
-              className="bg-[#198754] hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm flex items-center gap-1 transition-all active:scale-95"
+              className="bg-[#198754] hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm flex items-center gap-1 transition-all active:scale-95 shadow-sm"
             >
               <Plus size={16} /> Tambah
             </button>
@@ -75,14 +79,14 @@ export default function BankManagementPage() {
             <table className="w-full border-collapse border border-gray-200">
               <thead>
                 <tr className="bg-white text-gray-700 text-[13px] font-bold">
-                  <th className="border p-2 text-left w-12">No.</th>
-                  <th className="border p-2 text-left">Nama</th>
-                  <th className="border p-2 text-left">Tipe</th>
-                  <th className="border p-2 text-left text-gray-400">Status</th>
-                  <th className="border p-2 text-left">Gambar</th>
-                  <th className="border p-2 text-center text-[11px]">Register</th>
-                  <th className="border p-2 text-center text-[11px]">Deposit</th>
-                  <th className="border p-2 text-center">Action</th>
+                  <th className="border p-2 text-left w-12 font-bold">No.</th>
+                  <th className="border p-2 text-left font-bold">Nama</th>
+                  <th className="border p-2 text-left font-bold">Tipe</th>
+                  <th className="border p-2 text-left font-bold text-gray-400">Status</th>
+                  <th className="border p-2 text-left font-bold">Gambar</th>
+                  <th className="border p-2 text-center font-bold">Register</th>
+                  <th className="border p-2 text-center font-bold">Deposit</th>
+                  <th className="border p-2 text-center font-bold">Action</th>
                 </tr>
               </thead>
               <tbody className="text-[13px]">
@@ -90,32 +94,41 @@ export default function BankManagementPage() {
                   <tr><td colSpan="8" className="p-10 text-center italic text-gray-400">Memuat data...</td></tr>
                 ) : banks.length > 0 ? (
                   banks.map((bank, index) => (
-                    <tr key={bank.id} className="hover:bg-gray-50">
+                    <tr key={bank.id} className="hover:bg-gray-50 transition-colors">
                       <td className="border p-3 text-center">{index + 1}.</td>
                       <td className="border p-3 font-semibold uppercase">{bank.nama}</td>
                       <td className="border p-3">{bank.tipe}</td>
-                      <td className="border p-3 text-gray-400 font-light">{bank.status}</td>
+                      <td className="border p-3 text-gray-400 font-light italic">{bank.status}</td>
                       <td className="border p-3">
-                        <img src={bank.img} alt={bank.nama} className="h-6 object-contain mx-auto" />
+                        {bank.img ? (
+                           <img src={bank.img} alt={bank.nama} className="h-6 object-contain mx-auto" />
+                        ) : (
+                           <span className="text-gray-300">No Img</span>
+                        )}
                       </td>
                       <td className="border p-3 text-center">
-                        <input type="checkbox" checked={bank.register} readOnly className="w-4 h-4" />
+                        <input type="checkbox" checked={bank.register} readOnly className="w-3.5 h-3.5 accent-blue-600" />
                       </td>
                       <td className="border p-3 text-center">
-                        <input type="checkbox" checked={bank.deposit} readOnly className="w-4 h-4" />
+                        <input type="checkbox" checked={bank.deposit} readOnly className="w-3.5 h-3.5 accent-blue-600" />
                       </td>
                       <td className="border p-3 text-center">
-  <button 
-    onClick={() => router.push(`/admin/pengaturan-bank/bank/ubah/${bank.id}`)}
-    className="bg-[#ffc107] p-1.5 rounded shadow-sm hover:bg-yellow-500 transition-colors"
-  >
-    <Edit2 size={14} />
-  </button>
-</td>
+                        {/* TOMBOL EDIT - MENGARAH KE HALAMAN UBAH */}
+                        <button 
+                          onClick={() => router.push(`/admin/pengaturan-bank/bank/ubah/${bank.id}`)}
+                          className="bg-[#ffc107] p-1.5 rounded shadow-sm hover:bg-yellow-500 transition-colors inline-flex"
+                        >
+                          <Edit2 size={14} className="text-black" />
+                        </button>
+                      </td>
                     </tr>
                   ))
                 ) : (
-                  <tr><td colSpan="8" className="p-10 text-center text-gray-400 italic font-light">Belum ada data bank. Silakan tambah data baru.</td></tr>
+                  <tr>
+                    <td colSpan="8" className="p-10 text-center text-gray-400 italic">
+                      Belum ada data bank. Silakan klik Tambah.
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>
