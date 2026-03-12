@@ -38,9 +38,12 @@ export default function BankManagementPage() {
         <div className="p-4">
           {/* Action Button */}
           <div className="flex justify-end mb-4">
-            <button className="bg-[#198754] hover:bg-green-700 text-white px-3 py-1.5 rounded text-sm flex items-center gap-1 transition-colors">
-              <Plus size={16} /> Tambah
-            </button>
+            <button 
+  onClick={() => router.push('/admin/bank/tambah')} 
+  className="..."
+>
+  <Plus size={16} /> Tambah
+</button>
           </div>
 
           {/* Table */}
