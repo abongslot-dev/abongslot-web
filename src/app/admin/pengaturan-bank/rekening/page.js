@@ -122,10 +122,13 @@ export default function RekeningBankPage() {
                         {new Date(rek.created_at).toLocaleString('id-ID')}
                       </td>
                       <td className="border border-gray-200 p-3 text-center">
-                        <button className="bg-[#ffc107] hover:bg-yellow-500 p-1.5 rounded transition-all inline-flex shadow-sm border border-yellow-600/20">
-                          <Edit2 size={15} className="text-black" strokeWidth={2.5} />
-                        </button>
-                      </td>
+  {/* Bungkus tombol dengan Link, arahkan ke folder ubah dan bawa ID-nya */}
+  <Link href={`/admin/pengaturan-bank/rekening/ubah/${rek.id}`}>
+    <button className="bg-[#ffc107] hover:bg-yellow-500 p-1.5 rounded transition-all inline-flex shadow-sm border border-yellow-600/20">
+      <Edit2 size={15} className="text-black" strokeWidth={2.5} />
+    </button>
+  </Link>
+</td>
                     </tr>
                   ))
                 )}
