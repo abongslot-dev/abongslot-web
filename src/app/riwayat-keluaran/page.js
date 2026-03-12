@@ -110,17 +110,11 @@ const getShio = (nomor2D) => {
         </div>
       </header>
 
-{/* 1. Tambahkan pembungkus paling luar dengan bg-gray atau gelap agar celahnya kelihatan */}
-<div className="w-full min-h-screen bg-gray-200 py-4 px-3 flex justify-center"> 
-
-  {/* 2. Container Putih Bos sekarang punya celah karena px-3 di atas */}
-  <div className="w-full max-w-5xl min-h-[calc(100vh-100px)] bg-white overflow-hidden shadow-2xl border border-gray-300 rounded-xl flex flex-col pb-24">
-    
-    {/* Header Atas */}
-    <div className="bg-[#1a0033] px-4 py-2 border-b border-white/20 flex justify-between items-center">
-      <h2 className="text-white text-[15px] font-bold uppercase tracking-wider">Riwayat Keluaran Togel</h2>
-      <span className="text-[15px] bg-green-600 px-2 py-0.5 rounded animate-pulse">LIVE</span>
-    </div>
+      <div className="w-full max-w-5xl min-h-[calc(100vh-100px)] bg-white overflow-hidden shadow-2xl border-x border-gray-300 flex flex-col pb-24">
+        <div className="bg-[#1a0033] px-4 py-2 border-b border-white/20 flex justify-between items-center">
+          <h2 className="text-white text-[15px]  font-bold uppercase tracking-wider">Riwayat Keluaran Togel</h2>
+          <span className="text-[15px] bg-green-600 px-2 py-0.5 rounded animate-pulse">LIVE</span>
+        </div>
 
         {/* Filter Section - Input Manual */}
         <div className="p-3 bg-[#1a0033]">
@@ -206,7 +200,7 @@ const getShio = (nomor2D) => {
         </div>
       </div>
 
-</div>
+
 
 
 {showModal && selectedDetail && (
