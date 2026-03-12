@@ -24,6 +24,7 @@ export default function DepositPage() {
   const [metode, setMetode] = useState("TRANSFER");
   const [isModalPromoOpen, setIsModalPromoOpen] = useState(false);
   const [listRekeningAdmin, setListRekeningAdmin] = useState([]); // Untuk menampung semua rekening dari database
+  const [bankAktif, setBankAktif] = useState({ nama: "-", nomor: "-" });
   
 
   
