@@ -104,6 +104,7 @@ const handleSimpan = async (e) => {
   setLoading(true);
 
   try {
+    // KITA PAKAI ID ASLI (STRING) SESUAI DATA SQL BOS
     const { data, error } = await supabase
       .from('banks')
       .update({
@@ -114,17 +115,16 @@ const handleSimpan = async (e) => {
         deposit: deposit === "Ya",
         img: imgUrl,
       })
-      .eq('id', parseInt(id)) // <--- PAKSA JADI ANGKA DI SINI BOS
+      .eq('id', String(id)) // Paksa jadi String agar cocok dengan '2' di SQL
       .select();
 
     if (error) throw error;
 
     if (data && data.length > 0) {
-      alert("✅ DATABASE BERHASIL DIUPDATE!");
+      alert("✅ BERHASIL! Database sudah terupdate.");
       window.location.href = '/admin/pengaturan-bank/bank';
     } else {
-      // Jika masuk sini, berarti ID '2' memang tidak ada di tabel 'banks'
-      alert("⚠️ Gagal: ID " + id + " tidak ditemukan di database. Cek apakah datanya sudah dihapus?");
+      alert(`⚠️ Gagal: ID "${id}" tidak ditemukan.\n\nCoba cek di daftar bank apakah baris dengan ID ini masih ada?`);
     }
 
   } catch (error) {
@@ -133,7 +133,6 @@ const handleSimpan = async (e) => {
     setLoading(false);
   }
 };
-
   if (fetching) return <div className="p-10 text-center">Memuat data...</div>;
 
   return (
