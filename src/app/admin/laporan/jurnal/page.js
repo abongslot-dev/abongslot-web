@@ -106,7 +106,7 @@ export default function LaporanJurnalPage() {
         </div>
         
         <div className="p-4">
-          <div className="overflow-x-auto border border-gray-200 rounded">
+         <div className="overflow-x-auto border border-gray-200 rounded">
             <table className="w-full text-[15px] border-collapse">
               <thead>
                 <tr className="bg-white border-b border-gray-200 text-gray-800 font-bold text-center">
@@ -125,42 +125,77 @@ export default function LaporanJurnalPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 text-right">
-  {jurnalData.length === 0 ? (
-    <tr>
-      <td colSpan="12" className="p-10 text-center text-gray-400">
-        {loading ? "Sedang menarik data..." : "Data tidak ditemukan untuk periode ini."}
-      </td>
-    </tr>
-  ) : (
-    jurnalData.map((item, i) => {
-      // Helper untuk memastikan angka aman di-parse
-      // Kita bersihkan titik ribuan dan ganti koma desimal jadi titik agar bisa dihitung
-      const rawTotal = typeof item.total === 'string' 
-        ? parseFloat(item.total.replace(/\./g, '').replace(',', '.')) 
-        : item.total;
+                {jurnalData.length === 0 ? (
+                  <tr>
+                    <td colSpan="12" className="p-10 text-center text-gray-400">
+                      {loading ? "Sedang menarik data..." : "Data tidak ditemukan untuk periode ini."}
+                    </td>
+                  </tr>
+                ) : (
+                  jurnalData.map((item, i) => {
+                    const rawTotal = typeof item.total === 'string' 
+                      ? parseFloat(item.total.replace(/\./g, '').replace(',', '.')) 
+                      : item.total;
 
-      return (
-        <tr key={i} className="hover:bg-black-100 transition-colors">
-          <td className="p-3 border-r border-gray-200 text-center font-medium text-gray-400">{i + 1}.</td>
-          <td className="p-3 border-r border-gray-200 text-center">{item.tanggal}</td>
-          {/* TAMPILKAN LANGSUNG karena API sudah memformat angkanya */}
-          <td className="p-3 border-r border-gray-200 font-medium text-emerald-600">{item.depo}</td>
-          <td className="p-3 border-r border-gray-200 font-medium text-rose-600">{item.wd}</td>
-          <td className="p-3 border-r border-gray-200">{item.adjPlus}</td>
-          <td className="p-3 border-r border-gray-200">{item.adjMin}</td>
-          <td className="p-3 border-r border-gray-200">{item.bonus}</td>
-          <td className="p-3 border-r border-gray-200">{item.cashback}</td>
-          <td className="p-3 border-r border-gray-200">{item.referral}</td>
-          <td className="p-3 border-r border-gray-200">{item.rolling}</td>
-          <td className="p-3 border-r border-gray-200">{item.marketing}</td>
-          <td className={`p-3 font-bold ${rawTotal < 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
-            {item.total}
-          </td>
-        </tr>
-      );
-    })
-  )}
-</tbody>
+                    return (
+                      <tr key={i} className="hover:bg-gray-50 transition-colors">
+                        <td className="p-3 border-r border-gray-200 text-center font-medium text-gray-400">{i + 1}.</td>
+                        <td className="p-3 border-r border-gray-200 text-center">{item.tanggal}</td>
+                        <td className="p-3 border-r border-gray-200 font-medium text-emerald-600">{item.depo}</td>
+                        <td className="p-3 border-r border-gray-200 font-medium text-rose-600">{item.wd}</td>
+                        <td className="p-3 border-r border-gray-200">{item.adjPlus}</td>
+                        <td className="p-3 border-r border-gray-200">{item.adjMin}</td>
+                        <td className="p-3 border-r border-gray-200">{item.bonus}</td>
+                        <td className="p-3 border-r border-gray-200">{item.cashback}</td>
+                        <td className="p-3 border-r border-gray-200">{item.referral}</td>
+                        <td className="p-3 border-r border-gray-200">{item.rolling}</td>
+                        <td className="p-3 border-r border-gray-200">{item.marketing}</td>
+                        <td className={`p-3 font-bold ${rawTotal < 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
+                          {item.total}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+              {/* --- FOOTER TOTAL OTOMATIS --- */}
+              {jurnalData.length > 0 && (
+                <tfoot className="bg-gray-50 font-bold text-right border-t-2 border-gray-300">
+                  <tr>
+                    <td colSpan="2" className="p-3 border-r border-gray-200 text-center">TOTAL</td>
+                    <td className="p-3 border-r border-gray-200 text-emerald-600">
+                      Rp. {formatAngka(jurnalData.reduce((acc, curr) => acc + parseFloat(curr.depo?.replace(/\./g, '').replace(',', '.') || 0), 0))}
+                    </td>
+                    <td className="p-3 border-r border-gray-200 text-rose-600">
+                      Rp. {formatAngka(jurnalData.reduce((acc, curr) => acc + parseFloat(curr.wd?.replace(/\./g, '').replace(',', '.') || 0), 0))}
+                    </td>
+                    <td className="p-3 border-r border-gray-200">
+                      Rp. {formatAngka(jurnalData.reduce((acc, curr) => acc + parseFloat(curr.adjPlus?.replace(/\./g, '').replace(',', '.') || 0), 0))}
+                    </td>
+                    <td className="p-3 border-r border-gray-200">
+                      Rp. {formatAngka(jurnalData.reduce((acc, curr) => acc + parseFloat(curr.adjMin?.replace(/\./g, '').replace(',', '.') || 0), 0))}
+                    </td>
+                    <td className="p-3 border-r border-gray-200">
+                      Rp. {formatAngka(jurnalData.reduce((acc, curr) => acc + parseFloat(curr.bonus?.replace(/\./g, '').replace(',', '.') || 0), 0))}
+                    </td>
+                    <td className="p-3 border-r border-gray-200">
+                      Rp. {formatAngka(jurnalData.reduce((acc, curr) => acc + parseFloat(curr.cashback?.replace(/\./g, '').replace(',', '.') || 0), 0))}
+                    </td>
+                    <td className="p-3 border-r border-gray-200">
+                      Rp. {formatAngka(jurnalData.reduce((acc, curr) => acc + parseFloat(curr.referral?.replace(/\./g, '').replace(',', '.') || 0), 0))}
+                    </td>
+                    <td className="p-3 border-r border-gray-200">
+                      Rp. {formatAngka(jurnalData.reduce((acc, curr) => acc + parseFloat(curr.rolling?.replace(/\./g, '').replace(',', '.') || 0), 0))}
+                    </td>
+                    <td className="p-3 border-r border-gray-200">
+                      Rp. {formatAngka(jurnalData.reduce((acc, curr) => acc + parseFloat(curr.marketing?.replace(/\./g, '').replace(',', '.') || 0), 0))}
+                    </td>
+                    <td className="p-3 text-emerald-700">
+                      Rp. {formatAngka(jurnalData.reduce((acc, curr) => acc + parseFloat(curr.total?.replace(/\./g, '').replace(',', '.') || 0), 0))}
+                    </td>
+                  </tr>
+                </tfoot>
+              )}
             </table>
           </div>
         </div>
