@@ -6,33 +6,43 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.
 
 export async function GET(request) {
   try {
-    // 1. Ambil params tanggal dari URL (untuk filter pencarian)
     const { searchParams } = new URL(request.url);
-    const from = searchParams.get('from'); // YYYY-MM-DD
-    const to = searchParams.get('to');     // YYYY-MM-DD
+    const from = searchParams.get('from');
+    const to = searchParams.get('to');
 
-    // 2. Siapkan Query (Gunakan Range Tanggal jika ada)
-    const filterRange = (query) => {
-      if (from && to) {
-        return query.gte('created_at', `${from}T00:00:00.000Z`).lte('created_at', `${to}T23:59:59.999Z`);
+    // Fungsi pembantu agar tidak crash jika tabel kosong/error
+    const safeQuery = async (tableName, selectStr) => {
+      try {
+        let q = supabase.from(tableName).select(selectStr);
+        if (from && to) {
+          q = q.gte('created_at', `${from}T00:00:00.000Z`).lte('created_at', `${to}T23:59:59.999Z`);
+        }
+        const { data, error } = await q;
+        if (error) {
+          console.warn(`Tabel ${tableName} bermasalah atau belum dibuat:`, error.message);
+          return []; // Kembalikan array kosong jika tabel error/tidak ada
+        }
+        return data || [];
+      } catch (e) {
+        return [];
       }
-      return query;
     };
 
-    // 3. Ambil data secara paralel
-    const [depo, wd, adj, promo, roll, reff] = await Promise.all([
-      filterRange(supabase.from('deposits').select('nominal, created_at').or('status.eq.approve,status.eq.success')),
-      filterRange(supabase.from('withdrawals').select('nominal, created_at').or('status.eq.SUCCESS,status.eq.success')),
-      filterRange(supabase.from('adjustments').select('nominal, type, created_at')),
-      filterRange(supabase.from('promo_logs').select('bonus_amount, created_at')),
-      filterRange(supabase.from('rollingan_logs').select('amount, created_at')),
-      filterRange(supabase.from('referral_logs').select('bonus_amount, created_at'))
-    ]);
+    // Ambil data satu per satu secara aman
+    const depoData = await safeQuery('deposits', 'nominal, created_at, status');
+    const wdData = await safeQuery('withdrawals', 'nominal, created_at, status');
+    
+    // Tabel-tabel tambahan ini sering jadi penyebab 500 jika belum dibuat di Supabase
+    const adjData = await safeQuery('adjustments', 'nominal, type, created_at');
+    const promoData = await safeQuery('promo_logs', 'bonus_amount, created_at');
+    const rollData = await safeQuery('rollingan_logs', 'amount, created_at');
+    const reffData = await safeQuery('referral_logs', 'bonus_amount, created_at');
 
-    // 4. Proses Grouping Berdasarkan Tanggal
     const hasilGrouping = {};
 
     const getEntry = (date) => {
+      if (!date) return null;
+      // Format tanggal untuk baris tabel
       const d = new Date(date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
       if (!hasilGrouping[d]) {
         hasilGrouping[d] = {
@@ -43,45 +53,57 @@ export async function GET(request) {
       return hasilGrouping[d];
     };
 
-    // Isi masing-masing kategori
-    depo.data?.forEach(i => getEntry(i.created_at).depo += parseFloat(i.nominal || 0));
-    wd.data?.forEach(i => getEntry(i.created_at).wd += parseFloat(i.nominal || 0));
-    adj.data?.forEach(i => {
+    // Proses data (hanya ambil yang sukses/approve)
+    depoData.filter(i => ['approve', 'success'].includes(i.status?.toLowerCase())).forEach(i => {
       const entry = getEntry(i.created_at);
-      if (i.type === 'add') entry.adjPlus += parseFloat(i.nominal || 0);
-      else entry.adjMin += parseFloat(i.nominal || 0);
+      if (entry) entry.depo += parseFloat(i.nominal || 0);
     });
-    promo.data?.forEach(i => getEntry(i.created_at).bonus += parseFloat(i.bonus_amount || 0));
-    roll.data?.forEach(i => getEntry(i.created_at).rolling += parseFloat(i.amount || 0));
-    reff.data?.forEach(i => getEntry(i.created_at).referral += parseFloat(i.bonus_amount || 0));
 
-    // 5. Hitung Final Total per baris
-    // Rumus Win/Loss: (Depo + Adj+) - (WD + Adj- + Bonus + Reff + Rolling)
+    wdData.filter(i => ['success'].includes(i.status?.toLowerCase())).forEach(i => {
+      const entry = getEntry(i.created_at);
+      if (entry) entry.wd += parseFloat(i.nominal || 0);
+    });
+
+    adjData.forEach(i => {
+      const entry = getEntry(i.created_at);
+      if (entry) {
+        if (i.type === 'add') entry.adjPlus += parseFloat(i.nominal || 0);
+        else entry.adjMin += parseFloat(i.nominal || 0);
+      }
+    });
+
+    promoData.forEach(i => {
+      const entry = getEntry(i.created_at);
+      if (entry) entry.bonus += parseFloat(i.bonus_amount || 0);
+    });
+
+    // Kalkulasi Akhir
     const finalData = Object.values(hasilGrouping).map(row => {
       const totalPlus = row.depo + row.adjPlus;
       const totalMin = row.wd + row.adjMin + row.bonus + row.cashback + row.referral + row.rolling;
       row.total = totalPlus - totalMin;
       
-      // Format angka jadi string ribuan untuk UI
-      const format = (v) => v.toLocaleString('id-ID', { minimumFractionDigits: 2 });
+      // Format ke ribuan untuk UI
+      const fmt = (v) => v.toLocaleString('id-ID', { minimumFractionDigits: 2 });
       return {
         ...row,
-        depo: format(row.depo),
-        wd: format(row.wd),
-        adjPlus: format(row.adjPlus),
-        adjMin: format(row.adjMin),
-        bonus: format(row.bonus),
-        cashback: format(row.cashback),
-        referral: format(row.referral),
-        rolling: format(row.rolling),
-        marketing: format(row.marketing),
-        total: format(row.total)
+        depo: fmt(row.depo),
+        wd: fmt(row.wd),
+        adjPlus: fmt(row.adjPlus),
+        adjMin: fmt(row.adjMin),
+        bonus: fmt(row.bonus),
+        cashback: fmt(row.cashback),
+        referral: fmt(row.referral),
+        rolling: fmt(row.rolling),
+        marketing: fmt(row.marketing),
+        total: fmt(row.total)
       };
-    });
+    }).sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
     return NextResponse.json({ success: true, data: finalData });
+
   } catch (error) {
-    console.error("Jurnal Error:", error.message);
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    console.error("Critical Error Jurnal:", error.message);
+    return NextResponse.json({ success: false, message: "Terjadi kesalahan internal" }, { status: 500 });
   }
 }
