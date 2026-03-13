@@ -160,7 +160,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         </SidebarItem>
 
 
-        <SidebarItem icon={<Settings size={16}/>} label="Peralatan & pengaturan" hasChild menuKey="bank">
+        <SidebarItem icon={<Settings size={16}/>} label="Peralatan & pengaturan" hasChild menuKey="Peralatan">
             <SubMenuItem label="Pengaturan Promo" href="/admin/peralatan-pengaturan/setting-promo" />
             <SubMenuItem label="Pengaturan Banner" href="/admin/peralatan-pengaturan/setting-banner" />
             <SubMenuItem label="Hubungi" href="/admin/peralatan-pengaturan/hubungi" />
