@@ -74,23 +74,36 @@ export async function GET() {
     // Filter member baru hari ini menggunakan WIB
     const newMembersToday = memberRes.data.filter(m => new Date(m.created_at) >= startOfTodayWIB).length;
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        deposit: depoStats,
-        withdrawal: wdStats,
-        members: {
-          total: totalMembers,
-          newToday: newMembersToday
-        },
-        today: {
-          deposit: depoStats.todayAmount,
-          withdrawal: wdStats.todayAmount,
-          depositCount: depoStats.todayCount,
-          withdrawalCount: wdStats.todayCount
-        }
-      }
-    });
+return NextResponse.json({
+  success: true,
+  data: {
+    // Memastikan struktur objeknya 'Datar' dan mudah dibaca Frontend
+    deposit: {
+      countPending: depoStats.countPending,
+      totalPending: depoStats.totalPending,
+      countSuccess: depoStats.countSuccess,
+      totalSuccess: depoStats.totalSuccess,
+      countReject: depoStats.countReject,
+      totalReject: depoStats.totalReject
+    },
+    withdrawal: {
+      countPending: wdStats.countPending,
+      totalPending: wdStats.totalPending,
+      countSuccess: wdStats.countSuccess,
+      totalSuccess: wdStats.totalSuccess
+    },
+    members: {
+      total: totalMembers,
+      newToday: newMembersToday
+    },
+    today: {
+      deposit: depoStats.todayAmount,
+      withdrawal: wdStats.todayAmount,
+      depositCount: depoStats.todayCount,
+      withdrawalCount: wdStats.todayCount
+    }
+  }
+});
 
   } catch (error) {
     console.error("Dashboard API Error:", error.message);
