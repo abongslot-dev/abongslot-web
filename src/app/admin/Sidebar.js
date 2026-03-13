@@ -160,7 +160,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         </SidebarItem>
 
 
-        <SidebarItem icon={<Settings size={16}/>} label="Peralatan & pengaturan" hasChild menuKey="Peralatan">
+        <SidebarItem icon={<Settings size={16}/>} label="Peralatan & pengaturan" hasChild menuKey="pengaturan">
             <SubMenuItem label="Pengaturan Promo" href="/admin/peralatan-pengaturan/setting-promo" />
             <SubMenuItem label="Pengaturan Banner" href="/admin/peralatan-pengaturan/setting-banner" />
             <SubMenuItem label="Hubungi" href="/admin/peralatan-pengaturan/hubungi" />
@@ -168,7 +168,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
         <SidebarItem icon={<BarChart3 size={16}/>} label="Statistik" hasChild menuKey="statistik">
            <SubMenuItem label="Member Baru" href="/admin/statistik" />
-           <SubMenuItem label="Transaksi" href="/admin/statistik/transaksi" />
+           <SubMenuItem label="Member online" href="/admin/statistik/statistik-online" />
         </SidebarItem>
       </nav>
 
