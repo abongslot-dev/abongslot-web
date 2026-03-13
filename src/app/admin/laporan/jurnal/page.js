@@ -10,33 +10,37 @@ export default function LaporanJurnalPage() {
 const [fromDate, setFromDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]); // Otomatis tanggal 1 bulan ini
 const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]); // Hari ini
 
- // Fungsi ambil data dari API - VERSI AMAN
-  const fetchJurnal = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/reports/jurnal?from=${fromDate}&to=${toDate}`);
-      
-      // 1. CEK STATUS: Jika bukan 200, jangan dipaksa .json()
-      if (!response.ok) {
-        throw new Error(`Server Error: ${response.status}`);
-      }
+// Fungsi ambil data dari API - VERSI PINTAR (Bisa terima parameter langsung)
+ const fetchJurnal = async (forcedFrom, forcedTo) => {
+   setLoading(true);
+   
+   // Pakai data yang ditembak langsung (kalau ada), kalau nggak ada baru pakai state
+   const finalFrom = forcedFrom || fromDate;
+   const finalTo = forcedTo || toDate;
 
-      const result = await response.json();
-      
-      // 2. PASTIKAN DATA ADALAH ARRAY
-      if (result && result.success && Array.isArray(result.data)) {
-        setJurnalData(result.data);
-      } else {
-        setJurnalData([]); // Jika format salah, amankan dengan array kosong
-      }
-    } catch (error) {
-      console.error("Gagal narik data jurnal:", error);
-      setJurnalData([]); // JANGAN biarkan data undefined agar tidak crash saat render
-    } finally {
-      setLoading(false);
-    }
-  };
+   try {
+     // Gunakan parameter finalFrom & finalTo agar tidak nunggu state update
+     const response = await fetch(`/api/reports/jurnal?from=${finalFrom}&to=${finalTo}`);
+     
+     if (!response.ok) {
+       throw new Error(`Server Error: ${response.status}`);
+     }
 
+     const result = await response.json();
+     
+     if (result && result.success && Array.isArray(result.data)) {
+       setJurnalData(result.data);
+     } else {
+       setJurnalData([]); 
+     }
+   } catch (error) {
+     console.error("Gagal narik data jurnal:", error);
+     setJurnalData([]); 
+   } finally {
+     setLoading(false);
+   }
+ };
+ 
   // Jalankan saat pertama kali buka
   useEffect(() => {
     fetchJurnal();
@@ -84,17 +88,22 @@ const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]); //
           <div className="flex gap-1.5 mt-6">
 <button 
   onClick={() => { 
+    // 1. Siapkan tanggal default secara manual
     const tgl1 = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
     const hariIni = new Date().toISOString().split('T')[0];
+    
+    // 2. Update kotak input (state)
     setFromDate(tgl1); 
     setToDate(hariIni);
-    // Setelah reset langsung panggil data lagi
-    setTimeout(() => fetchJurnal(), 100);
+
+    // 3. Tembak langsung datanya tanpa nunggu setTimeout
+    fetchJurnal(tgl1, hariIni); 
   }}
-              className="bg-[#00c0ef] text-white px-4 py-1.5 rounded text-sm font-medium flex items-center gap-1.5 hover:bg-cyan-600 transition-colors shadow-sm"
-            >
-              <RotateCcw size={14}/> Reset
-            </button>
+  className="bg-[#00c0ef] text-white px-4 py-1.5 rounded text-sm font-medium flex items-center gap-1.5 hover:bg-cyan-600 transition-colors shadow-sm"
+>
+  <RotateCcw size={14}/> Reset
+</button>
+
             <button 
               onClick={fetchJurnal}
               disabled={loading}
