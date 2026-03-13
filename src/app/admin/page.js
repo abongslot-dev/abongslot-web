@@ -89,11 +89,13 @@ export default function DashboardPage() {
 
   const fetchDashboardData = async () => {
     try {
-      // Tambahkan timestamp agar browser tidak menyimpan cache data lama
       const response = await fetch(`/api/dashboard-summary?t=${new Date().getTime()}`);
       const result = await response.json();
       
+      console.log("Data API Masuk:", result.data); // <--- CEK DI SINI PAS F12
+
       if (result.success && result.data) {
+        // Pastikan result.data punya properti deposit, withdrawal, dll.
         setStats(result.data);
       }
     } catch (error) {
