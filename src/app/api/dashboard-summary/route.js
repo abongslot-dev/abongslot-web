@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
