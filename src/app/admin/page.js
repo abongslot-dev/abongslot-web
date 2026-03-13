@@ -80,31 +80,22 @@ const SummaryItem = ({ label, count, amount, color }) => (
 );
 
 export default function DashboardPage() {
-  // STATE DIUPDATE AGAR MENAMPUNG DATA HARI INI
   const [stats, setStats] = useState({
     deposit: { countPending: 0, totalPending: 0, countSuccess: 0, totalSuccess: 0, countReject: 0, totalReject: 0 },
     withdrawal: { countPending: 0, totalPending: 0, countSuccess: 0, totalSuccess: 0 },
     members: { total: 0, newToday: 0 },
-today: {
-  deposit: depoStats.totalSuccess, // Ambil total keseluruhan dulu buat ngetes
-  withdrawal: wdStats.totalSuccess,
-  depositCount: depoStats.countSuccess,
-  withdrawalCount: wdStats.countSuccess
-}
+    today: { deposit: 0, withdrawal: 0, depositCount: 0, withdrawalCount: 0 }
   });
 
-const fetchDashboardData = async () => {
+  const fetchDashboardData = async () => {
     try {
       const response = await fetch('/api/dashboard-summary');
       const result = await response.json();
       
-      // INTIP DI SINI: Klik kanan di browser > Inspect > Console
-      console.log("Data dari API:", result);
+      console.log("Data dari API:", result); // Cek ini di Console F12
 
       if (result.success && result.data) {
         setStats(result.data);
-      } else {
-        console.error("API sukses tapi data kosong atau format salah");
       }
     } catch (error) {
       console.error("Gagal ambil data dashboard:", error);
@@ -123,9 +114,17 @@ const fetchDashboardData = async () => {
     }).format(number || 0);
   };
 
-  // Eksekusi pemetaan data grafik dari state stats
-  const currentTrafficData = getTrafficData(stats);
-  const currentMemberData = getDeviceData(stats);
+  // Pemetaan data grafik (Gunakan Optional Chaining agar aman)
+  const currentTrafficData = [
+    { name: 'Depo Sukses', value: stats?.today?.depositCount ?? 0, color: '#4ade80' },
+    { name: 'WD Sukses', value: stats?.today?.withdrawalCount ?? 0, color: '#f87171' },
+    { name: 'Pending', value: (stats?.deposit?.countPending ?? 0) + (stats?.withdrawal?.countPending ?? 0), color: '#facc15' },
+  ];
+
+  const currentMemberData = [
+    { name: 'Member Lama', value: (stats?.members?.total ?? 0) - (stats?.members?.newToday ?? 0), color: '#3b82f6' },
+    { name: 'Member Baru', value: stats?.members?.newToday ?? 0, color: '#fb923c' },
+  ];
 
   return (
     <div className="p-6 bg-[#f8fafc]">
