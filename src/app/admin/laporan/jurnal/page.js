@@ -7,8 +7,8 @@ export default function LaporanJurnalPage() {
   const [loading, setLoading] = useState(false);
   
   // State untuk Filter Tanggal
-  const [fromDate, setFromDate] = useState(new Date().toISOString().split('T')[0]);
-  const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]);
+const [fromDate, setFromDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]); // Otomatis tanggal 1 bulan ini
+const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]); // Hari ini
 
  // Fungsi ambil data dari API - VERSI AMAN
   const fetchJurnal = async () => {
@@ -82,8 +82,15 @@ export default function LaporanJurnalPage() {
             </div>
           </div>
           <div className="flex gap-1.5 mt-6">
-            <button 
-              onClick={() => { setFromDate(''); setToDate(''); }}
+<button 
+  onClick={() => { 
+    const tgl1 = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+    const hariIni = new Date().toISOString().split('T')[0];
+    setFromDate(tgl1); 
+    setToDate(hariIni);
+    // Setelah reset langsung panggil data lagi
+    setTimeout(() => fetchJurnal(), 100);
+  }}
               className="bg-[#00c0ef] text-white px-4 py-1.5 rounded text-sm font-medium flex items-center gap-1.5 hover:bg-cyan-600 transition-colors shadow-sm"
             >
               <RotateCcw size={14}/> Reset
