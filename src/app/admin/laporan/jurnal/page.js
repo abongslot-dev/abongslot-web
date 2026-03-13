@@ -17,6 +17,7 @@ const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]); //
    // Pakai data yang ditembak langsung (kalau ada), kalau nggak ada baru pakai state
    const finalFrom = forcedFrom || fromDate;
    const finalTo = forcedTo || toDate;
+   console.log("Menarik data dari:", finalFrom, "sampai:", finalTo);
 
    try {
      // Gunakan parameter finalFrom & finalTo agar tidak nunggu state update
@@ -104,13 +105,13 @@ const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]); //
   <RotateCcw size={14}/> Reset
 </button>
 
-            <button 
-              onClick={fetchJurnal}
-              disabled={loading}
-              className="bg-[#007bff] text-white px-4 py-1.5 rounded text-sm font-medium flex items-center gap-1.5 hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50"
-            >
-              <Search size={14}/> {loading ? 'Loading...' : 'Cari'}
-            </button>
+<button 
+  onClick={() => fetchJurnal(fromDate, toDate)} // Tambahkan parameter ini Bos!
+  disabled={loading}
+  className="bg-[#007bff] text-white px-4 py-1.5 rounded text-sm font-medium flex items-center gap-1.5 hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50"
+>
+  <Search size={14}/> {loading ? 'Loading...' : 'Cari'}
+</button>
           </div>
         </div>
       </div>
