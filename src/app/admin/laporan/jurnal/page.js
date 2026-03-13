@@ -10,18 +10,28 @@ export default function LaporanJurnalPage() {
   const [fromDate, setFromDate] = useState(new Date().toISOString().split('T')[0]);
   const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]);
 
-  // Fungsi ambil data dari API
+ // Fungsi ambil data dari API - VERSI AMAN
   const fetchJurnal = async () => {
     setLoading(true);
     try {
-      // Kita kirim parameter tanggal ke API
       const response = await fetch(`/api/reports/jurnal?from=${fromDate}&to=${toDate}`);
+      
+      // 1. CEK STATUS: Jika bukan 200, jangan dipaksa .json()
+      if (!response.ok) {
+        throw new Error(`Server Error: ${response.status}`);
+      }
+
       const result = await response.json();
-      if (result.success) {
+      
+      // 2. PASTIKAN DATA ADALAH ARRAY
+      if (result && result.success && Array.isArray(result.data)) {
         setJurnalData(result.data);
+      } else {
+        setJurnalData([]); // Jika format salah, amankan dengan array kosong
       }
     } catch (error) {
       console.error("Gagal narik data jurnal:", error);
+      setJurnalData([]); // JANGAN biarkan data undefined agar tidak crash saat render
     } finally {
       setLoading(false);
     }
@@ -115,29 +125,42 @@ export default function LaporanJurnalPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 text-right">
-                {jurnalData.length === 0 ? (
-                  <tr><td colSpan="12" className="p-10 text-center text-gray-400">Data tidak ditemukan untuk periode ini.</td></tr>
-                ) : (
-                  jurnalData.map((item, i) => (
-                    <tr key={i} className="hover:bg-gray-50 transition-colors">
-                      <td className="p-3 border-r border-gray-200 text-center font-medium">{i + 1}.</td>
-                      <td className="p-3 border-r border-gray-200 text-center">{item.tanggal}</td>
-                      <td className="p-3 border-r border-gray-200 font-medium text-emerald-600">{formatAngka(item.depo)}</td>
-                      <td className="p-3 border-r border-gray-200 font-medium text-rose-600">{formatAngka(item.wd)}</td>
-                      <td className="p-3 border-r border-gray-200">{formatAngka(item.adjPlus)}</td>
-                      <td className="p-3 border-r border-gray-200">{formatAngka(item.adjMin)}</td>
-                      <td className="p-3 border-r border-gray-200">{formatAngka(item.bonus)}</td>
-                      <td className="p-3 border-r border-gray-200">{formatAngka(item.cashback)}</td>
-                      <td className="p-3 border-r border-gray-200">{formatAngka(item.referral)}</td>
-                      <td className="p-3 border-r border-gray-200">{formatAngka(item.rolling)}</td>
-                      <td className="p-3 border-r border-gray-200">{formatAngka(item.marketing)}</td>
-                      <td className={`p-3 font-bold ${parseFloat(item.total) < 0 ? 'text-rose-600' : 'text-gray-900'}`}>
-                        {formatAngka(item.total)}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
+  {jurnalData.length === 0 ? (
+    <tr>
+      <td colSpan="12" className="p-10 text-center text-gray-400">
+        {loading ? "Sedang menarik data..." : "Data tidak ditemukan untuk periode ini."}
+      </td>
+    </tr>
+  ) : (
+    jurnalData.map((item, i) => {
+      // Helper untuk memastikan angka aman di-parse
+      // Kita bersihkan titik ribuan dan ganti koma desimal jadi titik agar bisa dihitung
+      const rawTotal = typeof item.total === 'string' 
+        ? parseFloat(item.total.replace(/\./g, '').replace(',', '.')) 
+        : item.total;
+
+      return (
+        <tr key={i} className="hover:bg-gray-50 transition-colors">
+          <td className="p-3 border-r border-gray-200 text-center font-medium text-gray-400">{i + 1}.</td>
+          <td className="p-3 border-r border-gray-200 text-center">{item.tanggal}</td>
+          {/* TAMPILKAN LANGSUNG karena API sudah memformat angkanya */}
+          <td className="p-3 border-r border-gray-200 font-medium text-emerald-600">{item.depo}</td>
+          <td className="p-3 border-r border-gray-200 font-medium text-rose-600">{item.wd}</td>
+          <td className="p-3 border-r border-gray-200">{item.adjPlus}</td>
+          <td className="p-3 border-r border-gray-200">{item.adjMin}</td>
+          <td className="p-3 border-r border-gray-200">{item.bonus}</td>
+          <td className="p-3 border-r border-gray-200">{item.cashback}</td>
+          <td className="p-3 border-r border-gray-200">{item.referral}</td>
+          <td className="p-3 border-r border-gray-200">{item.rolling}</td>
+          <td className="p-3 border-r border-gray-200">{item.marketing}</td>
+          <td className={`p-3 font-bold ${rawTotal < 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
+            {item.total}
+          </td>
+        </tr>
+      );
+    })
+  )}
+</tbody>
             </table>
           </div>
         </div>
