@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { FileBarChart, Users, ArrowRightLeft, LayoutDashboard } from "lucide-react";
+import { FileBarChart, Users, ArrowRightLeft, LayoutDashboard, UserPlus } from "lucide-react";
 import Link from "next/link";
 // --- Import Tambahan untuk Grafik ---
 import { 
@@ -9,29 +9,28 @@ import {
   AreaChart, Area, LineChart, Line 
 } from 'recharts';
 
-// --- Data Dummy untuk Grafik (Bisa Bos ganti dengan API nanti) ---
-const dataTraffic = [
-  { name: 'Direct', value: 38.6, color: '#4ade80' },
-  { name: 'Referral', value: 31.1, color: '#facc15' },
-  { name: 'Search', value: 18.3, color: '#f87171' },
-  { name: 'Social', value: 11.2, color: '#3b82f6' },
-  { name: 'Other', value: 7.8, color: '#94a3b8' },
+// --- BAGIAN INI DIUBAH AGAR DINAMIS (Mengacu ke stats) ---
+// Kita buat fungsi untuk memetakan data stats ke format grafik
+const getTrafficData = (stats) => [
+  { name: 'Depo Sukses', value: stats.today.depositCount || 0, color: '#4ade80' },
+  { name: 'WD Sukses', value: stats.today.withdrawalCount || 0, color: '#f87171' },
+  { name: 'Pending', value: stats.deposit.countPending + stats.withdrawal.countPending, color: '#facc15' },
 ];
 
-const dataDevices = [
-  { name: 'Desktop', value: 46.2, color: '#4ade80' },
-  { name: 'Smartphone', value: 38.7, color: '#fb923c' },
-  { name: 'Tablet', value: 15.1, color: '#3b82f6' },
+const getDeviceData = (stats) => [
+  { name: 'Member Lama', value: stats.members.total - stats.members.newToday, color: '#3b82f6' },
+  { name: 'Member Baru', value: stats.members.newToday, color: '#fb923c' },
 ];
 
+// Data Bar tetap pakai dummy dulu atau bisa Bos isi dari stats.history nanti
 const dataBar = [
-  { name: '27', a: 40, b: 20, c: 10 },
-  { name: '42', a: 30, b: 25, c: 15 },
-  { name: '61', a: 45, b: 30, c: 20 },
-  { name: '12', a: 15, b: 10, c: 5 },
-  { name: '23', a: 25, b: 15, c: 10 },
-  { name: '36', a: 35, b: 25, c: 15 },
-  { name: '54', a: 30, b: 20, c: 10 },
+  { name: 'Sen', a: 40, b: 20, c: 10 },
+  { name: 'Sel', a: 30, b: 25, c: 15 },
+  { name: 'Rab', a: 45, b: 30, c: 20 },
+  { name: 'Kam', a: 15, b: 10, c: 5 },
+  { name: 'Jum', a: 25, b: 15, c: 10 },
+  { name: 'Sab', a: 35, b: 25, c: 15 },
+  { name: 'Min', a: 30, b: 20, c: 10 },
 ];
 
 // --- Komponen Kecil untuk Kotak Ringkasan ---
@@ -51,7 +50,7 @@ const SummaryItem = ({ label, count, amount, color }) => (
   <div className="flex items-center justify-between text-sm">
     <span className="text-gray-500">{label}</span>
     <div className="text-right">
-      <span className={`font-bold block ${color}`}>{count} Transaksi</span>
+      <span className={`font-bold block ${color}`}>{count}</span>
       {amount !== undefined && (
         <span className="text-xs text-gray-400">{amount}</span>
       )}
@@ -60,10 +59,17 @@ const SummaryItem = ({ label, count, amount, color }) => (
 );
 
 export default function DashboardPage() {
+  // STATE DIUPDATE AGAR MENAMPUNG DATA HARI INI
   const [stats, setStats] = useState({
     deposit: { countPending: 0, totalPending: 0, countSuccess: 0, totalSuccess: 0, countReject: 0, totalReject: 0 },
     withdrawal: { countPending: 0, totalPending: 0, countSuccess: 0, totalSuccess: 0 },
-    members: { total: 0 }
+    members: { total: 0, newToday: 0 },
+    today: { 
+        deposit: 0, 
+        withdrawal: 0, 
+        depositCount: 0, 
+        withdrawalCount: 0 
+    }
   });
 
   const fetchDashboardData = async () => {
@@ -89,6 +95,10 @@ export default function DashboardPage() {
       minimumFractionDigits: 0,
     }).format(number || 0);
   };
+
+  // Eksekusi pemetaan data grafik dari state stats
+  const currentTrafficData = getTrafficData(stats);
+  const currentMemberData = getDeviceData(stats);
 
   return (
     <div className="p-6 bg-[#f8fafc]">
@@ -141,95 +151,192 @@ export default function DashboardPage() {
         </SummaryBox>
       </div>
 
-      {/* --- BAGIAN STATISTIK BARU (SESUAI GAMBAR) --- */}
+     
+        
+{/* --- BAGIAN STATISTIK DINAMIS (DATA REAL DARI DATABASE) --- */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
         
-        {/* Donut 1: total 582 */}
+        {/* Donut 1: Statistik Transaksi Sukses Hari Ini */}
         <div className="bg-white p-4 rounded shadow-sm border border-gray-100 relative">
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={dataTraffic} innerRadius={50} outerRadius={70} paddingAngle={2} dataKey="value">
-                  {dataTraffic.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+                {/* Pakai currentTrafficData yang kita buat di atas */}
+                <Pie data={currentTrafficData} innerRadius={50} outerRadius={70} paddingAngle={2} dataKey="value">
+                  {currentTrafficData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
                 </Pie>
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-12 text-center">
-              <span className="text-[10px] text-gray-400 block uppercase font-bold">total</span>
-              <span className="text-xl font-bold text-gray-700">582</span>
+              <span className="text-[10px] text-gray-400 block uppercase font-bold">Total Transaksi</span>
+              <span className="text-xl font-bold text-gray-700">
+                {stats.today.depositCount + stats.today.withdrawalCount}
+              </span>
             </div>
           </div>
           <div className="mt-2 space-y-1">
-            {dataTraffic.map((item) => (
+            {currentTrafficData.map((item) => (
               <div key={item.name} className="flex justify-between text-[10px] font-bold">
                 <div className="flex items-center gap-1.5 text-gray-500">
                   <div className="w-2 h-2 rounded-full" style={{backgroundColor: item.color}}></div> {item.name}
                 </div>
-                <span className="text-gray-400">{item.value}%</span>
+                <span className="text-gray-400">{item.value}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Donut 2: total 715 */}
+        {/* Donut 2: Statistik Member */}
         <div className="bg-white p-4 rounded shadow-sm border border-gray-100 relative">
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={dataDevices} innerRadius={50} outerRadius={70} paddingAngle={2} dataKey="value">
-                  {dataDevices.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+                {/* Pakai currentMemberData yang kita buat di atas */}
+                <Pie data={currentMemberData} innerRadius={50} outerRadius={70} paddingAngle={2} dataKey="value">
+                  {currentMemberData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
                 </Pie>
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-12 text-center">
-              <span className="text-[10px] text-gray-400 block uppercase font-bold">total</span>
-              <span className="text-xl font-bold text-gray-700">715</span>
+              <span className="text-[10px] text-gray-400 block uppercase font-bold">Total Member</span>
+              <span className="text-xl font-bold text-gray-700">{stats.members.total}</span>
             </div>
           </div>
           <div className="mt-2 space-y-1">
-            {dataDevices.map((item) => (
+            {currentMemberData.map((item) => (
               <div key={item.name} className="flex justify-between text-[10px] font-bold">
                 <div className="flex items-center gap-1.5 text-gray-500">
                   <div className="w-2 h-2 rounded-full" style={{backgroundColor: item.color}}></div> {item.name}
                 </div>
-                <span className="text-gray-400">{item.value}%</span>
+                <span className="text-gray-400">{item.value}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Year Dynamics - Bar Chart */}
+        {/* Year Dynamics - Bar Chart (Deposit vs WD) */}
         <div className="bg-white p-4 rounded shadow-sm border border-gray-100 lg:col-span-1">
-          <h3 className="text-[11px] font-bold text-gray-400 uppercase mb-4">Year dynamics</h3>
+          <h3 className="text-[11px] font-bold text-gray-400 uppercase mb-4">Aktivitas Mingguan</h3>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={dataBar}>
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10}} />
                 <Tooltip />
-                <Bar dataKey="a" stackId="a" fill="#3b82f6" radius={[0, 0, 0, 0]} />
-                <Bar dataKey="b" stackId="a" fill="#fb923c" />
-                <Bar dataKey="c" stackId="a" fill="#4ade80" radius={[2, 2, 0, 0]} />
+                <Bar dataKey="a" name="Deposit" stackId="a" fill="#4ade80" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="b" name="Withdraw" stackId="a" fill="#f87171" radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Comparison Chart - Area Chart */}
+        {/* Comparison Chart - Perbandingan Pertumbuhan */}
         <div className="bg-white p-4 rounded shadow-sm border border-gray-100 lg:col-span-1">
-          <h3 className="text-[11px] font-bold text-gray-400 uppercase mb-4">Comparison chart</h3>
+          <h3 className="text-[11px] font-bold text-gray-400 uppercase mb-4">Perbandingan Tren</h3>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={dataBar}>
                 <Tooltip />
-                <Area type="monotone" dataKey="a" stroke="#f87171" fill="#fecaca" fillOpacity={0.4} strokeWidth={2} />
-                <Area type="monotone" dataKey="b" stroke="#818cf8" fill="#c7d2fe" fillOpacity={0.4} strokeWidth={2} strokeDasharray="4 4" />
+                <Area type="monotone" dataKey="a" stroke="#4ade80" fill="#4ade80" fillOpacity={0.2} strokeWidth={2} />
+                <Area type="monotone" dataKey="b" stroke="#f87171" fill="#f87171" fillOpacity={0.2} strokeWidth={2} strokeDasharray="4 4" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
+     {/* --- BAGIAN STATISTIK DINAMIS (DATA REAL DARI DATABASE) --- */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+        
+        {/* Donut 1: Statistik Transaksi Sukses Hari Ini */}
+        <div className="bg-white p-4 rounded shadow-sm border border-gray-100 relative">
+          <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                {/* Pakai currentTrafficData yang kita buat di atas */}
+                <Pie data={currentTrafficData} innerRadius={50} outerRadius={70} paddingAngle={2} dataKey="value">
+                  {currentTrafficData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-12 text-center">
+              <span className="text-[10px] text-gray-400 block uppercase font-bold">Total Transaksi</span>
+              <span className="text-xl font-bold text-gray-700">
+                {stats.today.depositCount + stats.today.withdrawalCount}
+              </span>
+            </div>
+          </div>
+          <div className="mt-2 space-y-1">
+            {currentTrafficData.map((item) => (
+              <div key={item.name} className="flex justify-between text-[10px] font-bold">
+                <div className="flex items-center gap-1.5 text-gray-500">
+                  <div className="w-2 h-2 rounded-full" style={{backgroundColor: item.color}}></div> {item.name}
+                </div>
+                <span className="text-gray-400">{item.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Donut 2: Statistik Member */}
+        <div className="bg-white p-4 rounded shadow-sm border border-gray-100 relative">
+          <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                {/* Pakai currentMemberData yang kita buat di atas */}
+                <Pie data={currentMemberData} innerRadius={50} outerRadius={70} paddingAngle={2} dataKey="value">
+                  {currentMemberData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-12 text-center">
+              <span className="text-[10px] text-gray-400 block uppercase font-bold">Total Member</span>
+              <span className="text-xl font-bold text-gray-700">{stats.members.total}</span>
+            </div>
+          </div>
+          <div className="mt-2 space-y-1">
+            {currentMemberData.map((item) => (
+              <div key={item.name} className="flex justify-between text-[10px] font-bold">
+                <div className="flex items-center gap-1.5 text-gray-500">
+                  <div className="w-2 h-2 rounded-full" style={{backgroundColor: item.color}}></div> {item.name}
+                </div>
+                <span className="text-gray-400">{item.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Year Dynamics - Bar Chart (Deposit vs WD) */}
+        <div className="bg-white p-4 rounded shadow-sm border border-gray-100 lg:col-span-1">
+          <h3 className="text-[11px] font-bold text-gray-400 uppercase mb-4">Aktivitas Mingguan</h3>
+          <div className="h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={dataBar}>
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10}} />
+                <Tooltip />
+                <Bar dataKey="a" name="Deposit" stackId="a" fill="#4ade80" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="b" name="Withdraw" stackId="a" fill="#f87171" radius={[2, 2, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Comparison Chart - Perbandingan Pertumbuhan */}
+        <div className="bg-white p-4 rounded shadow-sm border border-gray-100 lg:col-span-1">
+          <h3 className="text-[11px] font-bold text-gray-400 uppercase mb-4">Perbandingan Tren</h3>
+          <div className="h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={dataBar}>
+                <Tooltip />
+                <Area type="monotone" dataKey="a" stroke="#4ade80" fill="#4ade80" fillOpacity={0.2} strokeWidth={2} />
+                <Area type="monotone" dataKey="b" stroke="#f87171" fill="#f87171" fillOpacity={0.2} strokeWidth={2} strokeDasharray="4 4" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+ </div>
       </div>
     </div>
   );
