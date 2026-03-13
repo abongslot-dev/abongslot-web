@@ -12,15 +12,17 @@ export async function GET() {
       throw new Error("Missing Supabase Configuration");
     }
 
-    // Set jam 00:00:00 hari ini untuk filter "Today"
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // --- LOGIKA RESET TEPAT JAM 00:00 WIB ---
+    const now = new Date();
+    // Konversi waktu sekarang ke string tanggal WIB (YYYY-MM-DD)
+    const wibDateString = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }); 
+    // Buat objek Date yang murni jam 00:00:00 di hari tersebut dalam WIB
+    const startOfTodayWIB = new Date(`${wibDateString}T00:00:00+07:00`);
 
-    // AMBIL DATA DARI TABEL SESUAI SQL BOS (deposits, withdrawals, members)
     const [depoRes, wdRes, memberRes] = await Promise.all([
       supabase.from('deposits').select('status, nominal, created_at'),
       supabase.from('withdrawals').select('status, nominal, created_at'),
-      supabase.from('members').select('id, created_at') // Sudah diganti ke 'members'
+      supabase.from('members').select('id, created_at')
     ]);
 
     if (depoRes.error) throw depoRes.error;
@@ -36,7 +38,6 @@ export async function GET() {
       };
 
       data.forEach(item => {
-        // Kita ubah ke lowercase biar aman (SUCCESS jadi success)
         const status = (item.status || 'pending').toLowerCase();
         const nominal = parseFloat(item.nominal || 0);
         const createdAt = new Date(item.created_at);
@@ -45,17 +46,17 @@ export async function GET() {
           res.countPending++;
           res.totalPending += nominal;
         } 
-        // Cek 'success' atau 'approve'
         else if (status === 'success' || status === 'approve') {
           res.countSuccess++;
           res.totalSuccess += nominal;
           
-          if (createdAt >= today) {
+          // Bandingkan dengan Start Of Today WIB
+          if (createdAt >= startOfTodayWIB) {
             res.todayCount++;
             res.todayAmount += nominal;
           }
         } 
-        else if (status === 'reject' || status === 'rejected') {
+        else if (['reject', 'rejected'].includes(status)) {
           res.countReject++;
           res.totalReject += nominal;
         }
@@ -67,7 +68,8 @@ export async function GET() {
     const wdStats = calculateStats(wdRes.data);
     
     const totalMembers = memberRes.data.length;
-    const newMembersToday = memberRes.data.filter(m => new Date(m.created_at) >= today).length;
+    // Filter member baru hari ini menggunakan WIB
+    const newMembersToday = memberRes.data.filter(m => new Date(m.created_at) >= startOfTodayWIB).length;
 
     return NextResponse.json({
       success: true,
