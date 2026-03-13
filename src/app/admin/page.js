@@ -170,22 +170,49 @@ export default function DashboardPage() {
       </div>
 
       {/* 2. RINGKASAN TRANSAKSI (TABEL KECIL) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <SummaryBox title="Total Deposit" icon="📄">
-          <SummaryItem label="Butuh Diproses" count={stats?.deposit?.countPending ?? 0} amount={formatRupiah(stats?.deposit?.totalPending ?? 0)} color="text-yellow-600" />
-          <SummaryItem label="Diterima" count={stats?.deposit?.countSuccess ?? 0} amount={formatRupiah(stats?.deposit?.totalSuccess ?? 0)} color="text-emerald-600" />
-          <SummaryItem label="Ditolak" count={stats?.deposit?.countReject ?? 0} amount={formatRupiah(stats?.deposit?.totalReject ?? 0)} color="text-rose-600" />
-        </SummaryBox>
-  
-        <SummaryBox title="Total Withdrawal" icon="📄">
-          <SummaryItem label="Butuh Diproses" count={stats?.withdrawal?.countPending ?? 0} amount={formatRupiah(stats?.withdrawal?.totalPending ?? 0)} color="text-yellow-600" />
-          <SummaryItem label="Diterima" count={stats?.withdrawal?.countSuccess ?? 0} amount={formatRupiah(stats?.withdrawal?.totalSuccess ?? 0)} color="text-emerald-600" />
-        </SummaryBox>
+{/* BARIS DATA TODAY (RINGKASAN CEPAT HARI INI) */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-white border-l-4 border-emerald-500 p-4 rounded shadow-sm">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Depo Sukses Hari Ini</p>
+          <div className="flex items-baseline gap-2">
+            <span className="text-xl font-black text-gray-800">{formatRupiah(stats?.today?.deposit ?? 0)}</span>
+            <span className="text-xs font-bold text-emerald-600">({stats?.today?.depositCount ?? 0})</span>
+          </div>
+        </div>
 
-        <SummaryBox title="Total Penyesuaian Saldo" icon="📄">
-          <SummaryItem label="Ditambah" count={0} amount="Rp 0" color="text-emerald-600" />
-          <SummaryItem label="Dikurangi" count={0} amount="Rp 0" color="text-rose-600" />
-        </SummaryBox>
+        <div className="bg-white border-l-4 border-rose-500 p-4 rounded shadow-sm">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">WD Sukses Hari Ini</p>
+          <div className="flex items-baseline gap-2">
+            <span className="text-xl font-black text-gray-800">{formatRupiah(stats?.today?.withdrawal ?? 0)}</span>
+            <span className="text-xs font-bold text-rose-600">({stats?.today?.withdrawalCount ?? 0})</span>
+          </div>
+        </div>
+
+        <div className="bg-white border-l-4 border-blue-500 p-4 rounded shadow-sm">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Member Baru</p>
+          <div className="flex items-baseline gap-2">
+            <span className="text-xl font-black text-gray-800">{stats?.members?.newToday ?? 0}</span>
+            <span className="text-xs text-gray-400 font-bold">ORANG</span>
+          </div>
+        </div>
+
+        <div className={`p-4 rounded shadow-sm border-l-4 ${(stats?.today?.deposit - stats?.today?.withdrawal) >= 0 ? 'border-indigo-600 bg-indigo-50' : 'border-red-600 bg-red-50'}`}>
+          <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Estimasi Profit Hari Ini</p>
+          <h2 className={`text-xl font-black ${(stats?.today?.deposit - stats?.today?.withdrawal) >= 0 ? 'text-indigo-700' : 'text-red-700'}`}>
+            {formatRupiah(stats?.today?.deposit - stats?.today?.withdrawal)}
+          </h2>
+        </div>
+      </div>
+
+      {/* FOOTER DASHBOARD */}
+      <div className="flex justify-between items-center bg-gray-800 text-white p-3 rounded-lg shadow-inner">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span className="text-[10px] font-bold uppercase tracking-widest">Live Monitoring Active</span>
+        </div>
+        <div className="text-[10px] opacity-70 italic">
+          Data sinkron terakhir: {new Date().toLocaleTimeString('id-ID')} WIB
+        </div>
       </div>
 
       {/* 3. GRAFIK DINAMIS */}
