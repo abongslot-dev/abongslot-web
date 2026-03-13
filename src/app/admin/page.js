@@ -87,21 +87,25 @@ export default function DashboardPage() {
     today: { deposit: 0, withdrawal: 0, depositCount: 0, withdrawalCount: 0 }
   });
 
-  const fetchDashboardData = async () => {
-    try {
-      const response = await fetch(`/api/dashboard-summary?t=${new Date().getTime()}`);
-      const result = await response.json();
-      
-      console.log("Data API Masuk:", result.data); // <--- CEK DI SINI PAS F12
-
-      if (result.success && result.data) {
-        // Pastikan result.data punya properti deposit, withdrawal, dll.
-        setStats(result.data);
+const fetchDashboardData = async () => {
+  try {
+    // Tambahkan 'nocache' pakai timestamp yang berubah tiap detik
+    const response = await fetch(`/api/dashboard-summary?nocache=${new Date().getTime()}`, {
+      cache: 'no-store', // <--- TAMBAHKAN INI JUGA
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
       }
-    } catch (error) {
-      console.error("Gagal ambil data dashboard:", error);
+    });
+    
+    const result = await response.json();
+    if (result.success && result.data) {
+      setStats(result.data);
     }
-  };
+  } catch (error) {
+    console.error("Gagal ambil data dashboard:", error);
+  }
+};
 
   // --- BAGIAN AUTO REFRESH ---
   useEffect(() => {
