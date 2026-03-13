@@ -182,7 +182,6 @@ export default function DashboardPage() {
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                {/* Pakai currentTrafficData yang kita buat di atas */}
                 <Pie data={currentTrafficData} innerRadius={50} outerRadius={70} paddingAngle={2} dataKey="value">
                   {currentTrafficData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
                 </Pie>
@@ -192,7 +191,8 @@ export default function DashboardPage() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-12 text-center">
               <span className="text-[10px] text-gray-400 block uppercase font-bold">Total Transaksi</span>
               <span className="text-xl font-bold text-gray-700">
-                {stats.today.depositCount + stats.today.withdrawalCount}
+                {/* AMAN: Pakai optional chaining */}
+                {(stats?.today?.depositCount ?? 0) + (stats?.today?.withdrawalCount ?? 0)}
               </span>
             </div>
           </div>
@@ -213,7 +213,6 @@ export default function DashboardPage() {
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                {/* Pakai currentMemberData yang kita buat di atas */}
                 <Pie data={currentMemberData} innerRadius={50} outerRadius={70} paddingAngle={2} dataKey="value">
                   {currentMemberData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
                 </Pie>
@@ -222,7 +221,10 @@ export default function DashboardPage() {
             </ResponsiveContainer>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-12 text-center">
               <span className="text-[10px] text-gray-400 block uppercase font-bold">Total Member</span>
-              <span className="text-xl font-bold text-gray-700">{stats.members.total}</span>
+              <span className="text-xl font-bold text-gray-700">
+                {/* AMAN: Pakai optional chaining */}
+                {stats?.members?.total ?? 0}
+              </span>
             </div>
           </div>
           <div className="mt-2 space-y-1">
@@ -236,7 +238,6 @@ export default function DashboardPage() {
             ))}
           </div>
         </div>
-
         {/* Year Dynamics - Bar Chart (Deposit vs WD) */}
         <div className="bg-white p-4 rounded shadow-sm border border-gray-100 lg:col-span-1">
           <h3 className="text-[11px] font-bold text-gray-400 uppercase mb-4">Aktivitas Mingguan</h3>
