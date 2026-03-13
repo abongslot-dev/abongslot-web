@@ -11,15 +11,36 @@ import {
 
 // --- BAGIAN INI DIUBAH AGAR DINAMIS (Mengacu ke stats) ---
 // Kita buat fungsi untuk memetakan data stats ke format grafik
+// --- BAGIAN INI DIUBAH AGAR AMAN DARI ERROR UNDEFINED ---
 const getTrafficData = (stats) => [
-  { name: 'Depo Sukses', value: stats.today.depositCount || 0, color: '#4ade80' },
-  { name: 'WD Sukses', value: stats.today.withdrawalCount || 0, color: '#f87171' },
-  { name: 'Pending', value: stats.deposit.countPending + stats.withdrawal.countPending, color: '#facc15' },
+  { 
+    name: 'Depo Sukses', 
+    value: stats?.today?.depositCount ?? 0, 
+    color: '#4ade80' 
+  },
+  { 
+    name: 'WD Sukses', 
+    value: stats?.today?.withdrawalCount ?? 0, 
+    color: '#f87171' 
+  },
+  { 
+    name: 'Pending', 
+    value: (stats?.deposit?.countPending ?? 0) + (stats?.withdrawal?.countPending ?? 0), 
+    color: '#facc15' 
+  },
 ];
 
 const getDeviceData = (stats) => [
-  { name: 'Member Lama', value: stats.members.total - stats.members.newToday, color: '#3b82f6' },
-  { name: 'Member Baru', value: stats.members.newToday, color: '#fb923c' },
+  { 
+    name: 'Member Lama', 
+    value: (stats?.members?.total ?? 0) - (stats?.members?.newToday ?? 0), 
+    color: '#3b82f6' 
+  },
+  { 
+    name: 'Member Baru', 
+    value: stats?.members?.newToday ?? 0, 
+    color: '#fb923c' 
+  },
 ];
 
 // Data Bar tetap pakai dummy dulu atau bisa Bos isi dari stats.history nanti
