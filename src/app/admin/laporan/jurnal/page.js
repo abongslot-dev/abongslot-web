@@ -107,7 +107,7 @@ export default function LaporanJurnalPage() {
         
         <div className="p-4">
           <div className="overflow-x-auto border border-gray-200 rounded">
-            <table className="w-full text-[12px] border-collapse">
+            <table className="w-full text-[15px] border-collapse">
               <thead>
                 <tr className="bg-white border-b border-gray-200 text-gray-800 font-bold text-center">
                   <th className="p-2 border-r border-gray-200 w-10">No.</th>
@@ -140,7 +140,7 @@ export default function LaporanJurnalPage() {
         : item.total;
 
       return (
-        <tr key={i} className="hover:bg-gray-50 transition-colors">
+        <tr key={i} className="hover:bg-black-100 transition-colors">
           <td className="p-3 border-r border-gray-200 text-center font-medium text-gray-400">{i + 1}.</td>
           <td className="p-3 border-r border-gray-200 text-center">{item.tanggal}</td>
           {/* TAMPILKAN LANGSUNG karena API sudah memformat angkanya */}
