@@ -4,8 +4,17 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from '@supabase/supabase-js';
 import { 
-  LayoutDashboard, Users, ArrowRightLeft, Gift, 
-  Gamepad2, FileBarChart, Landmark, Mail, ChevronDown 
+  LayoutDashboard, 
+  Users, 
+  ArrowRightLeft, 
+  Gift, 
+  Gamepad2, 
+  FileBarChart, 
+  Landmark, 
+  Mail, 
+  ChevronDown,
+  Settings,    // <--- TAMBAHKAN INI
+  BarChart3    // <--- TAMBAHKAN INI JUGA (Buat Menu Statistik)
 } from "lucide-react";
 
 const supabase = createClient(
