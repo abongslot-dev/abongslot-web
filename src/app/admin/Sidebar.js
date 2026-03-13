@@ -161,9 +161,9 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
 
         <SidebarItem icon={<Settings size={16}/>} label="Peratan & pengaturan" hasChild menuKey="bank">
-            <SubMenuItem label="Pengaturan Promo" href="/admin/peratan&pengaturan/setting-promo" />
-            <SubMenuItem label="Pengaturan Banner" href="/admin/peratan&pengaturan/setting-banner" />
-            <SubMenuItem label="Hubungi" href="/admin/peratan&pengaturan/hubungi" />
+            <SubMenuItem label="Pengaturan Promo" href="/admin/peratan-pengaturan/setting-promo" />
+            <SubMenuItem label="Pengaturan Banner" href="/admin/peratan-pengaturan/setting-banner" />
+            <SubMenuItem label="Hubungi" href="/admin/peratan-pengaturan/hubungi" />
         </SidebarItem>
 
         <SidebarItem icon={<BarChart3 size={16}/>} label="Statistik" hasChild menuKey="statistik">
