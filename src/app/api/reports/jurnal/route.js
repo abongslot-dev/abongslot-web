@@ -24,11 +24,11 @@ export async function GET(request) {
     }
 
     // Ambil data hanya dari tabel yang terbukti ada di database Bos (Gambar 2)
-    const [depoRes, wdRes, adjRes] = await Promise.all([
-      supabase.from('deposits').select('nominal, created_at, status').gte('created_at', `${from}T00:00:00Z`).lte('created_at', `${to}T23:59:59Z`),
-      supabase.from('withdrawals').select('nominal, created_at, status').gte('created_at', `${from}T00:00:00Z`).lte('created_at', `${to}T23:59:59Z`),
-      supabase.from('adjustments').select('nominal, type, created_at').gte('created_at', `${from}T00:00:00Z`).lte('created_at', `${to}T23:59:59Z`)
-    ]);
+const [depoRes, wdRes, adjRes] = await Promise.all([
+  supabase.from('deposits').select('nominal, created_at, status'),
+  supabase.from('withdrawals').select('nominal, created_at, status'),
+  supabase.from('adjustments').select('nominal, type, created_at')
+]);
 
     // Jika salah satu tabel bermasalah, kirim pesan error yang jelas (Bukan 500)
     if (depoRes.error || wdRes.error || adjRes.error) {
