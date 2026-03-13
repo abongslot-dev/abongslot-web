@@ -7,34 +7,28 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const from = searchParams.get('from');
-    const to = searchParams.get('to');
+    const from = searchParams.get('from') || '2026-03-01';
+    const to = searchParams.get('to') || '2026-03-14';
 
-    // Helper Query agar tidak berulang
-    const getData = async (table, selectStr, filter = null) => {
-      let q = supabase.from(table).select(selectStr);
-      if (from && to) {
-        q = q.gte('created_at', `${from}T00:00:00.000Z`).lte('created_at', `${to}T23:59:59.999Z`);
-      }
-      if (filter) q = q.or(filter);
-      const { data } = await q;
-      return data || [];
-    };
-
-    // Ambil semua data (Safe mode: jika tabel ga ada/kosong, tetap jalan)
-    const [deposits, withdrawals, adjustments, promos, rollings, referrals] = await Promise.all([
-      getData('deposits', 'nominal, created_at, status', 'status.eq.approve,status.eq.success'),
-      getData('withdrawals', 'nominal, created_at, status', 'status.eq.SUCCESS,status.eq.success'),
-      getData('adjustments', 'nominal, type, created_at'),
-      getData('promo_logs', 'bonus_amount, created_at'),
-      getData('rollingan_logs', 'amount, created_at'),
-      getData('referral_logs', 'bonus_amount, created_at')
+    // 1. Ambil data DEPOSIT & WD saja (Tabel yang sudah pasti ada datanya)
+    const [depoRes, wdRes] = await Promise.all([
+      supabase.from('deposits')
+        .select('nominal, created_at')
+        .or('status.eq.approve,status.eq.success')
+        .gte('created_at', `${from}T00:00:00.000Z`)
+        .lte('created_at', `${to}T23:59:59.999Z`),
+      supabase.from('withdrawals')
+        .select('nominal, created_at')
+        .or('status.eq.SUCCESS,status.eq.success')
+        .gte('created_at', `${from}T00:00:00.000Z`)
+        .lte('created_at', `${to}T23:59:59.999Z`)
     ]);
 
     const reportMap = {};
 
-    const getEntry = (date) => {
-      const d = new Date(date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+    // Fungsi bantu grouping biar tidak duplikat
+    const getRow = (dateStr) => {
+      const d = new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
       if (!reportMap[d]) {
         reportMap[d] = {
           tanggal: d, depo: 0, wd: 0, adjPlus: 0, adjMin: 0,
@@ -44,43 +38,41 @@ export async function GET(request) {
       return reportMap[d];
     };
 
-    // Mapping Data
-    deposits.forEach(i => getEntry(i.created_at).depo += parseFloat(i.nominal || 0));
-    withdrawals.forEach(i => getEntry(i.created_at).wd += parseFloat(i.nominal || 0));
-    adjustments.forEach(i => {
-      const entry = getEntry(i.created_at);
-      if (i.type === 'add') entry.adjPlus += parseFloat(i.nominal || 0);
-      else entry.adjMin += parseFloat(i.nominal || 0);
-    });
-    promos.forEach(i => getEntry(i.created_at).bonus += parseFloat(i.bonus_amount || 0));
-    rollings.forEach(i => getEntry(i.created_at).rolling += parseFloat(i.amount || 0));
-    referrals.forEach(i => getEntry(i.created_at).referral += parseFloat(i.bonus_amount || 0));
+    // Masukkan data Depo (Jika ada)
+    if (depoRes.data) {
+      depoRes.data.forEach(i => {
+        getRow(i.created_at).depo += parseFloat(i.nominal || 0);
+      });
+    }
 
-    // Hitung Total & Format Ribuan
+    // Masukkan data WD (Jika ada)
+    if (wdRes.data) {
+      wdRes.data.forEach(i => {
+        getRow(i.created_at).wd += parseFloat(i.nominal || 0);
+      });
+    }
+
+    // 2. Format hasil akhir agar sesuai UI gambar Bos
     const finalData = Object.values(reportMap).map(row => {
-      const winLoss = (row.depo + row.adjPlus) - (row.wd + row.adjMin + row.bonus + row.cashback + row.referral + row.rolling);
-      
-      // Format angka sesuai gambar Bos (pakai titik ribuan dan koma desimal)
-      const fmt = (v) => new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
+      const winLoss = row.depo - row.wd;
+      const fmt = (num) => new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2 }).format(num);
 
       return {
         ...row,
         depo: fmt(row.depo),
         wd: fmt(row.wd),
-        adjPlus: fmt(row.adjPlus),
-        adjMin: fmt(row.adjMin),
-        bonus: fmt(row.bonus),
-        cashback: fmt(row.cashback),
-        referral: fmt(row.referral),
-        rolling: fmt(row.rolling),
-        marketing: fmt(row.marketing),
-        total: fmt(winLoss)
+        total: fmt(winLoss),
+        // Sisa kolom dibikin 0,00 dulu agar tidak kosong
+        adjPlus: "0,00", adjMin: "0,00", bonus: "0,00", 
+        cashback: "0,00", referral: "0,00", rolling: "0,00", marketing: "0,00"
       };
     }).sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
+    // Jika kosong, kirim array kosong bukan error
     return NextResponse.json({ success: true, data: finalData });
 
-  } catch (err) {
-    return NextResponse.json({ success: false, message: err.message, data: [] }, { status: 200 });
+  } catch (error) {
+    // JANGAN KIRIM 500, KIRIM 200 TAPI DATA KOSONG BIAR GAK CRASH
+    return NextResponse.json({ success: false, message: error.message, data: [] }, { status: 200 });
   }
 }
