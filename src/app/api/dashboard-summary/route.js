@@ -12,46 +12,54 @@ export async function GET() {
       throw new Error("Missing Supabase Configuration");
     }
 
-    // --- LOGIKA WAKTU WIB ---
-    // Mengambil tanggal hari ini format YYYY-MM-DD sesuai zona Jakarta
-    const todayWIB = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Jakarta',
-    }).format(new Date());
+    // --- LOGIKA RESET TEPAT JAM 00:00 WIB (Sangat Akurat) ---
+    // Pastikan kita ambil tanggal hari ini sesuai zona Jakarta
+    const now = new Date();
+    const wibDateString = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' }); // Hasil: "YYYY-MM-DD"
+    
+    // Ini adalah kunci resetnya: 
+    // Kita buat batas waktu mulai dari jam 00:00:00 pagi tadi waktu Jakarta
+    const startOfTodayWIB = new Date(`${wibDateString}T00:00:00+07:00`).getTime();
 
-    const startOfToday = `${todayWIB}T00:00:00+07:00`;
-
-    // 1. AMBIL SEMUA DATA (Untuk Ringkasan Total)
+    // ... Sisa kodingan query Bos tetap sama ...
     const [depoRes, wdRes, memberRes] = await Promise.all([
       supabase.from('deposits').select('status, nominal, created_at'),
       supabase.from('withdrawals').select('status, nominal, created_at'),
       supabase.from('members').select('id, created_at')
     ]);
 
-    // 2. AMBIL DATA KHUSUS HARI INI (Supaya Akurat & Pasti Reset)
-    const [todayDepoRes, todayWdRes, todayMemberRes] = await Promise.all([
-      supabase.from('deposits').select('nominal').eq('status', 'success').gte('created_at', startOfToday),
-      supabase.from('withdrawals').select('nominal').eq('status', 'success').gte('created_at', startOfToday),
-      supabase.from('members').select('id').gte('created_at', startOfToday)
-    ]);
+    // ... (logic fetch error checking ...)
 
     const calculateStats = (data) => {
       const res = {
         countPending: 0, totalPending: 0,
         countSuccess: 0, totalSuccess: 0,
-        countReject: 0, totalReject: 0
+        countReject: 0, totalReject: 0,
+        todayCount: 0, todayAmount: 0
       };
 
       data.forEach(item => {
         const status = (item.status || 'pending').toLowerCase();
         const nominal = parseFloat(item.nominal || 0);
+        
+        // GUNAKAN .getTime() agar perbandingan angka (milidetik) lebih pasti
+        const createdAt = new Date(item.created_at).getTime();
 
         if (status === 'pending') {
           res.countPending++;
           res.totalPending += nominal;
-        } else if (status === 'success' || status === 'approve') {
+        } 
+        else if (status === 'success' || status === 'approve') {
           res.countSuccess++;
           res.totalSuccess += nominal;
-        } else if (['reject', 'rejected'].includes(status)) {
+          
+          // Bandingkan angka milidetik (createdAt vs startOfTodayWIB)
+          if (createdAt >= startOfTodayWIB) {
+            res.todayCount++;
+            res.todayAmount += nominal;
+          }
+        }
+        else if (['reject', 'rejected'].includes(status)) {
           res.countReject++;
           res.totalReject += nominal;
         }
@@ -59,14 +67,12 @@ export async function GET() {
       return res;
     };
 
-    const depoStats = calculateStats(depoRes.data || []);
-    const wdStats = calculateStats(wdRes.data || []);
-
-    // Hitung angka khusus hari ini
-    const todayDepoCount = todayDepoRes.data?.length || 0;
-    const todayDepoAmount = todayDepoRes.data?.reduce((sum, i) => sum + parseFloat(i.nominal || 0), 0) || 0;
-    const todayWdCount = todayWdRes.data?.length || 0;
-    const todayWdAmount = todayWdRes.data?.reduce((sum, i) => sum + parseFloat(i.nominal || 0), 0) || 0;
+    const depoStats = calculateStats(depoRes.data);
+    const wdStats = calculateStats(wdRes.data);
+    
+    const totalMembers = memberRes.data.length;
+    // Filter member baru hari ini menggunakan WIB
+    const newMembersToday = memberRes.data.filter(m => new Date(m.created_at) >= startOfTodayWIB).length;
 
     return NextResponse.json({
       success: true,
@@ -74,14 +80,14 @@ export async function GET() {
         deposit: depoStats,
         withdrawal: wdStats,
         members: {
-          total: memberRes.data?.length || 0,
-          newToday: todayMemberRes.data?.length || 0
+          total: totalMembers,
+          newToday: newMembersToday
         },
         today: {
-          deposit: todayDepoAmount,
-          withdrawal: todayWdAmount,
-          depositCount: todayDepoCount,
-          withdrawalCount: todayWdCount
+          deposit: depoStats.todayAmount,
+          withdrawal: wdStats.todayAmount,
+          depositCount: depoStats.todayCount,
+          withdrawalCount: wdStats.todayCount
         }
       }
     });
