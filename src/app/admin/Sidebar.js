@@ -156,6 +156,11 @@ export default function Sidebar({ isOpen, setIsOpen }) {
             <SubMenuItem label="Pengaturan Banner" href="/admin/peratan&pengaturan/setting-banner" />
             <SubMenuItem label="Hubungi" href="/admin/peratan&pengaturan/hubungi" />
         </SidebarItem>
+
+        <SidebarItem icon={<BarChart3 size={16}/>} label="Statistik" hasChild menuKey="statistik">
+           <SubMenuItem label="Member Baru" href="/admin/statistik" />
+           <SubMenuItem label="Transaksi" href="/admin/statistik/transaksi" />
+        </SidebarItem>
       </nav>
 
       {/* FOOTER SECTION */}
