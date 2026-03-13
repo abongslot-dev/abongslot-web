@@ -245,7 +245,7 @@ export default function DashboardPage() {
               <BarChart data={dataBar}>
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10}} />
                 <Tooltip />
-                <Bar dataKey="a" name="Deposit" stackId="a" fill="#4ade80" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="a" name="Deposit" stackId="a" fill="#6f12c1" radius={[0, 0, 0, 0]} />
                 <Bar dataKey="b" name="Withdraw" stackId="a" fill="#f87171" radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
