@@ -119,7 +119,7 @@ const [toDate, setToDate] = useState(new Date().toISOString().split('T')[0]); //
       {/* --- TABEL LAPORAN JURNAL --- */}
       <div className="bg-white border border-gray-200 rounded shadow-sm overflow-hidden">
         <div className="bg-gray-50/80 px-4 py-3 border-b border-gray-200 flex items-center gap-2 text-sm font-bold text-gray-700">
-          <Table size={16} className="text-gray-600" /> Laporan Jurnal
+          <Table size={20} className="text-gray-600" /> Laporan Jurnal
         </div>
         
         <div className="p-4">
