@@ -7,65 +7,65 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const from = searchParams.get('from'); // Contoh: 2026-03-01
-    const to = searchParams.get('to');     // Contoh: 2026-03-14
+    const from = searchParams.get('from');
+    const to = searchParams.get('to');
 
-    // Helper untuk filter tanggal agar presisi (00:00:00 s/d 23:59:59)
-    const applyFilter = (query) => {
+    // 1. Ambil data secara terpisah agar jika satu tabel error, yang lain tetap jalan
+    const fetchTable = async (table, selectStr, filterStatus = null) => {
+      let query = supabase.from(table).select(selectStr);
+      
       if (from && to) {
-        return query.gte('created_at', `${from}T00:00:00.000Z`).lte('created_at', `${to}T23:59:59.999Z`);
+        query = query.gte('created_at', `${from}T00:00:00.000Z`).lte('created_at', `${to}T23:59:59.999Z`);
       }
-      return query;
+      
+      if (filterStatus) {
+        query = query.or(filterStatus);
+      }
+
+      const { data, error } = await query;
+      if (error) {
+        console.error(`Error di tabel ${table}:`, error.message);
+        return [];
+      }
+      return data || [];
     };
 
-    // 1. Tarik Data dari tabel-tabel utama
-    const [depo, wd, adj] = await Promise.all([
-      applyFilter(supabase.from('deposits').select('nominal, created_at').or('status.eq.approve,status.eq.success')),
-      applyFilter(supabase.from('withdrawals').select('nominal, created_at').or('status.eq.SUCCESS,status.eq.success')),
-      applyFilter(supabase.from('adjustments').select('nominal, type, created_at'))
+    // Eksekusi semua query
+    const [deposits, withdrawals, adjustments] = await Promise.all([
+      fetchTable('deposits', 'nominal, created_at, status', 'status.eq.approve,status.eq.success'),
+      fetchTable('withdrawals', 'nominal, created_at, status', 'status.eq.SUCCESS,status.eq.success'),
+      fetchTable('adjustments', 'nominal, type, created_at')
     ]);
 
     const reportMap = {};
 
-    // Helper untuk inisialisasi baris harian
-    const getRow = (dateStr) => {
-      // Ubah format created_at ke DD March 2026 agar sesuai UI Bos
-      const d = new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+    // Helper untuk grouping
+    const addToMap = (date, key, val) => {
+      if (!date) return;
+      const d = new Date(date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
       if (!reportMap[d]) {
         reportMap[d] = {
           tanggal: d, depo: 0, wd: 0, adjPlus: 0, adjMin: 0,
           bonus: 0, cashback: 0, referral: 0, rolling: 0, marketing: 0, total: 0
         };
       }
-      return reportMap[d];
+      reportMap[d][key] += parseFloat(val || 0);
     };
 
-    // 2. Masukkan data Deposit (Ghanna 50rb akan masuk di 01 March)
-    depo.data?.forEach(i => {
-      getRow(i.created_at).depo += parseFloat(i.nominal || 0);
+    // Proses data masuk ke Map
+    deposits.forEach(i => addToMap(i.created_at, 'depo', i.nominal));
+    withdrawals.forEach(i => addToMap(i.created_at, 'wd', i.nominal));
+    adjustments.forEach(i => {
+      const field = i.type === 'add' ? 'adjPlus' : 'adjMin';
+      addToMap(i.created_at, field, i.nominal);
     });
 
-    // 3. Masukkan data Withdraw (Cuan150 50rb akan masuk di 05 March)
-    wd.data?.forEach(i => {
-      getRow(i.created_at).wd += parseFloat(i.nominal || 0);
-    });
-
-    // 4. Masukkan data Adjustment (Jika ada data baru di tabel adjustments)
-    adj.data?.forEach(i => {
-      const row = getRow(i.created_at);
-      if (i.type === 'add') row.adjPlus += parseFloat(i.nominal || 0);
-      else row.adjMin += parseFloat(i.nominal || 0);
-    });
-
-    // 5. Kalkulasi Final Win/Loss
+    // Finalisasi data untuk dikirim ke UI
     const finalData = Object.values(reportMap).map(row => {
-      // Rumus: (Depo + Adj+) - (WD + Adj- + Bonus + Cashback + Reff + Rolling)
-      const plus = row.depo + row.adjPlus;
-      const minus = row.wd + row.adjMin + row.bonus + row.cashback + row.referral + row.rolling;
-      const calculatedTotal = plus - minus;
+      const calcTotal = (row.depo + row.adjPlus) - (row.wd + row.adjMin + row.bonus + row.cashback + row.referral + row.rolling);
       
-      const fmt = (v) => v.toLocaleString('id-ID', { minimumFractionDigits: 2 });
-      
+      const fmt = (v) => new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2 }).format(v);
+
       return {
         ...row,
         depo: fmt(row.depo),
@@ -73,16 +73,18 @@ export async function GET(request) {
         adjPlus: fmt(row.adjPlus),
         adjMin: fmt(row.adjMin),
         bonus: fmt(row.bonus),
-        total: fmt(calculatedTotal),
-        // Nilai mentah untuk pengecekan warna di UI jika perlu
-        rawTotal: calculatedTotal 
+        cashback: fmt(row.cashback),
+        referral: fmt(row.referral),
+        rolling: fmt(row.rolling),
+        marketing: fmt(row.marketing),
+        total: fmt(calcTotal)
       };
     }).sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
     return NextResponse.json({ success: true, data: finalData });
 
-  } catch (error) {
-    console.error("API Jurnal Error:", error.message);
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+  } catch (err) {
+    console.error("CRITICAL ERROR:", err.message);
+    return NextResponse.json({ success: false, message: err.message, data: [] }, { status: 200 }); // Kirim 200 agar UI tidak crash
   }
 }
