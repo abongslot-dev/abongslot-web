@@ -93,12 +93,18 @@ export default function DashboardPage() {
     }
   });
 
-  const fetchDashboardData = async () => {
+const fetchDashboardData = async () => {
     try {
       const response = await fetch('/api/dashboard-summary');
-      const data = await response.json();
-      if (data.success) {
-        setStats(data.data);
+      const result = await response.json();
+      
+      // INTIP DI SINI: Klik kanan di browser > Inspect > Console
+      console.log("Data dari API:", result);
+
+      if (result.success && result.data) {
+        setStats(result.data);
+      } else {
+        console.error("API sukses tapi data kosong atau format salah");
       }
     } catch (error) {
       console.error("Gagal ambil data dashboard:", error);
