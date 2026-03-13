@@ -12,65 +12,63 @@ export async function GET() {
       throw new Error("Missing Supabase Configuration");
     }
 
-    // Buat range waktu untuk "Hari Ini" (00:00 sampai 23:59)
+    // Set jam 00:00:00 hari ini untuk filter "Today"
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayISO = today.toISOString();
 
-    // 1. Ambil SEMUA data yang dibutuhkan secara paralel
+    // AMBIL DATA DARI TABEL SESUAI SQL BOS (deposits, withdrawals, members)
     const [depoRes, wdRes, memberRes] = await Promise.all([
       supabase.from('deposits').select('status, nominal, created_at'),
       supabase.from('withdrawals').select('status, nominal, created_at'),
-      supabase.from('users').select('id, created_at') // Asumsi tabel member namanya 'users'
+      supabase.from('members').select('id, created_at') // Sudah diganti ke 'members'
     ]);
 
     if (depoRes.error) throw depoRes.error;
     if (wdRes.error) throw wdRes.error;
     if (memberRes.error) throw memberRes.error;
 
-    // 2. Fungsi hitung ringkasan (Total & Hari Ini)
     const calculateStats = (data) => {
-      const result = {
+      const res = {
         countPending: 0, totalPending: 0,
         countSuccess: 0, totalSuccess: 0,
         countReject: 0, totalReject: 0,
         todayCount: 0, todayAmount: 0
       };
 
-      data.forEach(curr => {
-        const status = (curr.status || 'pending').toLowerCase();
-        const nominal = parseFloat(curr.nominal || 0);
-        const createdAt = new Date(curr.created_at);
+      data.forEach(item => {
+        // Kita ubah ke lowercase biar aman (SUCCESS jadi success)
+        const status = (item.status || 'pending').toLowerCase();
+        const nominal = parseFloat(item.nominal || 0);
+        const createdAt = new Date(item.created_at);
 
-        // Hitung Berdasarkan Status
         if (status === 'pending') {
-          result.countPending++;
-          result.totalPending += nominal;
-        } else if (status === 'success' || status === 'approve') {
-          result.countSuccess++;
-          result.totalSuccess += nominal;
+          res.countPending++;
+          res.totalPending += nominal;
+        } 
+        // Cek 'success' atau 'approve'
+        else if (status === 'success' || status === 'approve') {
+          res.countSuccess++;
+          res.totalSuccess += nominal;
           
-          // Khusus yang Sukses HARI INI
           if (createdAt >= today) {
-            result.todayCount++;
-            result.todayAmount += nominal;
+            res.todayCount++;
+            res.todayAmount += nominal;
           }
-        } else if (status === 'reject' || status === 'rejected') {
-          result.countReject++;
-          result.totalReject += nominal;
+        } 
+        else if (status === 'reject' || status === 'rejected') {
+          res.countReject++;
+          res.totalReject += nominal;
         }
       });
-      return result;
+      return res;
     };
 
     const depoStats = calculateStats(depoRes.data);
     const wdStats = calculateStats(wdRes.data);
-
-    // 3. Hitung Member (Total vs Baru Hari Ini)
+    
     const totalMembers = memberRes.data.length;
     const newMembersToday = memberRes.data.filter(m => new Date(m.created_at) >= today).length;
 
-    // 4. Susun Response agar cocok dengan State di Dashboard
     return NextResponse.json({
       success: true,
       data: {
