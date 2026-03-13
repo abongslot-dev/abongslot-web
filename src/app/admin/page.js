@@ -14,7 +14,7 @@ const dataTraffic = [
   { name: 'Direct', value: 38.6, color: '#4ade80' },
   { name: 'Referral', value: 31.1, color: '#facc15' },
   { name: 'Search', value: 18.3, color: '#f87171' },
-  { name: 'Social', value: 3b82f6, color: '#3b82f6' },
+  { name: 'Social', value: 11.2, color: '#3b82f6' },
   { name: 'Other', value: 7.8, color: '#94a3b8' },
 ];
 
