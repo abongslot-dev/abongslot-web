@@ -126,7 +126,7 @@ export default function DashboardPage() {
       <h1 className="text-3xl font-normal mb-1">Dashboard</h1>
       <p className="text-xs text-blue-500 mb-6 font-medium">Dashboard Overview</p>
       
-      {/* 3 STAT CARDS UTAMA */}
+      {/* 1. 3 STAT CARDS UTAMA */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-white">
         <Link href="/admin/deposit">
           <div className="bg-[#1a0033] rounded shadow-sm relative overflow-hidden group p-4 border-b-4 border-black/10 cursor-pointer transition-transform hover:scale-[1.01]">
@@ -146,14 +146,16 @@ export default function DashboardPage() {
 
         <Link href="/admin/member">
           <div className="bg-[#1a0033] rounded shadow-sm relative overflow-hidden group p-4 border-b-4 border-black/10 cursor-pointer transition-transform hover:scale-[1.01]">
-            <div className="flex items-center gap-2 mb-4 font-bold text-white"><Users size={16}/> Daftar Member</div>
+            <div className="flex items-center gap-2 mb-4 font-bold text-white">
+              <Users size={16}/> Daftar Member ({stats?.members?.total ?? 0})
+            </div>
             <div className="bg-black/10 p-1.5 px-4 text-[10px] inline-block text-white uppercase font-bold group-hover:bg-black/30">Lihat →</div>
             <Users size={50} className="absolute -right-2 -top-1 opacity-20 text-white" />
           </div>
         </Link>
       </div>
 
-      {/* RINGKASAN TRANSAKSI */}
+      {/* 2. RINGKASAN TRANSAKSI (TABEL KECIL) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <SummaryBox title="Total Deposit" icon="📄">
           <SummaryItem label="Butuh Diproses" count={stats?.deposit?.countPending ?? 0} amount={formatRupiah(stats?.deposit?.totalPending ?? 0)} color="text-yellow-600" />
@@ -172,12 +174,10 @@ export default function DashboardPage() {
         </SummaryBox>
       </div>
 
-     
-        
-{/* --- BAGIAN STATISTIK DINAMIS (DATA REAL DARI DATABASE) --- */}
+      {/* 3. GRAFIK DINAMIS */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
         
-        {/* Donut 1: Statistik Transaksi Sukses Hari Ini */}
+        {/* Donut 1: Transaksi Hari Ini */}
         <div className="bg-white p-4 rounded shadow-sm border border-gray-100 relative">
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
@@ -191,7 +191,6 @@ export default function DashboardPage() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-12 text-center">
               <span className="text-[10px] text-gray-400 block uppercase font-bold">Total Transaksi</span>
               <span className="text-xl font-bold text-gray-700">
-                {/* AMAN: Pakai optional chaining */}
                 {(stats?.today?.depositCount ?? 0) + (stats?.today?.withdrawalCount ?? 0)}
               </span>
             </div>
@@ -222,7 +221,6 @@ export default function DashboardPage() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-12 text-center">
               <span className="text-[10px] text-gray-400 block uppercase font-bold">Total Member</span>
               <span className="text-xl font-bold text-gray-700">
-                {/* AMAN: Pakai optional chaining */}
                 {stats?.members?.total ?? 0}
               </span>
             </div>
@@ -238,7 +236,8 @@ export default function DashboardPage() {
             ))}
           </div>
         </div>
-        {/* Year Dynamics - Bar Chart (Deposit vs WD) */}
+
+        {/* Bar Chart */}
         <div className="bg-white p-4 rounded shadow-sm border border-gray-100 lg:col-span-1">
           <h3 className="text-[11px] font-bold text-gray-400 uppercase mb-4">Aktivitas Mingguan</h3>
           <div className="h-56">
@@ -253,7 +252,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Comparison Chart - Perbandingan Pertumbuhan */}
+        {/* Area Chart */}
         <div className="bg-white p-4 rounded shadow-sm border border-gray-100 lg:col-span-1">
           <h3 className="text-[11px] font-bold text-gray-400 uppercase mb-4">Perbandingan Tren</h3>
           <div className="h-56">
@@ -266,99 +265,6 @@ export default function DashboardPage() {
             </ResponsiveContainer>
           </div>
         </div>
-
-     {/* --- BAGIAN STATISTIK DINAMIS (DATA REAL DARI DATABASE) --- */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-        
-        {/* Donut 1: Statistik Transaksi Sukses Hari Ini */}
-        <div className="bg-white p-4 rounded shadow-sm border border-gray-100 relative">
-          <div className="h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                {/* Pakai currentTrafficData yang kita buat di atas */}
-                <Pie data={currentTrafficData} innerRadius={50} outerRadius={70} paddingAngle={2} dataKey="value">
-                  {currentTrafficData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-12 text-center">
-              <span className="text-[10px] text-gray-400 block uppercase font-bold">Total Transaksi</span>
-              <span className="text-xl font-bold text-gray-700">
-                {stats.today.depositCount + stats.today.withdrawalCount}
-              </span>
-            </div>
-          </div>
-          <div className="mt-2 space-y-1">
-            {currentTrafficData.map((item) => (
-              <div key={item.name} className="flex justify-between text-[10px] font-bold">
-                <div className="flex items-center gap-1.5 text-gray-500">
-                  <div className="w-2 h-2 rounded-full" style={{backgroundColor: item.color}}></div> {item.name}
-                </div>
-                <span className="text-gray-400">{item.value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Donut 2: Statistik Member */}
-        <div className="bg-white p-4 rounded shadow-sm border border-gray-100 relative">
-          <div className="h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                {/* Pakai currentMemberData yang kita buat di atas */}
-                <Pie data={currentMemberData} innerRadius={50} outerRadius={70} paddingAngle={2} dataKey="value">
-                  {currentMemberData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-12 text-center">
-              <span className="text-[10px] text-gray-400 block uppercase font-bold">Total Member</span>
-              <span className="text-xl font-bold text-gray-700">{stats.members.total}</span>
-            </div>
-          </div>
-          <div className="mt-2 space-y-1">
-            {currentMemberData.map((item) => (
-              <div key={item.name} className="flex justify-between text-[10px] font-bold">
-                <div className="flex items-center gap-1.5 text-gray-500">
-                  <div className="w-2 h-2 rounded-full" style={{backgroundColor: item.color}}></div> {item.name}
-                </div>
-                <span className="text-gray-400">{item.value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Year Dynamics - Bar Chart (Deposit vs WD) */}
-        <div className="bg-white p-4 rounded shadow-sm border border-gray-100 lg:col-span-1">
-          <h3 className="text-[11px] font-bold text-gray-400 uppercase mb-4">Aktivitas Mingguan</h3>
-          <div className="h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={dataBar}>
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10}} />
-                <Tooltip />
-                <Bar dataKey="a" name="Deposit" stackId="a" fill="#4ade80" radius={[0, 0, 0, 0]} />
-                <Bar dataKey="b" name="Withdraw" stackId="a" fill="#f87171" radius={[2, 2, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Comparison Chart - Perbandingan Pertumbuhan */}
-        <div className="bg-white p-4 rounded shadow-sm border border-gray-100 lg:col-span-1">
-          <h3 className="text-[11px] font-bold text-gray-400 uppercase mb-4">Perbandingan Tren</h3>
-          <div className="h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={dataBar}>
-                <Tooltip />
-                <Area type="monotone" dataKey="a" stroke="#4ade80" fill="#4ade80" fillOpacity={0.2} strokeWidth={2} />
-                <Area type="monotone" dataKey="b" stroke="#f87171" fill="#f87171" fillOpacity={0.2} strokeWidth={2} strokeDasharray="4 4" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
- </div>
       </div>
     </div>
   );
