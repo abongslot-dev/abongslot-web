@@ -1,13 +1,15 @@
 export const dynamic = 'force-dynamic';
-import { createClient } from '@supabase/supabase-js';
-import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js'
+import { NextResponse } from 'next/server'
 
 export async function GET(request) {
+  // Ambil URL dan Key dari Vercel Settings
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  // Prioritaskan SERVICE_ROLE_KEY agar bisa tembus RLS
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    return NextResponse.json({ success: false, message: "Variabel Env tidak ditemukan!" }, { status: 200 });
+    return NextResponse.json({ success: false, message: "Variabel Env tidak terbaca!" }, { status: 200 });
   }
 
   const supabase = createClient(supabaseUrl, supabaseKey);
@@ -18,67 +20,64 @@ export async function GET(request) {
     const to = searchParams.get('to');
 
     if (!from || !to) {
-      return NextResponse.json({ success: false, message: "Tanggal tidak valid!" }, { status: 200 });
+      return NextResponse.json({ success: false, message: "Parameter tanggal (from/to) wajib diisi!" });
     }
 
-    // Ambil data dari tabel yang ada di database Bos
+    // Ambil data hanya dari tabel yang terbukti ada di database Bos (Gambar 2)
     const [depoRes, wdRes, adjRes] = await Promise.all([
-      supabase.from('deposits').select('nominal, created_at, status').gte('created_at', from).lte('created_at', to),
-      supabase.from('withdrawals').select('nominal, created_at, status').gte('created_at', from).lte('created_at', to),
-      supabase.from('adjustments').select('nominal, type, created_at').gte('created_at', from).lte('created_at', to)
+      supabase.from('deposits').select('nominal, created_at, status').gte('created_at', `${from}T00:00:00Z`).lte('created_at', `${to}T23:59:59Z`),
+      supabase.from('withdrawals').select('nominal, created_at, status').gte('created_at', `${from}T00:00:00Z`).lte('created_at', `${to}T23:59:59Z`),
+      supabase.from('adjustments').select('nominal, type, created_at').gte('created_at', `${from}T00:00:00Z`).lte('created_at', `${to}T23:59:59Z`)
     ]);
 
-    // Jika ada error di salah satu query, jangan buat crash 500
+    // Jika salah satu tabel bermasalah, kirim pesan error yang jelas (Bukan 500)
     if (depoRes.error || wdRes.error || adjRes.error) {
       return NextResponse.json({ 
         success: false, 
-        message: "Error Database", 
+        message: "Database Error", 
         detail: depoRes.error?.message || wdRes.error?.message || adjRes.error?.message 
-      }, { status: 200 });
+      });
     }
 
     const reportMap = {};
     const fmt = (n) => new Intl.NumberFormat('id-ID', { minimumFractionDigits: 2 }).format(n || 0);
 
-    const getEntry = (createdAt) => {
-      const dateOnly = createdAt.split('T')[0]; // Ambil YYYY-MM-DD
-      const d = new Date(dateOnly).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    // Helper untuk membuat baris tanggal
+    const getRow = (dateStr) => {
+      const d = new Date(dateStr).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
       if (!reportMap[d]) {
-        reportMap[d] = { tanggal: d, depo: 0, wd: 0, adjPlus: 0, adjMin: 0, bonus: 0, cashback: 0, referral: 0, rolling: 0, marketing: 0 };
+        reportMap[d] = { tanggal: d, depo: 0, wd: 0, adjPlus: 0, adjMin: 0, total: 0 };
       }
       return reportMap[d];
     };
 
-    // Mapping Data
+    // Proses data satu per satu dengan aman
     (depoRes.data || []).forEach(i => {
-      if (['approve', 'success'].includes(i.status?.toLowerCase())) getEntry(i.created_at).depo += Number(i.nominal || 0);
+      if (['approve', 'success'].includes(i.status?.toLowerCase())) getRow(i.created_at).depo += Number(i.nominal || 0);
     });
     (wdRes.data || []).forEach(i => {
-      if (i.status?.toLowerCase() === 'success') getEntry(i.created_at).wd += Number(i.nominal || 0);
+      if (i.status?.toLowerCase() === 'success') getRow(i.created_at).wd += Number(i.nominal || 0);
     });
     (adjRes.data || []).forEach(i => {
-      const entry = getEntry(i.created_at);
-      if (i.type === 'add') entry.adjPlus += Number(i.nominal || 0);
-      else entry.adjMin += Number(i.nominal || 0);
+      const r = getRow(i.created_at);
+      if (i.type === 'add') r.adjPlus += Number(i.nominal || 0);
+      else r.adjMin += Number(i.nominal || 0);
     });
 
-    // Formatting hasil untuk Frontend
-    const finalData = Object.values(reportMap).map(row => {
-      const total = (row.depo + row.adjPlus) - (row.wd + row.adjMin);
-      return {
-        ...row,
-        depo: fmt(row.depo),
-        wd: fmt(row.wd),
-        adjPlus: fmt(row.adjPlus),
-        adjMin: fmt(row.adjMin),
-        total: fmt(total),
-        bonus: "0,00", cashback: "0,00", referral: "0,00", rolling: "0,00", marketing: "0,00"
-      };
-    });
+    const finalResult = Object.values(reportMap).map(row => ({
+      ...row,
+      depo: fmt(row.depo),
+      wd: fmt(row.wd),
+      adjPlus: fmt(row.adjPlus),
+      adjMin: fmt(row.adjMin),
+      bonus: "0,00", cashback: "0,00", referral: "0,00", rolling: "0,00", marketing: "0,00",
+      total: fmt((row.depo + row.adjPlus) - (row.wd + row.adjMin))
+    })).sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
-    return NextResponse.json({ success: true, data: finalData });
+    return NextResponse.json({ success: true, data: finalResult });
 
   } catch (err) {
-    return NextResponse.json({ success: false, message: "Fatal Error: " + err.message }, { status: 200 });
+    // Tangkap error fatal agar tidak jadi Error 500
+    return NextResponse.json({ success: false, message: "Fatal Server Error: " + err.message }, { status: 200 });
   }
 }
