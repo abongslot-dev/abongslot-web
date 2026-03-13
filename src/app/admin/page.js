@@ -85,12 +85,12 @@ export default function DashboardPage() {
     deposit: { countPending: 0, totalPending: 0, countSuccess: 0, totalSuccess: 0, countReject: 0, totalReject: 0 },
     withdrawal: { countPending: 0, totalPending: 0, countSuccess: 0, totalSuccess: 0 },
     members: { total: 0, newToday: 0 },
-    today: { 
-        deposit: 0, 
-        withdrawal: 0, 
-        depositCount: 0, 
-        withdrawalCount: 0 
-    }
+today: {
+  deposit: depoStats.totalSuccess, // Ambil total keseluruhan dulu buat ngetes
+  withdrawal: wdStats.totalSuccess,
+  depositCount: depoStats.countSuccess,
+  withdrawalCount: wdStats.countSuccess
+}
   });
 
 const fetchDashboardData = async () => {
