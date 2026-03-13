@@ -89,11 +89,10 @@ export default function DashboardPage() {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('/api/dashboard-summary');
+      // Tambahkan timestamp agar browser tidak menyimpan cache data lama
+      const response = await fetch(`/api/dashboard-summary?t=${new Date().getTime()}`);
       const result = await response.json();
       
-      console.log("Data dari API:", result); // Cek ini di Console F12
-
       if (result.success && result.data) {
         setStats(result.data);
       }
@@ -102,8 +101,18 @@ export default function DashboardPage() {
     }
   };
 
+  // --- BAGIAN AUTO REFRESH ---
   useEffect(() => {
+    // Ambil data pertama kali
     fetchDashboardData();
+
+    // Setel agar data update otomatis setiap 30 detik
+    const timer = setInterval(() => {
+      fetchDashboardData();
+    }, 30000); // 30 detik
+
+    // Bersihkan timer saat admin keluar dari halaman dashboard
+    return () => clearInterval(timer);
   }, []);
 
   const formatRupiah = (number) => {
@@ -114,7 +123,7 @@ export default function DashboardPage() {
     }).format(number || 0);
   };
 
-  // Pemetaan data grafik (Gunakan Optional Chaining agar aman)
+  // Data Grafik (Sudah Otomatis Update karena stats berubah setiap 30 detik)
   const currentTrafficData = [
     { name: 'Depo Sukses', value: stats?.today?.depositCount ?? 0, color: '#4ade80' },
     { name: 'WD Sukses', value: stats?.today?.withdrawalCount ?? 0, color: '#f87171' },
