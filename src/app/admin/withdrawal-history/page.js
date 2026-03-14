@@ -6,6 +6,7 @@ export default function RangkumanWithdrawalPage() {
   const [data, setData] = useState([]);
   const [totalWD, setTotalWD] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [currentAdminName, setCurrentAdminName] = useState("ADMIN");
 
   // --- LOGIKA PAGINATION ---
   const [currentPage, setCurrentPage] = useState(1);
@@ -54,13 +55,13 @@ const fetchRangkuman = async () => {
   };
 
 // --- LOGIKA AUTO REFRESH TIAP 30 DETIK ---
-  useEffect(() => {
-    fetchRangkuman(); // Ambil pertama kali
+useEffect(() => {
+    // Ambil nama admin asli dari storage biar dinamis
+    const savedName = localStorage.getItem("adminName");
+    if (savedName) setCurrentAdminName(savedName);
 
-    const interval = setInterval(() => {
-      fetchRangkuman();
-    }, 30000); // 30 detik
-
+    fetchRangkuman();
+    const interval = setInterval(() => fetchRangkuman(), 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -179,24 +180,16 @@ const fetchRangkuman = async () => {
                           </div>
                         </td>
 
-<td className="p-3 text-center bg-gray-50/30 border-l border-gray-100">
-  {item.status?.toUpperCase() === 'PENDING' ? (
-    <span className="text-gray-300 italic text-[10px]">Menunggu...</span>
-  ) : (
-    <div className="flex flex-col items-center justify-center">
-      <span className="text-zinc-800 font-black text-[10px] uppercase italic leading-tight">
-        {/* Mengambil processed_by atau admin_name dari DB */}
-        {item.processed_by || item.admin_name || 'ADMIN'}
-      </span>
-      <span className="text-[8px] text-blue-600 font-bold leading-none mt-1 uppercase tracking-tighter">
-        {item.admin_id 
-          ? `ID: ${item.admin_id}` 
-          : `ID: ${(item.processed_by || item.admin_name || 'ADM').slice(0, 3).toUpperCase()}`
-        }
-      </span>
-    </div>
-  )}
-</td>
+<td className="p-3 text-center bg-gray-50/30">
+                          <div className="flex flex-col items-center justify-center">
+                            <span className="text-zinc-800 font-black text-[10px] uppercase italic leading-tight">
+                              {item.processed_by || 'ADMIN'}
+                            </span>
+                            <span className="text-[8px] text-blue-600 font-bold leading-none mt-1 uppercase tracking-tighter">
+                              {item.admin_id ? `ID: ${item.admin_id}` : `ID: ${item.processed_by ? item.processed_by.slice(0,3).toUpperCase() : 'ADM'}`}
+                            </span>
+                          </div>
+                        </td>
                       </tr>
                     );
                   })
