@@ -56,11 +56,11 @@ export default function WithdrawalBaruPage() {
 
   // Fungsi Action (Terima / Tolak)
 const onAction = async (id, status, user, amount) => {
-    const actionText = status === 'SUCCESS' ? 'Menerima' : 'Menolak';
+    // 1. SOLUSI ERROR: Kita definisikan adminName di dalam fungsi
+    // Ambil dari state currentAdminName, kalau gak ada ambil dari localStorage
+    const adminName = (typeof currentAdminName !== 'undefined' ? currentAdminName : localStorage.getItem("adminName")) || "ADMIN_WEB";
     
-    // --- AMBIL NAMA ADMIN LANGSUNG DARI STORAGE ---
-    // Ini untuk mencegah error "not defined" jika state belum terisi
-    const adminName = currentAdminName || localStorage.getItem("adminName") || "ADMIN_SISTEM";
+    const actionText = status === 'SUCCESS' ? 'Menerima' : 'Menolak';
 
     if (!confirm(`Yakin ingin ${actionText} WD dari ${user}?`)) return;
 
@@ -71,7 +71,7 @@ const onAction = async (id, status, user, amount) => {
         body: JSON.stringify({ 
           id: id, 
           status: status,
-          processed_by: adminName, // Kirim nama yang sudah dipastikan ada
+          processed_by: adminName, // <--- Ini yang mengisi kolom processed_by di DB
           admin_id: adminName.slice(0, 3).toUpperCase() 
         }),
       });
@@ -80,12 +80,13 @@ const onAction = async (id, status, user, amount) => {
 
       if (result.success) {
         alert(`✅ Berhasil! Diproses oleh: ${adminName}`);
+        // Hapus dari list agar tidak menumpuk
         setDataWD((prevData) => prevData.filter((item) => item.id !== id));
       } else {
         alert("❌ Gagal: " + result.message);
       }
     } catch (err) {
-      alert("❌ Error Server: " + err.message); 
+      alert("❌ Error: " + err.message); 
     }
   };
 
