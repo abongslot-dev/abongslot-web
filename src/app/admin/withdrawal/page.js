@@ -171,20 +171,21 @@ const onAction = async (id, status, user, amount) => {
                       <td className="p-3 border-r text-center text-gray-400">
                         {new Date(item.created_at).toLocaleString('id-ID')}
                       </td>
-                      <td className="p-3 flex gap-1 justify-center">
-                        <button 
-                          onClick={() => onAction(item.id, 'SUCCESS')}
-                          className="bg-[#28a745] text-white px-3 py-1.5 rounded-[3px] text-[10px] font-bold hover:bg-green-700 uppercase transition-all"
-                        >
-                          Terima
-                        </button>
-                        <button 
-                          onClick={() => onAction(item.id, 'REJECT')}
-                          className="bg-[#dc3545] text-white px-3 py-1.5 rounded-[3px] text-[10px] font-bold hover:bg-red-700 uppercase transition-all"
-                        >
-                          Tolak
-                        </button>
-                      </td>
+<td className="p-3 flex gap-1 justify-center">
+  <button 
+    // TAMBAHKAN PARAMETER: item.username & item.nominal
+    onClick={() => onAction(item.id, 'SUCCESS', item.username, item.nominal)}
+    className="bg-[#28a745] text-white px-3 py-1.5 rounded-[3px] text-[10px] font-bold hover:bg-green-700 uppercase transition-all"
+  >
+    Terima
+  </button>
+  <button 
+    onClick={() => onAction(item.id, 'REJECT', item.username, item.nominal)}
+    className="bg-[#dc3545] text-white px-3 py-1.5 rounded-[3px] text-[10px] font-bold hover:bg-red-700 uppercase transition-all"
+  >
+    Tolak
+  </button>
+</td>
                     </tr>
                   ))
                 ) : (
