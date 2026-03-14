@@ -78,20 +78,23 @@ export async function GET() {
 return NextResponse.json({
   success: true,
   data: {
-    // Memastikan struktur objeknya 'Datar' dan mudah dibaca Frontend
     deposit: {
       countPending: depoStats.countPending,
       totalPending: depoStats.totalPending,
-      countSuccess: depoStats.countSuccess,
-      totalSuccess: depoStats.totalSuccess,
+      // GANTI DUA BARIS INI SUPAYA SUMMARY BOX RESET JADI 0 SETIAP HARI:
+      countSuccess: depoStats.todayCount, 
+      totalSuccess: depoStats.todayAmount,
+      // -----------------------------------------------------------
       countReject: depoStats.countReject,
       totalReject: depoStats.totalReject
     },
     withdrawal: {
       countPending: wdStats.countPending,
       totalPending: wdStats.totalPending,
-      countSuccess: wdStats.countSuccess,
-      totalSuccess: wdStats.totalSuccess
+      // GANTI DUA BARIS INI SUPAYA SUMMARY BOX RESET JADI 0 SETIAP HARI:
+      countSuccess: wdStats.todayCount,
+      totalSuccess: wdStats.todayAmount
+      // -----------------------------------------------------------
     },
     members: {
       total: totalMembers,
