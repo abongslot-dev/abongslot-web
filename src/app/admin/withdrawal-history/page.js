@@ -19,21 +19,29 @@ export default function RangkumanWithdrawalPage() {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Ambil Data dari API
-  const fetchRangkuman = async () => {
+const fetchRangkuman = async () => {
     try {
       setLoading(true);
-      // Tambahkan timestamp agar data tidak nge-cache
       const res = await fetch(`/api/update-wd?t=${Date.now()}`);
       const result = await res.json();
       
-      if (result.success) {
-        // Filter data yang bukan PENDING (hanya SUCCESS/REJECT)
-        const historyData = result.data.filter(item => item.status !== 'PENDING');
+      if (result.success && result.data) {
+        // --- FILTER DATA HARI INI (WIB) ---
+        const now = new Date();
+        const wibDateString = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
+        const startOfTodayWIB = new Date(`${wibDateString}T00:00:00+07:00`).getTime();
+
+        const historyData = result.data.filter(item => {
+          const itemTime = new Date(item.created_at).getTime();
+          // Filter hanya yang HARI INI dan status BUKAN PENDING
+          return itemTime >= startOfTodayWIB && item.status !== 'PENDING';
+        });
+
         setData(historyData);
         
-        // Hitung total khusus yang statusnya SUCCESS
+        // Hitung total khusus yang statusnya SUCCESS (Hari Ini Saja)
         const totalSukses = historyData
-          .filter(item => item.status === 'SUCCESS')
+          .filter(item => ['SUCCESS', 'APPROVE', 'SUKSES'].includes(item.status?.toUpperCase()))
           .reduce((acc, curr) => acc + Number(curr.nominal || 0), 0);
         
         setTotalWD(totalSukses);
@@ -45,8 +53,15 @@ export default function RangkumanWithdrawalPage() {
     }
   };
 
+// --- LOGIKA AUTO REFRESH TIAP 30 DETIK ---
   useEffect(() => {
-    fetchRangkuman();
+    fetchRangkuman(); // Ambil pertama kali
+
+    const interval = setInterval(() => {
+      fetchRangkuman();
+    }, 30000); // 30 detik
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
