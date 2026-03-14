@@ -7,6 +7,14 @@ import {
   Filter as FilterIcon 
 } from "lucide-react";
 
+import { createClient } from '@supabase/supabase-js'; // <--- PASTIKAN SUDAH IMPORT INI
+
+// --- TAMBAHKAN INI DI SINI ---
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL, 
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
 // --- KOMPONEN PEMBANTU (Biar Gak Error Not Defined) ---
 const FilterSelect = ({ label }) => (
   <div className="flex flex-col gap-1">
