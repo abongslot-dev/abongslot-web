@@ -43,18 +43,26 @@ export default function WithdrawalBaruPage() {
     }
   };
 
-  useEffect(() => {
-    fetchWD();
+ useEffect(() => {
+    // Ambil nama admin pas login
+    const savedAdmin = localStorage.getItem("adminName");
+    if (savedAdmin) {
+      setCurrentAdminName(savedAdmin);
+    }
+    
+    fetchWD(); // Ambil data WD
   }, []);
 
 
   // Fungsi Action (Terima / Tolak)
-  const onAction = async (id, status, user, amount) => {
-    // Sesuaikan status dengan database (SUCCESS / REJECT)
-    const actionStatus = status === 'SUCCESS' ? 'SUCCESS' : 'REJECT';
-    const label = actionStatus === 'SUCCESS' ? 'MENERIMA' : 'MENOLAK';
+const onAction = async (id, status, user, amount) => {
+    const actionText = status === 'SUCCESS' ? 'Menerima' : 'Menolak';
+    
+    // --- AMBIL NAMA ADMIN LANGSUNG DARI STORAGE ---
+    // Ini untuk mencegah error "not defined" jika state belum terisi
+    const adminName = currentAdminName || localStorage.getItem("adminName") || "ADMIN_SISTEM";
 
-    if (!confirm(`Yakin ingin ${label} WD dari ${user}?`)) return;
+    if (!confirm(`Yakin ingin ${actionText} WD dari ${user}?`)) return;
 
     try {
       const res = await fetch('/api/update-wd', { 
@@ -62,26 +70,26 @@ export default function WithdrawalBaruPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           id: id, 
-          status: actionStatus,
-          processed_by: currentAdminName, // Nama Admin yang login
-          admin_id: currentAdminName ? currentAdminName.slice(0, 3).toUpperCase() : 'ADM' // ID Otomatis
+          status: status,
+          processed_by: adminName, // Kirim nama yang sudah dipastikan ada
+          admin_id: adminName.slice(0, 3).toUpperCase() 
         }),
       });
 
       const result = await res.json();
 
       if (result.success) {
-        alert(`✅ WD Berhasil diproses oleh ${currentAdminName}!`);
-        // Hapus dari list pending
+        alert(`✅ Berhasil! Diproses oleh: ${adminName}`);
         setDataWD((prevData) => prevData.filter((item) => item.id !== id));
       } else {
         alert("❌ Gagal: " + result.message);
       }
     } catch (err) {
-      alert("❌ Error: " + err.message); 
+      alert("❌ Error Server: " + err.message); 
     }
   };
-  
+
+
   // Fungsi dummy untuk klik user (bisa diarahkan ke detail member nanti)
   const handleUserClick = (user) => {
     alert("Cek detail member: " + user.username);
