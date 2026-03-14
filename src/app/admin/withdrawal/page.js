@@ -27,6 +27,9 @@ export default function WithdrawalBaruPage() {
   const [dataWD, setDataWD] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // --- SOLUSI: DEFINE STATE DI SINI ---
+  const [currentAdminName, setCurrentAdminName] = useState("ADMIN");
+
   // Fungsi ambil data dari API
   const fetchWD = async () => {
     setLoading(true);
@@ -43,56 +46,63 @@ export default function WithdrawalBaruPage() {
     }
   };
 
- useEffect(() => {
-    // Ambil nama admin pas login
+  useEffect(() => {
+    // 1. Cek di localStorage dulu
     const savedAdmin = localStorage.getItem("adminName");
     if (savedAdmin) {
       setCurrentAdminName(savedAdmin);
     }
     
-    fetchWD(); // Ambil data WD
+    // 2. BACKUP: Tarik dari Supabase (Kayak di halaman DEPOSIT)
+    const getAdmin = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const name = user.user_metadata?.full_name || user.email.split('@')[0];
+        setCurrentAdminName(name);
+        localStorage.setItem("adminName", name); // Simpan biar gak null lagi
+      }
+    };
+
+    getAdmin();
+    fetchWD(); 
   }, []);
 
-
   // Fungsi Action (Terima / Tolak)
-const onAction = async (id, status, user, amount) => {
-  const actionText = status === 'SUCCESS' ? 'Menerima' : 'Menolak';
+  const onAction = async (id, status, user, amount) => {
+    const actionText = status === 'SUCCESS' ? 'Menerima' : 'Menolak';
 
-  // PROTEKSI: Ambil nama dari storage jika variabel state tidak ditemukan
-  const adminFix = (typeof currentAdminName !== 'undefined' ? currentAdminName : localStorage.getItem("adminName")) || "ADMIN_WEB";
+    // Gunakan currentAdminName yang sudah kita siapkan di state
+    const adminFix = currentAdminName || "ADMIN_WEB";
 
-  if (!confirm(`Yakin ingin ${actionText} WD dari ${user}?`)) return;
+    if (!confirm(`Yakin ingin ${actionText} WD dari ${user}?`)) return;
 
-  try {
-    const res = await fetch('/api/update-wd', { 
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        id: id, 
-        status: status,
-        username: user,
-        nominal: amount,
-        processed_by: adminFix, // <--- Nama Admin dikirim ke API
-        admin_id: adminFix.slice(0, 3).toUpperCase() // <--- ID Otomatis
-      }),
-    });
+    try {
+      const res = await fetch('/api/update-wd', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          id: id, 
+          status: status,
+          username: user,
+          nominal: amount,
+          processed_by: adminFix, 
+          admin_id: adminFix.slice(0, 3).toUpperCase() 
+        }),
+      });
 
-    const result = await res.json();
+      const result = await res.json();
 
-    if (result.success) {
-      alert(`✅ Berhasil! Diproses oleh: ${adminFix}`);
-      // Hapus dari list agar hilang dari layar withdrawal baru
-      setDataWD((prevData) => prevData.filter((item) => item.id !== id));
-    } else {
-      alert("❌ Gagal: " + result.message);
+      if (result.success) {
+        alert(`✅ Berhasil! Diproses oleh: ${adminFix}`);
+        setDataWD((prevData) => prevData.filter((item) => item.id !== id));
+      } else {
+        alert("❌ Gagal: " + result.message);
+      }
+    } catch (err) {
+      alert("❌ Error Server: " + err.message); 
     }
-  } catch (err) {
-    alert("❌ Error Server: " + err.message); 
-  }
-};
+  };
 
-
-  // Fungsi dummy untuk klik user (bisa diarahkan ke detail member nanti)
   const handleUserClick = (user) => {
     alert("Cek detail member: " + user.username);
   };
@@ -162,7 +172,7 @@ const onAction = async (id, status, user, amount) => {
                       </td>
                       <td className="p-3 border-r leading-tight">
                         <div className="font-bold uppercase text-gray-700">{item.bank}</div>
-                        <div className="text-blue-500 font-mono text-[10px] bg-blue-50 px-1 rounded inline-block">
+                        <div className="text-gray-900 font-bold text-[13px] bg-blue-50 px-1 rounded inline-block">
                           {item.nomor_rekening}
                         </div>
                         <div className="text-gray-900 font-bold uppercase text-[11px] block mt-0.5">
