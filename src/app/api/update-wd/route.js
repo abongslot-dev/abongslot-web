@@ -3,7 +3,6 @@ export const dynamic = 'force-dynamic';
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-// 1. GUNAKAN SERVICE ROLE KEY (WAJIB untuk Update Admin)
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY; 
 
@@ -14,19 +13,20 @@ export async function POST(req) {
   try {
     const body = await req.json();
     
-    // Gunakan ID apa adanya (UUID atau BigInt) - jangan paksa parseInt jika ID-nya UUID
     const id = body.id; 
     const status = body.status;
+    const processed_by = body.processed_by || 'ADMIN'; // <--- TANGKAP NAMA ADMIN
 
     if (!id || !status) {
       return NextResponse.json({ success: false, message: "ID atau Status tidak lengkap" });
     }
 
-    // Update status di tabel withdrawals
+    // Update status dan kolom processed_by di database
     const { error } = await supabase
       .from('withdrawals')
       .update({ 
         status: status, 
+        processed_by: processed_by, // <--- SIMPAN NAMA ADMIN KE KOLOM BARU
         processed_at: new Date().toISOString() 
       })
       .eq('id', id);
@@ -46,16 +46,15 @@ export async function POST(req) {
 // --- 2. GET: Rangkuman Riwayat Withdraw ---
 export async function GET() {
   try {
-    // Ambil data yang statusnya BUKAN 'PENDING'
     const { data, error } = await supabase
       .from('withdrawals')
       .select('*')
-      .neq('status', 'PENDING')
+      .neq('status', 'PENDING') // Ambil yang sukses/reject saja
       .order('created_at', { ascending: false });
 
     if (error) throw error;
 
-    // Hitung total nominal menggunakan reduce
+    // Tambahan: Hitung total nominal (bisa difilter per hari di frontend)
     const totalAll = (data || []).reduce((sum, item) => sum + Number(item.nominal || 0), 0);
 
     return NextResponse.json({ 
