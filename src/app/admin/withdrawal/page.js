@@ -47,23 +47,33 @@ export default function WithdrawalBaruPage() {
     fetchWD();
   }, []);
 
+
   // Fungsi Action (Terima / Tolak)
   const onAction = async (id, status) => {
     const actionText = status === 'SUCCESS' ? 'Menerima' : 'Menolak';
     if (!confirm(`Yakin ingin ${actionText} WD ini?`)) return;
 
+    // --- 1. AMBIL NAMA ADMIN DARI PENYIMPANAN BROWSER ---
+    // Pastikan pas login Bos sudah simpan: localStorage.setItem("adminName", "Nama Adminnya")
+    const namaAdminLogin = localStorage.getItem("adminName") || "ADMIN_WEB";
+
     try {
       const res = await fetch('/api/update-wd', { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, status }),
+        // --- 2. KIRIM processed_by KE API ---
+        body: JSON.stringify({ 
+          id, 
+          status, 
+          processed_by: namaAdminLogin 
+        }),
       });
 
       const result = await res.json();
 
       if (result.success) {
-        alert(`✅ Berhasil! Data telah diproses.`);
-        // Filter out data yang sudah diproses agar hilang dari list
+        alert(`✅ Berhasil! Diproses oleh: ${namaAdminLogin}`);
+        // Filter out data agar hilang dari list "Permintaan Baru"
         setDataWD((prevData) => prevData.filter((item) => item.id !== id));
       } else {
         alert("❌ Gagal: " + result.message);
