@@ -97,35 +97,40 @@ export default function DepositBaruPage({ onUserClick }) {
   }, []);
     
 // --- FUNGSI ACTION (APPROVE / REJECT) ---
-  const onAction = async (id, status, amount, user) => {
-    const actionStatus = status === 'SUCCESS' ? 'approve' : 'reject';
-    const label = actionStatus === 'approve' ? 'MENERIMA' : 'MENOLAK';
+const onAction = async (id, status, user, amount) => {
+    // 1. Ambil Nama Admin agar tidak Error "is not defined"
+    // Kita cek di state dulu, kalau gak ada ambil dari localStorage
+    const adminName = (typeof currentAdminName !== 'undefined' ? currentAdminName : localStorage.getItem("adminName")) || "ADMIN";
+    
+    const actionText = status === 'SUCCESS' ? 'MENERIMA' : 'MENOLAK';
 
-    if (!confirm(`Yakin ingin ${label} Deposit dari ${user}?`)) return;
+    if (!confirm(`Yakin ingin ${actionText} WD dari ${user}?`)) return;
 
     try {
-      const res = await fetch('/api/update-depo', { 
-        method: 'POST', 
+      const res = await fetch('/api/update-wd', { 
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          id: id,            
-          status: actionStatus,
+          id: id, 
+          status: status,
           username: user,
           nominal: amount,
-          processed_by: currentAdminName ,// 3. KIRIM NAMA ADMIN KE API
-          admin_id: currentAdminName.slice(0, 3).toUpperCase() // ID Otomatis (BUD)
+          processed_by: adminName, // <--- Nama Admin masuk sini
+          admin_id: adminName.slice(0, 3).toUpperCase() // <--- ID Otomatis
         }),
       });
 
       const result = await res.json();
+
       if (result.success) {
-        alert(`✅ Berhasil oleh ${currentAdminName}!`);
-        setDeposits((prev) => prev.filter((item) => item.id !== id));
+        alert(`✅ Berhasil oleh ${adminName}!`);
+        // Hapus data dari list setelah diproses
+        setDataWD((prevData) => prevData.filter((item) => item.id !== id));
       } else {
         alert("❌ Gagal: " + result.message);
       }
     } catch (err) {
-      alert("❌ Error Server: " + err.message);
+      alert("❌ Error Server: " + err.message); 
     }
   };
     
