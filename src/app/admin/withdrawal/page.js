@@ -49,31 +49,30 @@ export default function WithdrawalBaruPage() {
 
 
   // Fungsi Action (Terima / Tolak)
-  const onAction = async (id, status) => {
-    const actionText = status === 'SUCCESS' ? 'Menerima' : 'Menolak';
-    if (!confirm(`Yakin ingin ${actionText} WD ini?`)) return;
+  const onAction = async (id, status, user, amount) => {
+    // Sesuaikan status dengan database (SUCCESS / REJECT)
+    const actionStatus = status === 'SUCCESS' ? 'SUCCESS' : 'REJECT';
+    const label = actionStatus === 'SUCCESS' ? 'MENERIMA' : 'MENOLAK';
 
-    // --- 1. AMBIL NAMA ADMIN DARI PENYIMPANAN BROWSER ---
-    // Pastikan pas login Bos sudah simpan: localStorage.setItem("adminName", "Nama Adminnya")
-    const namaAdminLogin = localStorage.getItem("adminName") || "ADMIN_WEB";
+    if (!confirm(`Yakin ingin ${label} WD dari ${user}?`)) return;
 
     try {
       const res = await fetch('/api/update-wd', { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // --- 2. KIRIM processed_by KE API ---
         body: JSON.stringify({ 
-          id, 
-          status, 
-          processed_by: namaAdminLogin 
+          id: id, 
+          status: actionStatus,
+          processed_by: currentAdminName, // Nama Admin yang login
+          admin_id: currentAdminName ? currentAdminName.slice(0, 3).toUpperCase() : 'ADM' // ID Otomatis
         }),
       });
 
       const result = await res.json();
 
       if (result.success) {
-        alert(`✅ Berhasil! Diproses oleh: ${namaAdminLogin}`);
-        // Filter out data agar hilang dari list "Permintaan Baru"
+        alert(`✅ WD Berhasil diproses oleh ${currentAdminName}!`);
+        // Hapus dari list pending
         setDataWD((prevData) => prevData.filter((item) => item.id !== id));
       } else {
         alert("❌ Gagal: " + result.message);
@@ -82,7 +81,7 @@ export default function WithdrawalBaruPage() {
       alert("❌ Error: " + err.message); 
     }
   };
-
+  
   // Fungsi dummy untuk klik user (bisa diarahkan ke detail member nanti)
   const handleUserClick = (user) => {
     alert("Cek detail member: " + user.username);
