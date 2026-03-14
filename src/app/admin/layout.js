@@ -17,45 +17,50 @@ export default function AdminLayout({ children }) {
   const [isMounted, setIsMounted] = useState(false);
 
   // --- LOGIKA TIMER MULAI DISINI ---
-  const DURASI_SESI = 1800; // Sudah diperbaiki namanya dari SESEI ke SESI
-  const [timeLeft, setTimeLeft] = useState(DURASI_SESI);
+const DURASI_SESI = 60; // 30 Menit
+const [timeLeft, setTimeLeft] = useState(DURASI_SESI);
 
-  useEffect(() => {
-    setIsMounted(true);
+// Fungsi Reset Timer (Ditaruh di luar useEffect agar bisa diakses kapan saja)
+const resetTimer = () => {
+  setTimeLeft(DURASI_SESI);
+};
 
-    const autoLogout = async () => {
-      await supabase.auth.signOut();
-      document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-      alert("Sesi Anda berakhir karena tidak ada aktivitas (Tes 1 Menit).");
-      window.location.href = "/login";
-    };
+useEffect(() => {
+  setIsMounted(true);
 
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          autoLogout();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+  const autoLogout = async () => {
+    await supabase.auth.signOut();
+    // Hapus sisa-sisa login
+    document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    localStorage.removeItem("adminName"); // Bersihkan juga nama admin
+    alert("Sesi Anda berakhir karena tidak ada aktivitas.");
+    window.location.href = "/login";
+  };
 
-    // Fungsi reset sekarang sudah kenal variabel DURASI_SESI
-    const resetTimer = () => {
-      setTimeLeft(DURASI_SESI);
-    };
+  const timer = setInterval(() => {
+    setTimeLeft((prev) => {
+      if (prev <= 1) {
+        clearInterval(timer);
+        autoLogout();
+        return 0;
+      }
+      return prev - 1;
+    });
+  }, 1000);
 
-    window.addEventListener("mousemove", resetTimer);
-    window.addEventListener("keydown", resetTimer);
+  // Pasang pendeteksi aktivitas
+  window.addEventListener("mousemove", resetTimer);
+  window.addEventListener("keydown", resetTimer);
+  window.addEventListener("click", resetTimer); // Tambahin klik juga biar makin mantap
 
-    return () => {
-      clearInterval(timer);
-      window.removeEventListener("mousemove", resetTimer);
-      window.removeEventListener("keydown", resetTimer);
-    };
-  }, []); // DURASI_SESI di luar sini jadi aman
-  // --- LOGIKA TIMER SELESAI ---
+  return () => {
+    clearInterval(timer);
+    window.removeEventListener("mousemove", resetTimer);
+    window.removeEventListener("keydown", resetTimer);
+    window.removeEventListener("click", resetTimer);
+  };
+}, []); 
+// --- LOGIKA TIMER SELESAI ---
 
   const handleLogout = async () => {
     const confirm = window.confirm("Yakin ingin keluar?");
