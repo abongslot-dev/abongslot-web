@@ -28,25 +28,44 @@ export default function RangkumanDepositPage() {
     }
   };
 
-  const fetchRangkuman = async () => {
+const fetchRangkuman = async () => {
     try {
       setLoading(true);
+      // Gunakan timestamp agar data selalu fresh (anti-cache)
       const res = await fetch(`/api/update-depo?t=${Date.now()}`); 
       if (!res.ok) throw new Error("Gagal mengambil data");
       const result = await res.json();
+      
       const dataAsli = result.data ? result.data : (Array.isArray(result) ? result : []);
-      setData(dataAsli);
+
+      // --- FILTER DATA HARI INI (WIB) ---
+      const now = new Date();
+      const wibDateString = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Jakarta' });
+      const startOfTodayWIB = new Date(`${wibDateString}T00:00:00+07:00`).getTime();
+
+      // Filter data yang hanya dibuat hari ini
+      const dataHariIni = dataAsli.filter(item => {
+        const itemTime = new Date(item.created_at).getTime();
+        return itemTime >= startOfTodayWIB;
+      });
+
+      setData(dataHariIni);
       
       let totalNom = 0;
       let totalBns = 0;
-      dataAsli.forEach(curr => {
+      dataHariIni.forEach(curr => {
         let s = curr.status ? String(curr.status).toUpperCase().trim() : "";
         if (['SUCCESS', 'APPROVED', 'SUKSES', 'APPROVE'].includes(s)) {
           totalNom += Number(curr.nominal || 0);
           totalBns += Number(curr.bonus || 0);
         }
       });
-      setTotals({ totalNominal: totalNom, totalBonus: totalBns, grandTotal: totalNom + totalBns });
+      
+      setTotals({ 
+        totalNominal: totalNom, 
+        totalBonus: totalBns, 
+        grandTotal: totalNom + totalBns 
+      });
     } catch (err) {
       console.error("ERROR RANGKUMAN:", err.message);
       setData([]);
@@ -54,9 +73,15 @@ export default function RangkumanDepositPage() {
       setLoading(false);
     }
   };
-
+// --- LOGIKA AUTO REFRESH TIAP 30 DETIK ---
   useEffect(() => {
-    fetchRangkuman();
+    fetchRangkuman(); // Ambil data pertama kali
+
+    const interval = setInterval(() => {
+      fetchRangkuman();
+    }, 30000); // 30 detik
+
+    return () => clearInterval(interval); // Bersihkan mesin kalau pindah halaman
   }, []);
 
   return (
