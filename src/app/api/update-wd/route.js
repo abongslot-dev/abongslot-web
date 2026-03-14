@@ -13,20 +13,19 @@ export async function POST(req) {
   try {
     const body = await req.json();
     
-    const id = body.id; 
-    const status = body.status;
-    const processed_by = body.processed_by || 'ADMIN'; // <--- TANGKAP NAMA ADMIN
+    const { id, status, processed_by, admin_id } = body; // Tangkap data dari frontend
 
     if (!id || !status) {
       return NextResponse.json({ success: false, message: "ID atau Status tidak lengkap" });
     }
 
-    // Update status dan kolom processed_by di database
+    // Masukkan data admin ke database
     const { error } = await supabase
       .from('withdrawals')
       .update({ 
         status: status, 
-        processed_by: processed_by, // <--- SIMPAN NAMA ADMIN KE KOLOM BARU
+        processed_by: processed_by, // Nama Admin masuk ke sini
+        admin_id: admin_id,         // ID Admin masuk ke sini
         processed_at: new Date().toISOString() 
       })
       .eq('id', id);
@@ -35,11 +34,7 @@ export async function POST(req) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("WD Update Error:", error.message);
-    return NextResponse.json({ 
-      success: false, 
-      message: "Gagal update: " + error.message 
-    }, { status: 500 });
+    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
 
