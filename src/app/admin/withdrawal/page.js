@@ -56,39 +56,40 @@ export default function WithdrawalBaruPage() {
 
   // Fungsi Action (Terima / Tolak)
 const onAction = async (id, status, user, amount) => {
-    // 1. SOLUSI ERROR: Kita definisikan adminName di dalam fungsi
-    // Ambil dari state currentAdminName, kalau gak ada ambil dari localStorage
-    const adminName = (typeof currentAdminName !== 'undefined' ? currentAdminName : localStorage.getItem("adminName")) || "ADMIN_WEB";
-    
-    const actionText = status === 'SUCCESS' ? 'Menerima' : 'Menolak';
+  const actionText = status === 'SUCCESS' ? 'Menerima' : 'Menolak';
 
-    if (!confirm(`Yakin ingin ${actionText} WD dari ${user}?`)) return;
+  // PROTEKSI: Ambil nama dari storage jika variabel state tidak ditemukan
+  const adminFix = (typeof currentAdminName !== 'undefined' ? currentAdminName : localStorage.getItem("adminName")) || "ADMIN_WEB";
 
-    try {
-      const res = await fetch('/api/update-wd', { 
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          id: id, 
-          status: status,
-          processed_by: adminName, // <--- Ini yang mengisi kolom processed_by di DB
-          admin_id: adminName.slice(0, 3).toUpperCase() 
-        }),
-      });
+  if (!confirm(`Yakin ingin ${actionText} WD dari ${user}?`)) return;
 
-      const result = await res.json();
+  try {
+    const res = await fetch('/api/update-wd', { 
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        id: id, 
+        status: status,
+        username: user,
+        nominal: amount,
+        processed_by: adminFix, // <--- Nama Admin dikirim ke API
+        admin_id: adminFix.slice(0, 3).toUpperCase() // <--- ID Otomatis
+      }),
+    });
 
-      if (result.success) {
-        alert(`✅ Berhasil! Diproses oleh: ${adminName}`);
-        // Hapus dari list agar tidak menumpuk
-        setDataWD((prevData) => prevData.filter((item) => item.id !== id));
-      } else {
-        alert("❌ Gagal: " + result.message);
-      }
-    } catch (err) {
-      alert("❌ Error: " + err.message); 
+    const result = await res.json();
+
+    if (result.success) {
+      alert(`✅ Berhasil! Diproses oleh: ${adminFix}`);
+      // Hapus dari list agar hilang dari layar withdrawal baru
+      setDataWD((prevData) => prevData.filter((item) => item.id !== id));
+    } else {
+      alert("❌ Gagal: " + result.message);
     }
-  };
+  } catch (err) {
+    alert("❌ Error Server: " + err.message); 
+  }
+};
 
 
   // Fungsi dummy untuk klik user (bisa diarahkan ke detail member nanti)
