@@ -68,40 +68,49 @@ export default function WithdrawalBaruPage() {
   }, []);
 
   // Fungsi Action (Terima / Tolak)
-  const onAction = async (id, status, user, amount) => {
-    const actionText = status === 'SUCCESS' ? 'Menerima' : 'Menolak';
+ const onAction = async (id, status, user, amount) => {
+  const actionText = status === 'SUCCESS' ? 'Menerima' : 'Menolak';
 
-    // Gunakan currentAdminName yang sudah kita siapkan di state
-    const adminFix = currentAdminName || "ADMIN_WEB";
+  // --- LOGIKA PAKSA TARIK NAMA ASLI ---
+  // 1. Cek State, kalau "ADMIN", coba cek LocalStorage
+  let adminName = currentAdminName !== "ADMIN" ? currentAdminName : localStorage.getItem("adminName");
 
-    if (!confirm(`Yakin ingin ${actionText} WD dari ${user}?`)) return;
+  // 2. Kalau masih gak ada, kita tarik paksa dari Supabase (Detektif Instan)
+  if (!adminName || adminName === "ADMIN") {
+    const { data: { user: sbUser } } = await supabase.auth.getUser();
+    adminName = sbUser?.user_metadata?.full_name || sbUser?.email?.split('@')[0] || "ADMIN_WEB";
+    
+    // Simpan ke state biar klik selanjutnya gak lambat
+    setCurrentAdminName(adminName);
+  }
 
-    try {
-      const res = await fetch('/api/update-wd', { 
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          id: id, 
-          status: status,
-          username: user,
-          nominal: amount,
-          processed_by: adminFix, 
-          admin_id: adminFix.slice(0, 3).toUpperCase() 
-        }),
-      });
+  if (!confirm(`Yakin ingin ${actionText} WD dari ${user}?`)) return;
 
-      const result = await res.json();
+  try {
+    const res = await fetch('/api/update-wd', { 
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        id: id, 
+        status: status,
+        username: user,
+        nominal: amount,
+        processed_by: adminName, // <--- Nama Asli Terjamin
+        admin_id: adminName.slice(0, 3).toUpperCase() 
+      }),
+    });
 
-      if (result.success) {
-        alert(`✅ Berhasil! Diproses oleh: ${adminFix}`);
-        setDataWD((prevData) => prevData.filter((item) => item.id !== id));
-      } else {
-        alert("❌ Gagal: " + result.message);
-      }
-    } catch (err) {
-      alert("❌ Error Server: " + err.message); 
+    const result = await res.json();
+    if (result.success) {
+      alert(`✅ Berhasil! Diproses oleh: ${adminName}`);
+      setDataWD((prevData) => prevData.filter((item) => item.id !== id));
+    } else {
+      alert("❌ Gagal: " + result.message);
     }
-  };
+  } catch (err) {
+    alert("❌ Error Server: " + err.message); 
+  }
+};
 
   const handleUserClick = (user) => {
     alert("Cek detail member: " + user.username);
