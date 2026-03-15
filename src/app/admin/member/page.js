@@ -96,13 +96,17 @@ const handleReset = () => {
 // 4. Logika Penyaringan (Filtering)
 // Data ini yang akan Bos gunakan untuk .map() di tabel bawah
 const filteredMembers = members.filter((m) => {
-  return (
-    (m.username || "").toLowerCase().includes(filters.username.toLowerCase()) &&
-    (m.rek_nomor || m.nomor_rekening || "").includes(filters.noRek) &&
-    (m.rek_nama || m.nama_rekening || "").toLowerCase().includes(filters.namaRek.toLowerCase()) &&
-    (m.phone || m.nomor_hp || "").includes(filters.noHp) &&
-    (filters.status === "" || m.status === filters.status)
-  );
+  // Kita cek tiap kolom. Kalau filternya kosong, kita anggap lolos (true)
+  const matchUsername = filters.username === "" || (m.username || "").toLowerCase().includes(filters.username.toLowerCase());
+  const matchNoRek = filters.noRek === "" || (m.nomor_rekening || "").includes(filters.noRek);
+  const matchNamaRek = filters.namaRek === "" || (m.nama_rekening || "").toLowerCase().includes(filters.namaRek.toLowerCase());
+  const matchNoHp = filters.noHp === "" || (m.nomor_hp || "").includes(filters.noHp);
+  const matchUpline = filters.upline === "" || (m.upline || "").toLowerCase().includes(filters.upline.toLowerCase());
+  const matchReferral = filters.kodeReferral === "" || (m.kode_referral || "").includes(filters.kodeReferral);
+  const matchStatus = filters.status === "" || m.status === filters.status;
+
+  // HANYA tampilkan jika SEMUA kondisi di atas terpenuhi
+  return matchUsername && matchNoRek && matchNamaRek && matchNoHp && matchUpline && matchReferral && matchStatus;
 });
 
 return (
@@ -180,75 +184,103 @@ return (
     <th className="p-2 text-center">Action</th>
   </tr>
 </thead>
-            <tbody>
+          <tbody>
   {loading ? (
     <tr>
-      {/* Colspan disesuaikan dengan jumlah kolom (9) agar loadingnya full ke kanan */}
-      <td colSpan="9" className="p-4 text-center">Loading Data...</td>
-    </tr>
-  ) : members.map((m, index) => (
-    <tr key={m.id} className="border-b hover:bg-gray-50 text-black">
-      <td className="p-2 border-r text-center">{index + 1}.</td>
-      
-      <td 
-        className="p-2 border-r text-blue-600 font-bold cursor-pointer hover:underline"
-        // NAVIGASI KE HALAMAN EDIT TERPISAH
-        onClick={() => router.push(`/admin/member/${m.username}`)}
-      >
-        {m.username}
-      </td>
-
-      {/* 1. Kolom Rekening (Sesuai Gambar) */}
-      <td className="p-2 border-r text-[10px] font-bold uppercase text-center italic">
-        {m.nama_bank} - {m.nomor_rekening} - {m.nama_rekening}
-      </td>
-
-      {/* 2. Kolom Upline (Data Baru) */}
-      <td className="p-2 border-r text-center text-[11px]">
-        {m.upline || <span className="text-gray-300">-</span>}
-      </td>
-
-      {/* 3. Kolom Kode Referral (Data Baru) */}
-      <td className="p-2 border-r text-center text-[11px] font-mono text-gray-600">
-        {m.kode_referral || <span className="text-gray-300">-</span>}
-      </td>
-
-      {/* 4. Kolom Status (Aktif) */}
-      <td className="p-2 border-r text-center">
-        <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-[9px] font-bold border border-emerald-200 inline-flex items-center gap-1">
-          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div> Aktif
-        </span>
-      </td>
-
-      {/* 5. Kolom Saldo */}
-      <td className="p-2 border-r text-right font-mono font-bold text-gray-700">
-        {new Intl.NumberFormat('id-ID').format(m.saldo)}
-      </td>
-
-      {/* 6. Kolom Total Deposit (Data Baru - Menyesuaikan Gambar) */}
-      <td className="p-2 border-r text-right font-mono font-bold text-blue-600">
-        {new Intl.NumberFormat('id-ID').format(m.total_deposit || 0)}
-      </td>
-
-      {/* 7. Kolom Action */}
-      <td className="p-2 flex gap-1 justify-center">
-        <button 
-          onClick={() => { setSelectedUser(m); setIsModalOpen(true); }}
-          className="bg-[#ffc107] p-1.5 rounded shadow-sm hover:bg-yellow-500"
-          title="Ganti Password"
-        >
-          <Key size={14} />
-        </button>
-        <button 
-          onClick={() => router.push(`/admin/member/${m.username}`)} // Navigasi ke halaman edit
-          className="bg-[#28a745] text-white p-1.5 rounded shadow-sm hover:bg-green-600"
-          title="Edit Member"
-        >
-          <Landmark size={14}/>
-        </button>
+      <td colSpan="9" className="p-10 text-center font-bold text-gray-400 italic">
+        <div className="flex items-center justify-center gap-2">
+           <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+           SEDANG MENGAMBIL DATA...
+        </div>
       </td>
     </tr>
-  ))}
+  ) : filteredMembers.length > 0 ? (
+    // DISINI KUNCINYA: Pakai filteredMembers, bukan members
+    filteredMembers.map((m, index) => (
+      <tr key={m.id} className="border-b hover:bg-gray-50 text-black transition-colors">
+        <td className="p-2 border-r text-center text-gray-400">{index + 1}.</td>
+        
+        <td 
+          className="p-2 border-r text-blue-600 font-bold cursor-pointer hover:underline"
+          onClick={() => router.push(`/admin/member/${m.username}`)}
+        >
+          {m.username}
+        </td>
+
+        {/* 1. Kolom Rekening */}
+        <td className="p-2 border-r text-[10px] font-bold uppercase text-center italic text-gray-600">
+          {m.nama_bank} - {m.nomor_rekening} - {m.nama_rekening}
+        </td>
+
+        {/* 2. Kolom Upline */}
+        <td className="p-2 border-r text-center text-[11px]">
+          {m.upline || <span className="text-gray-300">-</span>}
+        </td>
+
+        {/* 3. Kolom Kode Referral */}
+        <td className="p-2 border-r text-center text-[11px] font-mono text-gray-500">
+          {m.kode_referral || <span className="text-gray-300">-</span>}
+        </td>
+
+        {/* 4. Kolom Status */}
+        <td className="p-2 border-r text-center">
+          <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border inline-flex items-center gap-1 ${
+            m.status?.toLowerCase() === 'suspend' 
+            ? 'bg-red-100 text-red-700 border-red-200' 
+            : 'bg-emerald-100 text-emerald-700 border-emerald-200'
+          }`}>
+            <div className={`w-1.5 h-1.5 rounded-full ${m.status?.toLowerCase() === 'suspend' ? 'bg-red-500' : 'bg-emerald-500'}`}></div>
+            {m.status || 'Aktif'}
+          </span>
+        </td>
+
+        {/* 5. Kolom Saldo */}
+        <td className="p-2 border-r text-right font-mono font-bold text-gray-700 bg-gray-50/50">
+          {new Intl.NumberFormat('id-ID').format(m.saldo || 0)}
+        </td>
+
+        {/* 6. Kolom Total Deposit */}
+        <td className="p-2 border-r text-right font-mono font-bold text-blue-600">
+          {new Intl.NumberFormat('id-ID').format(m.total_deposit || 0)}
+        </td>
+
+        {/* 7. Kolom Action */}
+        <td className="p-2 flex gap-1 justify-center">
+          <button 
+            onClick={() => { setSelectedUser(m); setIsModalOpen(true); }}
+            className="bg-[#ffc107] p-1.5 rounded shadow-sm hover:bg-yellow-500 text-white"
+            title="Ganti Password"
+          >
+            <Key size={14} />
+          </button>
+          <button 
+            onClick={() => router.push(`/admin/member/${m.username}`)}
+            className="bg-[#28a745] text-white p-1.5 rounded shadow-sm hover:bg-green-600"
+            title="Edit Member"
+          >
+            <Landmark size={14}/>
+          </button>
+        </td>
+      </tr>
+    ))
+  ) : (
+    // JIKA HASIL FILTER KOSONG
+    <tr>
+      <td colSpan="9" className="p-20 text-center bg-gray-50">
+        <div className="flex flex-col items-center justify-center gap-3 text-gray-400">
+          <Search size={40} className="text-gray-200" />
+          <div className="text-lg font-medium">Member tidak ditemukan</div>
+          <p className="text-xs">Coba periksa kembali ejaan atau filter yang Bos masukkan.</p>
+          <button 
+            onClick={handleReset}
+            className="mt-2 text-blue-500 hover:underline font-bold text-xs"
+          >
+            Bersihkan Semua Filter
+          </button>
+        </div>
+      </td>
+    </tr>
+  )}
 </tbody>
           </table>
         </div>
