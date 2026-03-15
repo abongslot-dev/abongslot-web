@@ -17,7 +17,7 @@ export default function AdminLayout({ children }) {
   const [isMounted, setIsMounted] = useState(false);
 
   // --- LOGIKA TIMER MULAI DISINI ---
-const DURASI_SESI = 60; // 30 Menit
+const DURASI_SESI = 1800; // 30 Menit
 const [timeLeft, setTimeLeft] = useState(DURASI_SESI);
 
 // Fungsi Reset Timer (Ditaruh di luar useEffect agar bisa diakses kapan saja)
