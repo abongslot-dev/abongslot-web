@@ -104,7 +104,7 @@ const onAction = async (id, status, user, amount) => {
   if (!confirm(`Yakin ingin ${status === 'approve' ? 'MENERIMA' : 'MENOLAK'} Depo dari ${user}?`)) return;
 
   try {
-    const res = await fetch('/api/admin/update-depo', { // <--- Pastikan URL ini sama dengan file API di atas
+    const res = await fetch('/api/update-depo', { // <--- Pastikan URL ini sama dengan file API di atas
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
