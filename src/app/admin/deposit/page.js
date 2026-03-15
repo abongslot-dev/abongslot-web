@@ -65,6 +65,7 @@ export default function DepositBaruPage({ onUserClick }) {
       const currentItems = deposits.slice(indexOfFirstItem, indexOfLastItem);
       const totalPages = Math.ceil(deposits.length / itemsPerPage);
       const [currentAdminName, setCurrentAdminName] = useState("Admin");
+      const [dataWD, setDataWD] = useState([]);
     
       const paginate = (pageNumber) => setCurrentPage(pageNumber);
     
