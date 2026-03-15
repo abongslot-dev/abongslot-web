@@ -3,31 +3,28 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation"; // Import untuk pindah halaman
 import { Key, Landmark, Search, RotateCcw } from "lucide-react";
 
-// --- LETAKKAN DI SINI BOS (DI LUAR FUNCTION) ---
-const FilterInput = ({ label, placeholder, value, onChange }) => (
-  <div className="flex flex-col gap-1">
-    <label className="text-xs font-semibold text-gray-500 uppercase">{label}</label>
+const FilterInput = ({ placeholder, value, onChange, type = "text" }) => (
+  <div className="w-full">
     <input 
-      type="text" 
+      type={type}
       placeholder={placeholder} 
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+      className="w-full border border-gray-300 rounded px-3 py-2 text-[12px] text-gray-600 focus:outline-none focus:border-blue-400 placeholder:text-gray-400"
     />
   </div>
 );
 
-const FilterSelect = ({ label, value, onChange }) => (
-  <div className="flex flex-col gap-1">
-    <label className="text-xs font-semibold text-gray-500 uppercase">{label}</label>
+const FilterSelect = ({ label, value, onChange, options = [] }) => (
+  <div className="w-full border border-gray-300 rounded px-3 py-1.5 flex flex-col justify-center bg-white">
+    <label className="text-[10px] text-gray-400 leading-none">{label}</label>
     <select 
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+      className="w-full text-[12px] text-gray-700 focus:outline-none bg-transparent font-medium"
     >
-      <option value="">Semua Status</option>
-      <option value="active">Aktif</option>
-      <option value="suspend">Suspend</option>
+      <option value="">Pilih</option>
+      {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
     </select>
   </div>
 );
@@ -76,7 +73,13 @@ const [filters, setFilters] = useState({
   noRek: "",
   namaRek: "",
   noHp: "",
-  status: ""
+  upline: "",
+  kodeReferral: "",
+  tglDari: "",
+  tglSampai: "",
+  group: "",
+  status: "",
+  level: ""
 });
 
 // 2. Fungsi untuk mengupdate state saat admin mengetik
@@ -110,55 +113,53 @@ return (
     </p>
     
     {/* FILTER SECTION */}
-    <div className="bg-[#fcfcfc] border rounded shadow-sm overflow-hidden border-gray-200 mb-6 text-[11px]">
-      <div className="bg-gray-100 px-4 py-2 border-b font-bold text-gray-600">▼ Filter</div>
-      <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <FilterInput 
-            label="Username" 
-            placeholder="Username" 
-            value={filters.username}
-            onChange={(val) => handleFilterChange("username", val)}
-          />
-          <FilterInput 
-            label="Nomor Rekening" 
-            placeholder="...." 
-            value={filters.noRek}
-            onChange={(val) => handleFilterChange("noRek", val)}
-          />
-          <FilterInput 
-            label="Nama Rekening" 
-            placeholder="...." 
-            value={filters.namaRek}
-            onChange={(val) => handleFilterChange("namaRek", val)}
-          />
-          <FilterInput 
-            label="Nomor Hp" 
-            placeholder="...." 
-            value={filters.noHp}
-            onChange={(val) => handleFilterChange("noHp", val)}
-          />
-          <FilterSelect 
-            label="Status" 
-            value={filters.status}
-            onChange={(val) => handleFilterChange("status", val)}
-          />
-      </div>
-      
-      <div className="px-4 pb-4 flex gap-1">
-        <button 
-          onClick={handleReset} 
-          className="bg-[#00c0ef] text-white px-3 py-1.5 rounded font-bold shadow-sm flex items-center gap-1 hover:bg-[#0097bc] transition-colors"
-        >
-          <RotateCcw size={12} /> Reset
-        </button>
-        <button 
-          onClick={fetchMembers} 
-          className="bg-[#007bff] text-white px-3 py-1.5 rounded font-bold shadow-sm flex items-center gap-1 hover:bg-[#0069d9] transition-colors"
-        >
-          <Search size={12} /> Cari
-        </button>
-      </div>
+<div className="bg-white border rounded shadow-sm overflow-hidden border-gray-200 mb-6">
+  <div className="bg-gray-50 px-4 py-2 border-b flex items-center gap-2 text-gray-700 font-semibold text-[13px]">
+    <Search size={14} /> Filter
+  </div>
+  
+  <div className="p-4 flex flex-col gap-4">
+    {/* BARIS 1 */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <FilterInput placeholder="Username" value={filters.username} onChange={(v) => handleFilterChange("username", v)} />
+      <FilterInput placeholder="Nomor Rekening" value={filters.noRek} onChange={(v) => handleFilterChange("noRek", v)} />
+      <FilterInput placeholder="Nama Rekening" value={filters.namaRek} onChange={(v) => handleFilterChange("namaRek", v)} />
+      <FilterInput placeholder="No Hp" value={filters.noHp} onChange={(v) => handleFilterChange("noHp", v)} />
     </div>
+
+    {/* BARIS 2 */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <FilterInput placeholder="Upline Referral Username" value={filters.upline} onChange={(v) => handleFilterChange("upline", v)} />
+      <FilterInput placeholder="Kode Referral" value={filters.kodeReferral} onChange={(v) => handleFilterChange("kodeReferral", v)} />
+      <FilterInput type="date" placeholder="Dari Tanggal Register" value={filters.tglDari} onChange={(v) => handleFilterChange("tglDari", v)} />
+      <FilterInput type="date" placeholder="Sampai Tanggal Register" value={filters.tglSampai} onChange={(v) => handleFilterChange("tglSampai", v)} />
+    </div>
+
+    {/* BARIS 3 */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <FilterSelect label="Member Group" value={filters.group} onChange={(v) => handleFilterChange("group", v)} options={["Reguler", "VIP", "VVIP"]} />
+      <FilterSelect label="Status" value={filters.status} onChange={(v) => handleFilterChange("status", v)} options={["Aktif", "Suspend"]} />
+      <FilterSelect label="Level" value={filters.level} onChange={(v) => handleFilterChange("level", v)} options={["Bronze", "Silver", "Gold"]} />
+      <div className="hidden md:block"></div> {/* Spacer kosong */}
+    </div>
+
+    {/* TOMBOL AKSI */}
+    <div className="flex gap-2 mt-2">
+      <button 
+        onClick={handleReset} 
+        className="bg-[#00c0ef] text-white px-3 py-1.5 rounded text-[12px] font-bold shadow-sm flex items-center gap-1 hover:brightness-95"
+      >
+        <RotateCcw size={12} /> Reset
+      </button>
+      <button 
+        onClick={fetchMembers} 
+        className="bg-[#007bff] text-white px-3 py-1.5 rounded text-[12px] font-bold shadow-sm flex items-center gap-1 hover:brightness-95"
+      >
+        <Search size={12} /> Cari
+      </button>
+    </div>
+  </div>
+</div>
 
  
 
