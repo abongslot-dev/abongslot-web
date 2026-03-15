@@ -45,11 +45,13 @@ useEffect(() => {
   if (selectedUser?.username) {
     const fetchHistory = async () => {
       // Tarik Data Deposit
-      const { data: depoData } = await supabase
-        .from("deposits")
-        .select("*")
-        .eq("username", selectedUser.username);
-      if (depoData) setDataDeposit(depoData);
+const { data: depoData, error: depoError } = await supabase
+  .from("deposits")
+  .select("id, username, nominal, status, processed_by, admin_id, created_at") // Tegaskan kolomnya di sini Bos
+  .eq("username", selectedUser.username)
+  .order('created_at', { ascending: false }); // Urutkan yang terbaru di atas
+
+if (depoData) setDataDeposit(depoData);
 
 
       // Ambil Depo Auto (QRIS)
@@ -325,21 +327,22 @@ const totalWD = dataWD?.length > 0
     <span className="text-red-500 bg-red-50 px-2 py-1 rounded border border-red-200 uppercase font-bold">Ditolak</span>
   )}
 </td>
-<td className="p-3 text-center">
-  {depo.status === 'pending' ? (
-    <span className="text-gray-300 italic text-[10px]">-</span>
-  ) : (
+<td className="p-3 text-center border-b">
+  {/* Cek apakah statusnya memang sudah bukan pending */}
+  {['approve', 'terima', 'success', 'reject', 'tolak'].includes(depo.status?.toLowerCase()) ? (
     <div className="flex flex-col items-center">
-      {/* 1. Tampilkan Nama Admin dari Database */}
-      <span className="text-zinc-800 font-bold text-[10px] uppercase italic">
-        {depo.processed_by || 'ADMIN'}
+      {/* 1. Tampilkan Nama Admin */}
+      <span className="text-zinc-800 font-black text-[10px] uppercase italic leading-none">
+        {depo.processed_by ? depo.processed_by : "SYSTEM"}
       </span>
       
-      {/* 2. Tampilkan ID Admin dari Database */}
-      <span className="text-[8px] text-gray-400 leading-none mt-0.5">
-        ID: {depo.admin_id || '01'}
+      {/* 2. Tampilkan ID Admin */}
+      <span className="text-[9px] font-bold text-emerald-600 leading-none mt-1 bg-emerald-50 px-1 rounded">
+        {depo.admin_id || '---'}
       </span>
     </div>
+  ) : (
+    <span className="text-gray-300 italic text-[10px]">- Memproses -</span>
   )}
 </td>
               </tr>
