@@ -1,7 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
-// 1. Inisialisasi Supabase dengan Service Role agar bisa bypass RLS jika perlu
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL; 
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
@@ -10,26 +9,70 @@ export async function POST(req) {
   try {
     const body = await req.json();
     
+    // --- CEK APAKAH INI UPDATE (ADMIN) ATAU INSERT (PLAYER) ---
+    // Jika ada 'id' di body, berarti Admin sedang memproses data yang sudah ada
+    if (body.id) {
+      const { id, status, processed_by, username, nominal } = body;
+      
+      // Logika Admin ID: Ambil 3 huruf depan (Contoh: RIYA | ABSLOT -> RIY)
+      const adminId = processed_by 
+        ? processed_by.replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase() 
+        : 'ADM';
+
+      // Pastikan status yang masuk ke DB adalah 'approve' atau 'reject' (huruf kecil)
+      const finalStatus = (status === 'SUCCESS' || status === 'approve') ? 'approve' : 'reject';
+
+      // 1. Update Tabel Deposits
+      const { error: updErr } = await supabase
+        .from('deposits')
+        .update({ 
+          status: finalStatus,
+          processed_by: processed_by,
+          admin_id: adminId,
+          processed_at: new Date().toISOString()
+        })
+        .eq('id', id);
+
+      if (updErr) throw new Error("Gagal Update Deposit: " + updErr.message);
+
+      // 2. Jika APPROVE, Tambah Saldo Member
+      if (finalStatus === 'approve' && username) {
+        const cleanUser = username.trim();
+        
+        // Ambil saldo saat ini
+        const { data: member, error: memErr } = await supabase
+          .from('members')
+          .select('saldo')
+          .eq('username', cleanUser)
+          .maybeSingle();
+
+        if (memErr) throw memErr;
+
+        if (member) {
+          const saldoLama = parseFloat(member.saldo) || 0;
+          const tambahan = parseFloat(nominal) || 0;
+          const saldoBaru = saldoLama + tambahan;
+
+          // Update saldo di tabel members
+          const { error: balanceErr } = await supabase
+            .from('members')
+            .update({ saldo: saldoBaru })
+            .eq('username', cleanUser);
+
+          if (balanceErr) throw new Error("Gagal Update Saldo: " + balanceErr.message);
+        }
+      }
+
+      return NextResponse.json({ success: true, message: "Berhasil di-update oleh " + processed_by });
+    }
+
+    // --- LOGIKA INSERT (PLAYER KIRIM FORM) ---
     const { 
-      username, 
-      nominal, 
-      promo, 
-      bank_pengirim, 
-      rek_pengirim, 
-      nama_pengirim,
-      bank_tujuan, 
-      rek_tujuan, 
-      nama_tujuan,
-      processed_by // Nama Admin (Jika diisi oleh Admin)
+      username, nominal, promo, bank_pengirim, rek_pengirim, 
+      nama_pengirim, bank_tujuan, rek_tujuan, nama_tujuan 
     } = body;
 
-    // Logika pembuatan Admin ID otomatis (Misal: RIYA | ABSLOT -> RIY)
-    const adminId = processed_by 
-      ? processed_by.replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase() 
-      : null;
-
-    // 2. Masukkan data ke tabel 'deposits'
-    const { data, error } = await supabase
+    const { data, error: insErr } = await supabase
       .from('deposits')
       .insert([
         { 
@@ -42,33 +85,24 @@ export async function POST(req) {
           bank_tujuan: bank_tujuan?.toUpperCase(), 
           rek_tujuan, 
           nama_tujuan,
-          status: 'pending', // Status awal selalu pending
-          processed_by: processed_by || null, // Kosong jika diisi player
-          admin_id: adminId, // Otomatis terisi jika ada processed_by
-          created_at: new Date().toISOString() // Timestamp saat ini
+          status: 'pending',
+          created_at: new Date().toISOString()
         }
       ])
-      .select(); // Mengembalikan data yang baru dimasukkan
+      .select();
 
-    // 3. Cek Error Supabase
-    if (error) {
-      console.error("Supabase Error Detail:", error);
-      return NextResponse.json(
-        { success: false, message: "Gagal simpan ke Database: " + error.message }, 
-        { status: 500 }
-      );
-    }
+    if (insErr) throw insErr;
 
     return NextResponse.json({ 
       success: true, 
-      message: "Deposit Berhasil Dicatat, Boss! Mohon ditunggu.",
+      message: "Deposit Berhasil Dicatat!",
       data: data[0]
-    }, { status: 200 });
+    });
 
   } catch (error) {
-    console.error("API ERROR DEPOSIT:", error.message);
+    console.error("API ERROR:", error.message);
     return NextResponse.json(
-      { success: false, message: "Server Error: " + error.message }, 
+      { success: false, message: error.message }, 
       { status: 500 }
     );
   }
