@@ -171,17 +171,25 @@ const dateString = currentTime.toLocaleDateString('id-ID', {
 
 
   return (
-    <div className="p-6 bg-[#f8fafc]">
-      <h1 className="text-3xl font-normal mb-1">Dashboard</h1>
-      <div className="text-right">
-      <div className="text-2xl font-mono font-bold text-gray-700 tracking-wider">
-        {timeString}
-      </div>
-      <div className="text-[10px] uppercase text-gray-400 font-bold tracking-tighter">
-        {dateString}
+<div className="p-6 bg-[#f8fafc]">
+  {/* WADAH UTAMA: Membungkus Judul & Jam agar Sejajar */}
+  <div className="flex items-center gap-4 mb-1">
+    <h1 className="text-3xl font-normal text-slate-800">Dashboard</h1>
+    
+    {/* GARIS PEMISAH & JAM DIGITAL */}
+    <div className="flex items-center gap-3 border-l-2 border-gray-300 pl-4 h-8 mt-1">
+      <div className="flex flex-col justify-center">
+        <span className="text-xl font-mono font-bold text-gray-700 leading-none">
+          {timeString}
+        </span>
+        <span className="text-[9px] uppercase text-gray-400 font-bold tracking-tighter">
+          {dateString}
+        </span>
       </div>
     </div>
-      <p className="text-xs text-blue-500 mb-6 font-medium">Dashboard Overview</p>
+  </div>
+
+  <p className="text-xs text-blue-500 mb-6 font-medium">Dashboard Overview</p>
 
       
       
