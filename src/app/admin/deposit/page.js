@@ -99,31 +99,47 @@ export default function DepositBaruPage({ onUserClick }) {
     
 // --- FUNGSI ACTION (APPROVE / REJECT) ---
 const onAction = async (id, status, user, amount) => {
-  const adminFix = currentAdminName || localStorage.getItem("adminName") || "ADMIN";
+  // Ambil nama admin yang sedang login
+  const adminFix = currentAdminName || localStorage.getItem("adminName") || "ADMIN_WEB";
 
-  if (!confirm(`Yakin ingin ${status === 'approve' ? 'MENERIMA' : 'MENOLAK'} Depo dari ${user}?`)) return;
+  // Samakan status dengan logika API Bos ('approve' atau 'reject')
+  const finalStatus = status === 'SUCCESS' ? 'approve' : 'reject';
+
+  if (!confirm(`Yakin ingin ${finalStatus.toUpperCase()} Depo dari ${user}?`)) return;
 
   try {
-    const res = await fetch('/api/update-depo', { // <--- Pastikan URL ini sama dengan file API di atas
+    // TEMBAK KE ALAMAT SESUAI FOLDER BOS
+    const res = await fetch('/api/update-depo', { 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        id: id, 
-        status: status, // Kirim 'approve' atau 'reject' sesuai database Bos
+        id: id,            // Mengirim ID agar API menjalankan logika UPDATE
+        status: finalStatus, 
+        username: user,
+        nominal: amount,
         processed_by: adminFix 
       }),
     });
 
+    // JIKA ERROR HTML MUNCUL, KITA TANGKAP DI SINI
+    if (!res.ok) {
+        const text = await res.text();
+        if (text.includes('<!DOCTYPE')) {
+            throw new Error("API Tidak Ditemukan (404) atau Error Server (500). Cek folder API Bos!");
+        }
+        throw new Error(text);
+    }
+
     const result = await res.json();
     if (result.success) {
       alert(`✅ Berhasil! Diproses oleh: ${adminFix}`);
-      // Update tampilan di layar biar datanya hilang setelah di-ACC
       setDeposits((prev) => prev.filter((item) => item.id !== id));
     } else {
-      alert("❌ Gagal: " + result.error);
+      alert("❌ Gagal: " + result.message);
     }
   } catch (err) {
-    alert("❌ Error: " + err.message);
+    console.error("Detail Error:", err);
+    alert("❌ Error: " + err.message); 
   }
 };
     
