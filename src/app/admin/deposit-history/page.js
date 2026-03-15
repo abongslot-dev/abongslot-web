@@ -84,6 +84,23 @@ const fetchRangkuman = async () => {
     return () => clearInterval(interval); // Bersihkan mesin kalau pindah halaman
   }, []);
 
+
+const [filters, setFilters] = useState({
+  username: "",
+  keBank: "",
+  keNoRek: "",
+  keNamaRek: "",
+  adminRespon: "",
+  tglDari: new Date().toISOString().split('T')[0], // Default tanggal hari ini
+  tglSampai: new Date().toISOString().split('T')[0],
+  status: "",
+  totalDeposit: "",
+  urutan: "Tanggal Terbaru",
+  munculkan: "15 Data"
+});
+
+
+
   return (
     <div className="p-6 text-gray-800">
       <h1 className="text-3xl font-normal mb-1 tracking-tight text-black">Rangkuman Deposit</h1>
@@ -92,42 +109,160 @@ const fetchRangkuman = async () => {
       </p>
 
       {/* --- FILTER AREA --- */}
-      <div className="bg-[#fcfcfc] border rounded shadow-sm overflow-hidden border-gray-200 mb-6">
-        <div className="bg-gray-100 px-4 py-2 border-b flex items-center gap-2 text-[12px] font-bold text-gray-600 uppercase">
-          <span className="text-[10px]">▼</span> Filter Data
-        </div>
-        <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label className="text-[10px] font-bold mb-1 block uppercase text-gray-400">Username</label>
-            <input type="text" placeholder="Cari Username..." className="w-full border p-2 text-xs rounded outline-none focus:border-blue-400 bg-white" />
-          </div>
-          <div>
-            <label className="text-[10px] font-bold mb-1 block uppercase text-gray-400">Ke Bank Tujuan</label>
-            <select className="w-full border p-2 text-xs rounded outline-none bg-white font-medium text-gray-600">
-              <option>Semua Bank</option>
-              <option>BCA</option>
-              <option>BNI</option>
-              <option>MANDIRI</option>
-            </select>
-          </div>
-          <div>
-            <label className="text-[10px] font-bold mb-1 block uppercase text-gray-400">Mulai Tanggal</label>
-            <input type="date" className="w-full border p-2 text-xs rounded outline-none bg-white" />
-          </div>
-          <div>
-            <label className="text-[10px] font-bold mb-1 block uppercase text-gray-400">Sampai Tanggal</label>
-            <input type="date" className="w-full border p-2 text-xs rounded outline-none bg-white" />
-          </div>
-        </div>
-        <div className="px-4 pb-4 flex gap-1">
-          <button onClick={fetchRangkuman} className="bg-[#00c0ef] text-white px-3 py-1.5 rounded text-[11px] font-bold flex items-center gap-1 hover:bg-cyan-600 shadow-sm">
-            <RotateCcw size={12}/> Reset
-          </button>
-          <button className="bg-[#007bff] text-white px-3 py-1.5 rounded text-[11px] font-bold flex items-center gap-1 hover:bg-blue-700 shadow-sm">
-            <Search size={12}/> Cari
-          </button>
-        </div>
+<div className="bg-white border rounded shadow-sm overflow-hidden border-gray-200 mb-6">
+  <div className="bg-gray-50 px-4 py-2 border-b flex items-center gap-2 text-[12px] font-bold text-gray-700">
+    <span className="text-gray-400">▼</span> Filter
+  </div>
+  
+  <div className="p-4 flex flex-col gap-4">
+    {/* BARIS 1 */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="flex flex-col border rounded px-3 py-1 bg-white focus-within:ring-1 focus-within:ring-blue-400">
+        <label className="text-[10px] text-gray-400 uppercase font-bold">Username</label>
+        <input 
+          type="text" 
+          value={filters.username}
+          onChange={(e) => handleFilterChange("username", e.target.value)}
+          className="w-full text-[12px] outline-none py-1" 
+          placeholder="Username" 
+        />
       </div>
+      <div className="flex flex-col border rounded px-3 py-1 bg-white">
+        <label className="text-[10px] text-gray-400 uppercase font-bold">Ke Bank</label>
+        <select 
+          value={filters.keBank}
+          onChange={(e) => handleFilterChange("keBank", e.target.value)}
+          className="w-full text-[12px] outline-none py-1 bg-transparent font-medium"
+        >
+          <option value="">Pilih</option>
+          <option value="BCA">BCA</option>
+          <option value="BNI">BNI</option>
+          <option value="MANDIRI">MANDIRI</option>
+        </select>
+      </div>
+      <div className="flex flex-col border rounded px-3 py-1 bg-white">
+        <label className="text-[10px] text-gray-400 uppercase font-bold">Ke Nomor Rekening</label>
+        <input 
+          type="text" 
+          value={filters.keNoRek}
+          onChange={(e) => handleFilterChange("keNoRek", e.target.value)}
+          className="w-full text-[12px] outline-none py-1" 
+          placeholder="Ke Nomor Rekening" 
+        />
+      </div>
+      <div className="flex flex-col border rounded px-3 py-1 bg-white">
+        <label className="text-[10px] text-gray-400 uppercase font-bold">Ke Nama Rekening</label>
+        <input 
+          type="text" 
+          value={filters.keNamaRek}
+          onChange={(e) => handleFilterChange("keNamaRek", e.target.value)}
+          className="w-full text-[12px] outline-none py-1" 
+          placeholder="Ke Nama Rekening" 
+        />
+      </div>
+    </div>
+
+    {/* BARIS 2 */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="flex flex-col border rounded px-3 py-1 bg-white">
+        <label className="text-[10px] text-gray-400 uppercase font-bold">Admin Respon</label>
+        <input 
+          type="text" 
+          value={filters.adminRespon}
+          onChange={(e) => handleFilterChange("adminRespon", e.target.value)}
+          className="w-full text-[12px] outline-none py-1" 
+          placeholder="Admin Respon" 
+        />
+      </div>
+      <div className="flex flex-col border rounded px-3 py-1 bg-white">
+        <label className="text-[10px] text-gray-400 uppercase font-bold">Dari Tanggal Deposit</label>
+        <input 
+          type="date" 
+          value={filters.tglDari}
+          onChange={(e) => handleFilterChange("tglDari", e.target.value)}
+          className="w-full text-[12px] outline-none py-1" 
+        />
+      </div>
+      <div className="flex flex-col border rounded px-3 py-1 bg-white">
+        <label className="text-[10px] text-gray-400 uppercase font-bold">Sampai Tanggal Deposit</label>
+        <input 
+          type="date" 
+          value={filters.tglSampai}
+          onChange={(e) => handleFilterChange("tglSampai", e.target.value)}
+          className="w-full text-[12px] outline-none py-1" 
+        />
+      </div>
+      <div className="flex flex-col border rounded px-3 py-1 bg-white">
+        <label className="text-[10px] text-gray-400 uppercase font-bold">Status</label>
+        <select 
+          value={filters.status}
+          onChange={(e) => handleFilterChange("status", e.target.value)}
+          className="w-full text-[12px] outline-none py-1 bg-transparent font-medium"
+        >
+          <option value="">Pilih</option>
+          <option value="approve">Approve</option>
+          <option value="reject">Reject</option>
+          <option value="pending">Pending</option>
+        </select>
+      </div>
+    </div>
+
+    {/* BARIS 3 */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="flex flex-col border rounded px-3 py-1 bg-white">
+        <label className="text-[10px] text-gray-400 uppercase font-bold">Total Deposit</label>
+        <input 
+          type="text" 
+          value={filters.totalDeposit}
+          onChange={(e) => handleFilterChange("totalDeposit", e.target.value)}
+          className="w-full text-[12px] outline-none py-1" 
+          placeholder="Total Deposit" 
+        />
+      </div>
+      <div className="flex flex-col border rounded px-3 py-1 bg-white">
+        <label className="text-[10px] text-gray-400 uppercase font-bold">Urutan</label>
+        <select 
+          value={filters.urutan}
+          onChange={(e) => handleFilterChange("urutan", e.target.value)}
+          className="w-full text-[12px] outline-none py-1 bg-transparent font-medium"
+        >
+          <option>Tanggal Terbaru</option>
+          <option>Tanggal Terlama</option>
+          <option>Nominal Terbesar</option>
+        </select>
+      </div>
+      <div className="flex flex-col border rounded px-3 py-1 bg-white">
+        <label className="text-[10px] text-gray-400 uppercase font-bold">Munculkan</label>
+        <select 
+          value={filters.munculkan}
+          onChange={(e) => handleFilterChange("munculkan", e.target.value)}
+          className="w-full text-[12px] outline-none py-1 bg-transparent font-medium"
+        >
+          <option>15 Data</option>
+          <option>50 Data</option>
+          <option>100 Data</option>
+        </select>
+      </div>
+      <div className="hidden md:block"></div>
+    </div>
+
+    {/* BUTTONS */}
+    <div className="flex gap-1">
+      <button 
+        onClick={handleReset}
+        className="bg-[#00c0ef] text-white px-3 py-1.5 rounded text-[11px] font-bold flex items-center gap-1 hover:brightness-95 shadow-sm"
+      >
+        <RotateCcw size={12}/> Reset
+      </button>
+      <button 
+        onClick={fetchRangkuman}
+        className="bg-[#007bff] text-white px-3 py-1.5 rounded text-[11px] font-bold flex items-center gap-1 hover:brightness-95 shadow-sm"
+      >
+        <Search size={12}/> Cari
+      </button>
+    </div>
+  </div>
+</div>
 
       {/* --- DATA AREA --- */}
       <div className="bg-white border rounded shadow-sm overflow-hidden border-gray-200">
