@@ -141,10 +141,48 @@ const fetchDashboardData = async () => {
     { name: 'Member Baru', value: stats?.members?.newToday ?? 0, color: '#fb923c' },
   ];
 
+
+
+const [currentTime, setCurrentTime] = useState(new Date());
+
+useEffect(() => {
+  const timer = setInterval(() => {
+    setCurrentTime(new Date());
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, []);
+
+// Format jam biar rapi (Contoh: 14:05:59)
+const timeString = currentTime.toLocaleTimeString('id-ID', {
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: false
+});
+
+// Format tanggal (Contoh: Senin, 16 Maret 2026)
+const dateString = currentTime.toLocaleDateString('id-ID', {
+  weekday: 'long',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+});
+
+
   return (
     <div className="p-6 bg-[#f8fafc]">
       <h1 className="text-3xl font-normal mb-1">Dashboard</h1>
       <p className="text-xs text-blue-500 mb-6 font-medium">Dashboard Overview</p>
+
+      <div className="text-right">
+      <div className="text-2xl font-mono font-bold text-gray-700 tracking-wider">
+        {timeString}
+      </div>
+      <div className="text-[10px] uppercase text-gray-400 font-bold tracking-tighter">
+        {dateString}
+      </div>
+    </div>
       
       {/* 1. 3 STAT CARDS UTAMA */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-white">
