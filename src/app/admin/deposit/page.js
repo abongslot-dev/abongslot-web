@@ -108,7 +108,7 @@ const onAction = async (id, status, user, amount) => {
     if (!confirm(`Yakin ingin ${actionText} WD dari ${user}?`)) return;
 
     try {
-      const res = await fetch('/api/update-wd', { 
+      const res = await fetch('/api/update-deposit', { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -122,18 +122,17 @@ const onAction = async (id, status, user, amount) => {
       });
 
       const result = await res.json();
-
-      if (result.success) {
-        alert(`✅ Berhasil oleh ${adminName}!`);
-        // Hapus data dari list setelah diproses
-        setDataWD((prevData) => prevData.filter((item) => item.id !== id));
-      } else {
-        alert("❌ Gagal: " + result.message);
-      }
-    } catch (err) {
-      alert("❌ Error Server: " + err.message); 
+if (result.success) {
+      alert(`✅ Deposit Berhasil oleh ${adminName}!`);
+      
+      // PAKAI setDeposits (karena ini halaman depo), bukan setDataWD
+      setDeposits((prevData) => prevData.filter((item) => item.id !== id));
+    } else {
+      alert("❌ Gagal: " + result.message);
     }
-  };
+  } catch (err) {
+    alert("❌ Error Server: " + err.message); 
+  }
     
     
     // --- 2. LOGIKA CHECKBOX ---
