@@ -100,6 +100,32 @@ const [filters, setFilters] = useState({
 });
 
 
+const handleFilterChange = (name, value) => {
+  setFilters(prev => ({ ...prev, [name]: value }));
+};
+
+// 2. Fungsi Reset (Ini yang tadi bikin Error Bos!)
+const handleReset = () => {
+  // Balikin semua ke awal/kosong
+  setFilters({
+    username: "",
+    keBank: "",
+    keNoRek: "",
+    keNamaRek: "",
+    adminRespon: "",
+    tglDari: new Date().toISOString().split('T')[0],
+    tglSampai: new Date().toISOString().split('T')[0],
+    status: "",
+    totalDeposit: "",
+    urutan: "Tanggal Terbaru",
+    munculkan: "15 Data"
+  });
+  
+  // Kalau ada fungsi ambil data, panggil lagi biar tabel refresh
+  if (typeof fetchMembers === 'function') fetchMembers();
+  if (typeof fetchRangkuman === 'function') fetchRangkuman();
+};
+
 
   return (
     <div className="p-6 text-gray-800">
