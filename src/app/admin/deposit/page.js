@@ -65,7 +65,7 @@ export default function DepositBaruPage({ onUserClick }) {
       const currentItems = deposits.slice(indexOfFirstItem, indexOfLastItem);
       const totalPages = Math.ceil(deposits.length / itemsPerPage);
       const [currentAdminName, setCurrentAdminName] = useState("Admin");
-      
+     
     
       const paginate = (pageNumber) => setCurrentPage(pageNumber);
     
@@ -122,6 +122,7 @@ const onAction = async (id, status, user, amount) => {
       });
 
       const result = await res.json();
+
 if (result.success) {
       alert(`✅ Deposit Berhasil oleh ${adminName}!`);
       
@@ -133,7 +134,7 @@ if (result.success) {
   } catch (err) {
     alert("❌ Error Server: " + err.message); 
   }
-    
+};
     
     // --- 2. LOGIKA CHECKBOX ---
       const handleSelectAll = (e) => {
