@@ -47,9 +47,23 @@ useEffect(() => {
       // Tarik Data Deposit
 const { data: depoData, error: depoError } = await supabase
   .from("deposits")
-  .select("id, username, nominal, status, processed_by, admin_id, created_at") // Tegaskan kolomnya di sini Bos
+  .select(`
+    id, 
+    username, 
+    nominal, 
+    status, 
+    processed_by, 
+    admin_id, 
+    created_at,
+    bank_pengirim,
+    rek_pengirim,
+    nama_pengirim,
+    bank_tujuan,
+    rek_tujuan,
+    nama_tujuan
+  `) 
   .eq("username", selectedUser.username)
-  .order('created_at', { ascending: false }); // Urutkan yang terbaru di atas
+  .order('created_at', { ascending: false });
 
 if (depoData) setDataDeposit(depoData);
 
