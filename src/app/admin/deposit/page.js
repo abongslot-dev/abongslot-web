@@ -109,7 +109,7 @@ const onAction = async (id, status, user, amount) => {
 
   try {
     // TEMBAK KE ALAMAT SESUAI FOLDER BOS
-    const res = await fetch('/api/update-depo', { 
+    const res = await fetch('/api/deposit', { 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
