@@ -3,28 +3,34 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation"; // Import untuk pindah halaman
 import { Key, Landmark, Search, RotateCcw } from "lucide-react";
 
-const FilterInput = ({ label, placeholder }) => (
+// --- LETAKKAN DI SINI BOS (DI LUAR FUNCTION) ---
+const FilterInput = ({ label, placeholder, value, onChange }) => (
   <div className="flex flex-col gap-1">
     <label className="text-xs font-semibold text-gray-500 uppercase">{label}</label>
     <input 
       type="text" 
       placeholder={placeholder} 
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
       className="border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
     />
   </div>
 );
 
-const FilterSelect = ({ label }) => (
+const FilterSelect = ({ label, value, onChange }) => (
   <div className="flex flex-col gap-1">
     <label className="text-xs font-semibold text-gray-500 uppercase">{label}</label>
-    <select className="border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <select 
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+    >
       <option value="">Semua Status</option>
       <option value="active">Aktif</option>
       <option value="suspend">Suspend</option>
     </select>
   </div>
 );
-
 export default function MemberPage() {
   const router = useRouter(); // Inisialisasi router
   const [members, setMembers] = useState([]);
@@ -62,32 +68,99 @@ export default function MemberPage() {
     setIsModalOpen(false);
   };
 
+
+
+// Di dalam function MemberPage()
+const [filters, setFilters] = useState({
+  username: "",
+  noRek: "",
+  namaRek: "",
+  noHp: "",
+  status: ""
+});
+
+// 2. Fungsi untuk mengupdate state saat admin mengetik
+const handleFilterChange = (name, value) => {
+  setFilters(prev => ({ ...prev, [name]: value }));
+};
+
+// 3. Fungsi Reset Filter
+const handleReset = () => {
+  setFilters({ username: "", noRek: "", namaRek: "", noHp: "", status: "" });
+  fetchMembers(); // Ambil ulang data fresh dari DB
+};
+
+// 4. Logika Penyaringan (Filtering)
+// Data ini yang akan Bos gunakan untuk .map() di tabel bawah
+const filteredMembers = members.filter((m) => {
   return (
-    <div className="p-6 text-gray-800">
-      <h1 className="text-3xl font-normal mb-1">Member</h1>
-      <p className="text-xs text-blue-500 mb-6 font-medium">
-        Dashboard <span className="text-gray-400 font-normal">/ Member</span>
-      </p>
-      
-      {/* FILTER SECTION */}
-      <div className="bg-[#fcfcfc] border rounded shadow-sm overflow-hidden border-gray-200 mb-6 text-[11px]">
-        <div className="bg-gray-100 px-4 py-2 border-b font-bold text-gray-600">▼ Filter</div>
-        <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-           <FilterInput label="Username" placeholder="Username" />
-           <FilterInput label="Nomor Rekening" placeholder="...." />
-           <FilterInput label="Nama Rekening" placeholder="...." />
-           <FilterInput label="Nomor Hp" placeholder="...." />
-           <FilterSelect label="Status" />
-        </div>
-        <div className="px-4 pb-4 flex gap-1">
-          <button onClick={fetchMembers} className="bg-[#00c0ef] text-white px-3 py-1.5 rounded font-bold shadow-sm flex items-center gap-1">
-            <RotateCcw size={12} /> Reset
-          </button>
-          <button className="bg-[#007bff] text-white px-3 py-1.5 rounded font-bold shadow-sm flex items-center gap-1">
-            <Search size={12} /> Cari
-          </button>
-        </div>
+    (m.username || "").toLowerCase().includes(filters.username.toLowerCase()) &&
+    (m.rek_nomor || m.nomor_rekening || "").includes(filters.noRek) &&
+    (m.rek_nama || m.nama_rekening || "").toLowerCase().includes(filters.namaRek.toLowerCase()) &&
+    (m.phone || m.nomor_hp || "").includes(filters.noHp) &&
+    (filters.status === "" || m.status === filters.status)
+  );
+});
+
+return (
+  <div className="p-6 text-gray-800">
+    <h1 className="text-3xl font-normal mb-1">Member</h1>
+    <p className="text-xs text-blue-500 mb-6 font-medium">
+      Dashboard <span className="text-gray-400 font-normal">/ Member</span>
+    </p>
+    
+    {/* FILTER SECTION */}
+    <div className="bg-[#fcfcfc] border rounded shadow-sm overflow-hidden border-gray-200 mb-6 text-[11px]">
+      <div className="bg-gray-100 px-4 py-2 border-b font-bold text-gray-600">▼ Filter</div>
+      <div className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <FilterInput 
+            label="Username" 
+            placeholder="Username" 
+            value={filters.username}
+            onChange={(val) => handleFilterChange("username", val)}
+          />
+          <FilterInput 
+            label="Nomor Rekening" 
+            placeholder="...." 
+            value={filters.noRek}
+            onChange={(val) => handleFilterChange("noRek", val)}
+          />
+          <FilterInput 
+            label="Nama Rekening" 
+            placeholder="...." 
+            value={filters.namaRek}
+            onChange={(val) => handleFilterChange("namaRek", val)}
+          />
+          <FilterInput 
+            label="Nomor Hp" 
+            placeholder="...." 
+            value={filters.noHp}
+            onChange={(val) => handleFilterChange("noHp", val)}
+          />
+          <FilterSelect 
+            label="Status" 
+            value={filters.status}
+            onChange={(val) => handleFilterChange("status", val)}
+          />
       </div>
+      
+      <div className="px-4 pb-4 flex gap-1">
+        <button 
+          onClick={handleReset} 
+          className="bg-[#00c0ef] text-white px-3 py-1.5 rounded font-bold shadow-sm flex items-center gap-1 hover:bg-[#0097bc] transition-colors"
+        >
+          <RotateCcw size={12} /> Reset
+        </button>
+        <button 
+          onClick={fetchMembers} 
+          className="bg-[#007bff] text-white px-3 py-1.5 rounded font-bold shadow-sm flex items-center gap-1 hover:bg-[#0069d9] transition-colors"
+        >
+          <Search size={12} /> Cari
+        </button>
+      </div>
+    </div>
+
+ 
 
       {/* TABEL MEMBER */}
       <div className="bg-white border rounded shadow-sm overflow-hidden">
