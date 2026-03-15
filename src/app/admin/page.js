@@ -173,8 +173,6 @@ const dateString = currentTime.toLocaleDateString('id-ID', {
   return (
     <div className="p-6 bg-[#f8fafc]">
       <h1 className="text-3xl font-normal mb-1">Dashboard</h1>
-      <p className="text-xs text-blue-500 mb-6 font-medium">Dashboard Overview</p>
-
       <div className="text-right">
       <div className="text-2xl font-mono font-bold text-gray-700 tracking-wider">
         {timeString}
@@ -183,6 +181,9 @@ const dateString = currentTime.toLocaleDateString('id-ID', {
         {dateString}
       </div>
     </div>
+      <p className="text-xs text-blue-500 mb-6 font-medium">Dashboard Overview</p>
+
+      
       
       {/* 1. 3 STAT CARDS UTAMA */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-white">
