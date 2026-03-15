@@ -36,32 +36,39 @@ export async function POST(req) {
       if (updErr) throw new Error("Gagal Update Deposit: " + updErr.message);
 
       // 2. Jika APPROVE, Tambah Saldo Member
-      if (finalStatus === 'approve' && username) {
-        const cleanUser = username.trim();
-        
-        // Ambil saldo saat ini
-        const { data: member, error: memErr } = await supabase
-          .from('members')
-          .select('saldo')
-          .eq('username', cleanUser)
-          .maybeSingle();
+    if (finalStatus === 'approve') {
+  // PAKAI TRIK INI BOS: Paksa jadi string dan kasih default kosong ""
+  // Biar gak muncul error "trim is not a function" lagi
+  const cleanUsername = String(body.username || "").trim();
+  const nominalAngka = parseFloat(body.nominal) || 0;
 
-        if (memErr) throw memErr;
+  if (cleanUsername && nominalAngka > 0) {
+    // 1. Ambil data member
+    const { data: userData, error: userErr } = await supabase
+      .from('members')
+      .select('saldo')
+      .eq('username', cleanUsername)
+      .maybeSingle();
 
-        if (member) {
-          const saldoLama = parseFloat(member.saldo) || 0;
-          const tambahan = parseFloat(nominal) || 0;
-          const saldoBaru = saldoLama + tambahan;
+    if (userErr) {
+      console.error("Gagal cek member:", userErr.message);
+    } else if (userData) {
+      // 2. Hitung saldo baru
+      const saldoLama = parseFloat(userData.saldo) || 0;
+      const saldoBaru = saldoLama + nominalAngka;
 
-          // Update saldo di tabel members
-          const { error: balanceErr } = await supabase
-            .from('members')
-            .update({ saldo: saldoBaru })
-            .eq('username', cleanUser);
+      // 3. Update saldo ke database
+      const { error: balanceErr } = await supabase
+        .from('members')
+        .update({ saldo: saldoBaru })
+        .eq('username', cleanUsername);
 
-          if (balanceErr) throw new Error("Gagal Update Saldo: " + balanceErr.message);
-        }
-      }
+      if (balanceErr) console.error("Gagal update saldo:", balanceErr.message);
+    } else {
+      console.warn(`Username ${cleanUsername} tidak ditemukan di tabel members.`);
+    }
+  }
+}
 
       return NextResponse.json({ success: true, message: "Berhasil di-update oleh " + processed_by });
     }
