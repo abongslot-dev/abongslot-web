@@ -15,14 +15,17 @@ export async function GET(request) {
     const target = searchParams.get('target');
 
     // TARGET: DAFTAR MEMBER
-    if (target === 'members') {
-      const { data, error } = await supabase
-        .from('members')
-        .select('*')
-        .order('id', { ascending: false });
-      if (error) throw error;
-      return NextResponse.json(data);
-    }
+// TARGET: DAFTAR MEMBER
+if (target === 'members') {
+  const { data, error } = await supabase
+    .from('members')
+    .select('*')
+    // Urutkan berdasarkan waktu daftar, yang terbaru (paling besar waktunya) di atas
+    .order('created_at', { ascending: false }); 
+
+  if (error) throw error;
+  return NextResponse.json(data);
+}
 
     // TARGET: DEPOSIT PENDING
     if (target === 'deposits-pending') {
