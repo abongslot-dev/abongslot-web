@@ -16,7 +16,7 @@ export default function RangkumanDepositPage() {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredData;
   const totalPages = Math.ceil(data.length / itemsPerPage) || 1;
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -126,6 +126,17 @@ const handleReset = () => {
   if (typeof fetchRangkuman === 'function') fetchRangkuman();
 };
 
+
+const filteredData = data.filter((item) => {
+  return (
+    (item.username || "").toLowerCase().includes(filters.username.toLowerCase()) &&
+    (item.bank_tujuan || "").toLowerCase().includes(filters.keBank.toLowerCase()) &&
+    (item.rek_tujuan || "").includes(filters.keNoRek) &&
+    (item.nama_tujuan || "").toLowerCase().includes(filters.keNamaRek.toLowerCase()) &&
+    (item.status || "").toLowerCase().includes(filters.status.toLowerCase()) &&
+    (item.processed_by || "").toLowerCase().includes(filters.adminRespon.toLowerCase())
+  );
+});
 
   return (
     <div className="p-6 text-gray-800">
@@ -327,12 +338,12 @@ const handleReset = () => {
 <tbody className="divide-y divide-gray-100">
   {loading ? (
     <tr><td colSpan="10" className="p-10 text-center italic text-gray-400">Memuat data histori...</td></tr>
-  ) : data.length === 0 ? (
-    <tr><td colSpan="10" className="p-10 text-center text-gray-400 italic">Riwayat deposit tidak ditemukan.</td></tr>
+  ) : filteredData.length === 0 ? ( // Pakai filteredData buat cek kosong atau gak
+    <tr><td colSpan="10" className="p-10 text-center text-gray-400 italic">Data yang Bos cari tidak ditemukan.</td></tr>
   ) : (
-    currentItems.map((item, i) => {
+    filteredData.map((item, i) => { // Pakai data yang sudah difilter
       const statusText = item.status ? String(item.status).toUpperCase().trim() : "PENDING";
-      const isTerima = ['SUCCESS', 'APPROVED', 'SUKSES', 'APPROVE'].includes(statusText);
+      const isTerima = ['SUCCESS', 'APPROVED', 'SUKSES', 'APPROVE', 'TERIMA'].includes(statusText);
       const isTolak = ['REJECT', 'REJECTED', 'TOLAK'].includes(statusText);
       const isPending = !isTerima && !isTolak;
 
